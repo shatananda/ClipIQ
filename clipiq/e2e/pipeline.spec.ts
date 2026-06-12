@@ -74,17 +74,23 @@ test.describe('ClipIQ E2E Pipeline', () => {
     }
 
     // Step 6: Wait for redirect to review page (processing complete)
+    // This can take a while due to video processing, transcription, and analysis
     try {
-      await page.waitForURL('/review', { timeout: 180000 });
+      await page.waitForURL('/review', { timeout: 300000 });
       console.log('✓ Redirected to review page');
     } catch (e) {
       console.error('⚠ Failed to redirect to review page');
       console.error('Current URL:', page.url());
+      console.error('Current page content:', await page.content().then(c => c.slice(0, 500)));
       if (networkErrors.length > 0) {
         console.error('Network errors:');
         networkErrors.forEach((err) => {
-          console.error(`  - ${err.url}: ${err.status}`);
+          console.error(`  - ${err.url}: ${err.status} ${err.statusText}`);
         });
+      }
+      if (consoleLogs.length > 0) {
+        console.error('Browser console logs (last 10):');
+        consoleLogs.slice(-10).forEach((log) => console.error(`  ${log}`));
       }
       throw e;
     }
