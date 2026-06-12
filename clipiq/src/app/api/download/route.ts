@@ -1,7 +1,10 @@
 import { downloadVideo } from '@/lib/ytdlp';
+import { ensureDirs } from '@/lib/storage';
 
 export async function POST(req: Request) {
   try {
+    ensureDirs();
+
     const { url } = await req.json();
 
     if (!url) {
