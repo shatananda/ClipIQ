@@ -20,37 +20,68 @@ export default function ProcessingProgress({ stage, estimatedWait }: ProcessingP
   }
 
   return (
-    <div className="bg-blue-50 border border-primary rounded-lg p-6 mb-6">
-      <div className="mb-4">
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold text-dark">{stages[currentIndex]?.label}</span>
-          <span className="text-sm text-gray-600">
-            ~{estimatedWait || stages[currentIndex]?.duration || 0}s remaining
+    <div
+      className="card"
+      style={{
+        padding: '24px',
+        marginBottom: '24px',
+        backgroundColor: 'rgba(91, 108, 246, 0.05)',
+        borderColor: 'var(--primary)',
+      }}
+    >
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <span style={{ fontWeight: '600', color: 'var(--text)' }}>
+            {stages[currentIndex]?.label}
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--text-light)' }}>
+            ~{estimatedWait || stages[currentIndex]?.duration || 0}s
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
+        <div
+          style={{
+            width: '100%',
+            height: '6px',
+            borderRadius: '3px',
+            backgroundColor: 'var(--border)',
+            overflow: 'hidden',
+          }}
+        >
           <div
-            className="bg-primary h-3 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{
+              height: '100%',
+              width: `${progress}%`,
+              backgroundColor: 'var(--primary)',
+              transition: 'width 0.3s ease',
+            }}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 text-sm">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', fontSize: '13px' }}>
         {stages.map((s, idx) => (
-          <div key={s.id} className="flex items-center gap-2">
+          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-medium ${
-                idx < currentIndex
-                  ? 'bg-green-600 text-white'
-                  : idx === currentIndex
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-200 text-gray-600'
-              }`}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '600',
+                backgroundColor:
+                  idx < currentIndex
+                    ? 'var(--success)'
+                    : idx === currentIndex
+                      ? 'var(--primary)'
+                      : 'var(--bg-gray)',
+                color: idx < currentIndex || idx === currentIndex ? 'white' : 'var(--text-light)',
+              }}
             >
               {idx < currentIndex ? '✓' : idx + 1}
             </div>
-            <span className="text-gray-700">{s.label}</span>
+            <span style={{ color: 'var(--text)' }}>{s.label}</span>
           </div>
         ))}
       </div>
