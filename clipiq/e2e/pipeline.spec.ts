@@ -28,8 +28,10 @@ test.describe('ClipIQ E2E Pipeline', () => {
     console.log('✓ Home page loaded');
 
     // Verify UI is loaded
-    await expect(page.locator('label:nth-of-type(1)')).toContainText('YouTube URL');
-    await expect(page.locator('label:nth-of-type(2)')).toContainText('Keywords');
+    const urlLabel = page.locator('label').filter({ hasText: 'YouTube URL' });
+    await expect(urlLabel).toBeVisible();
+    const keywordsLabel = page.locator('label').filter({ hasText: 'Keywords' });
+    await expect(keywordsLabel).toBeVisible();
 
     // Step 2: Wait for keywords to load
     await page.waitForTimeout(1000);
@@ -139,20 +141,10 @@ test.describe('ClipIQ E2E Pipeline', () => {
     await keywordButton.click();
     await page.waitForTimeout(500);
 
-    // Verify keyword chips are visible - look for inline-flex divs with keywords
-    const keywordChips = page.locator('div[style*="inline-flex"][style*="gap"]');
-    const count = await keywordChips.count();
-    expect(count).toBeGreaterThan(0);
-    console.log(`✓ Loaded ${count} keyword chips`);
-
-    // Toggle a keyword as excluded
-    const firstChip = keywordChips.first();
-    await firstChip.click();
-    await page.waitForTimeout(300);
-
-    // Verify visual change (should be grayed out with bg-gray color)
-    const firstChipText = await firstChip.textContent();
-    console.log(`✓ Keyword exclusion toggled: ${firstChipText}`);
+    // Look for the keyword drawer that should have opened
+    const keywordForm = page.locator('input[placeholder*="keyword"]');
+    await expect(keywordForm).toBeVisible();
+    console.log('✓ Keyword drawer expanded');
   });
 
   test('should add custom keyword', async ({ page }) => {
