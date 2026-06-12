@@ -1,0 +1,159 @@
+import { test, expect } from '@playwright/test';
+
+const YOUTUBE_URL = 'https://youtu.be/xdFdQNq7vAw?si=JFZm0pc5zAHOkPw3';
+
+test.describe('ClipIQ E2E Pipeline', () => {
+  test('should complete full analysis pipeline from YouTube URL to summary', async ({ page }) => {
+    // Step 1: Load home page
+    await page.goto('/');
+    await expect(page.locator('h2')).toContainText('Analyze Your Videos');
+
+    // Verify UI is loaded
+    await expect(page.locator('label')).toContainText('YouTube URL');
+    await expect(page.locator('label')).toContainText('Keywords');
+
+    // Step 2: Enter YouTube URL
+    const urlInput = page.locator('input[placeholder*="youtu"]');
+    await urlInput.fill(YOUTUBE_URL);
+    await expect(urlInput).toHaveValue(YOUTUBE_URL);
+
+    // Step 3: Click Analyze button
+    const analyzeButton = page.locator('button:has-text("Analyze")');
+    await analyzeButton.click();
+
+    // Step 4: Wait for processing stages
+    // Download stage
+    await expect(page.locator('text=Downloading')).toBeVisible({ timeout: 10000 });
+    console.log('✓ Download stage started');
+
+    // Transcribing stage
+    await expect(page.locator('text=Transcribing')).toBeVisible({ timeout: 60000 });
+    console.log('✓ Transcribing stage started');
+
+    // Analyzing stage
+    await expect(page.locator('text=Analyzing')).toBeVisible({ timeout: 60000 });
+    console.log('✓ Analyzing stage started');
+
+    // Step 5: Wait for redirect to review page (processing complete)
+    await page.waitForURL('/review', { timeout: 120000 });
+    console.log('✓ Redirected to review page');
+
+    // Step 6: Verify review page content
+    await expect(page).toHaveURL(/.*\/review/);
+
+    // Wait for clip cards to load
+    const clipCards = page.locator('.card');
+    await expect(clipCards).toHaveCount(3, { timeout: 10000 });
+    console.log('✓ Clip cards loaded');
+
+    // Verify clip card structure
+    const firstCard = clipCards.first();
+    await expect(firstCard.locator('h3')).toBeVisible();
+    await expect(firstCard.locator('text=Platform')).toBeVisible();
+
+    // Step 7: Accept first clip
+    const acceptButtons = page.locator('button:has-text("Accept")');
+    await expect(acceptButtons).toHaveCount(3);
+    await acceptButtons.first().click();
+    console.log('✓ Accepted first clip');
+
+    // Verify button state changed
+    await expect(acceptButtons.first()).toHaveClass(/selected|active|accepted/);
+
+    // Step 8: Navigate to summary
+    const continueButton = page.locator('button:has-text("Review Complete")');
+    await expect(continueButton).toBeVisible();
+    await continueButton.click();
+
+    // Step 9: Wait for summary page
+    await page.waitForURL('/summary', { timeout: 30000 });
+    await expect(page).toHaveURL(/.*\/summary/);
+    console.log('✓ Redirected to summary page');
+
+    // Step 10: Verify summary content
+    await expect(page.locator('h2')).toContainText('Summary');
+    const summaryCards = page.locator('.card');
+    await expect(summaryCards).toHaveCount(1);
+    console.log('✓ Summary shows 1 accepted clip');
+
+    // Step 11: Verify download button exists
+    const downloadButton = page.locator('button:has-text("Download")');
+    await expect(downloadButton).toBeVisible();
+    console.log('✓ Download button available');
+  });
+
+  test('should handle keyword filtering', async ({ page }) => {
+    await page.goto('/');
+
+    // Load keywords
+    const keywordButton = page.locator('button').filter({ hasText: /\d+ selected/ }).first();
+    await keywordButton.click();
+    await page.waitForTimeout(500);
+
+    // Verify keyword chips are visible
+    const keywordChips = page.locator('[style*="backgroundColor"][style*="primary"]');
+    const count = await keywordChips.count();
+    expect(count).toBeGreaterThan(0);
+    console.log(`✓ Loaded ${count} keywords`);
+
+    // Toggle a keyword as excluded
+    const firstChip = keywordChips.first();
+    await firstChip.click();
+    await page.waitForTimeout(300);
+
+    // Verify visual change (should be grayed out)
+    await expect(firstChip).toHaveStyle(/backgroundColor.*f7f9fc/);
+    console.log('✓ Keyword exclusion works');
+  });
+
+  test('should add custom keyword', async ({ page }) => {
+    await page.goto('/');
+
+    // Open keywords drawer
+    const keywordButton = page.locator('button').filter({ hasText: /\d+ selected/ }).first();
+    await keywordButton.click();
+
+    // Add custom keyword
+    const input = page.locator('input[placeholder*="keyword"]');
+    await input.fill('custom-test-keyword');
+
+    const addButton = page.locator('button:has-text("Add")');
+    await addButton.click();
+
+    // Wait for keyword to appear
+    await expect(page.locator('text=custom-test-keyword')).toBeVisible();
+    console.log('✓ Custom keyword added');
+  });
+
+  test('should validate empty URL submission', async ({ page }) => {
+    await page.goto('/');
+
+    const analyzeButton = page.locator('button:has-text("Analyze")');
+
+    // Button should be disabled when URL is empty
+    await expect(analyzeButton).toBeDisabled();
+    console.log('✓ Analyze button disabled when URL empty');
+
+    // Type invalid URL
+    const urlInput = page.locator('input[placeholder*="youtu"]');
+    await urlInput.fill('not-a-youtube-url');
+
+    // Button should be enabled for any non-empty value
+    await expect(analyzeButton).toBeEnabled();
+    console.log('✓ Analyze button enabled with non-empty URL');
+  });
+
+  test('should handle navigation between pages', async ({ page }) => {
+    // Verify header is consistent across pages
+    await page.goto('/');
+    await expect(page.locator('h1')).toContainText('ClipIQ');
+
+    await page.goto('/review');
+    await expect(page.locator('h1')).toContainText('ClipIQ');
+
+    await page.goto('/summary');
+    await expect(page.locator('h1')).toContainText('ClipIQ');
+
+    console.log('✓ Header consistent across all pages');
+  });
+});
