@@ -117,7 +117,7 @@ test.describe('ClipIQ E2E Pipeline', () => {
     console.log('✓ Accepted first clip');
 
     // Step 9: Navigate to summary
-    const continueButton = page.locator('button:has-text("Review Complete")');
+    const continueButton = page.locator('button:has-text("Proceed to Summary")');
     await expect(continueButton).toBeVisible();
     await continueButton.click();
 
