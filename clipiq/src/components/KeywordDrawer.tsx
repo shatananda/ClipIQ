@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon } from './Icons';
+import { ChevronDownIcon, XIcon } from './Icons';
 
 interface KeywordDrawerProps {
   keywords: string[];
   excluded: string[];
   onToggleExcluded: (keyword: string) => void;
   onAddKeyword: (keyword: string) => void;
+  onDeleteKeyword?: (keyword: string) => void;
   isLoading?: boolean;
 }
 
@@ -16,6 +17,7 @@ export default function KeywordDrawer({
   excluded,
   onToggleExcluded,
   onAddKeyword,
+  onDeleteKeyword,
   isLoading,
 }: KeywordDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,54 +34,83 @@ export default function KeywordDrawer({
   const activeKeywords = keywords.filter((k) => !excluded.includes(k));
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden">
+    <div className="card overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-medium text-dark transition"
+        className="w-full px-4 py-3 flex items-center justify-between font-medium transition"
+        style={{ backgroundColor: '#f9f7f3', borderBottom: '1px solid #e8e0d0' }}
       >
-        <span>Keywords ({activeKeywords.length} active)</span>
+        <span style={{ color: '#1a1a1a' }}>Keywords ({activeKeywords.length} active)</span>
         <ChevronDownIcon />
       </button>
 
       {isOpen && (
-        <div className="p-4 bg-white border-t border-gray-300">
-          <form onSubmit={handleAddKeyword} className="mb-4">
+        <div className="p-4 bg-white">
+          <form onSubmit={handleAddKeyword} className="mb-4 pb-4" style={{ borderBottom: '1px solid #e8e0d0' }}>
+            <label className="block text-xs font-semibold mb-2" style={{ color: '#666' }}>ADD KEYWORD</label>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Add custom keyword..."
+                placeholder="e.g., chakra, mudra..."
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
-                className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-dark"
+                className="flex-1"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white rounded font-medium hover:opacity-90"
+                className="btn-primary px-4"
               >
-                +
+                Add
               </button>
             </div>
           </form>
 
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto">
             <div className="flex flex-wrap gap-2">
-              {keywords.map((keyword) => {
-                const isExcluded = excluded.includes(keyword);
-                return (
-                  <button
-                    key={keyword}
-                    onClick={() => onToggleExcluded(keyword)}
-                    disabled={isLoading}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition ${
-                      isExcluded
-                        ? 'bg-gray-200 text-gray-600 line-through'
-                        : 'bg-blue-100 text-primary hover:bg-blue-200'
-                    } disabled:opacity-50`}
-                  >
-                    {keyword}
-                  </button>
-                );
-              })}
+              {keywords.length === 0 ? (
+                <p style={{ color: '#999', fontSize: '14px' }}>No keywords yet</p>
+              ) : (
+                keywords.map((keyword) => {
+                  const isExcluded = excluded.includes(keyword);
+                  return (
+                    <div
+                      key={keyword}
+                      className="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition group"
+                      style={{
+                        backgroundColor: isExcluded ? '#f0f0f0' : '#fef3e6',
+                        color: isExcluded ? '#999' : '#dc9f72',
+                        textDecoration: isExcluded ? 'line-through' : 'none',
+                      }}
+                    >
+                      <span
+                        className="cursor-pointer flex-1"
+                        onClick={() => onToggleExcluded(keyword)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {keyword}
+                      </span>
+                      {onDeleteKeyword && (
+                        <button
+                          onClick={() => onDeleteKeyword(keyword)}
+                          disabled={isLoading}
+                          className="opacity-0 group-hover:opacity-100 transition"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                          title="Delete keyword"
+                        >
+                          <XIcon />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

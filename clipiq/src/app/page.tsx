@@ -64,6 +64,20 @@ export default function Home() {
     }
   };
 
+  const handleDeleteKeyword = async (keyword: string) => {
+    try {
+      await fetch('/api/keywords/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword }),
+      });
+      setKeywords(keywords.filter((k) => k !== keyword));
+      setExcluded(excluded.filter((k) => k !== keyword));
+    } catch (e) {
+      console.error('Error deleting keyword:', e);
+    }
+  };
+
   const handleAnalyze = async (url: string) => {
     setLoading(true);
     setStage('downloading');
@@ -136,6 +150,7 @@ export default function Home() {
           excluded={excluded}
           onToggleExcluded={handleToggleExcluded}
           onAddKeyword={handleAddKeyword}
+          onDeleteKeyword={handleDeleteKeyword}
           isLoading={loading}
         />
       </div>
