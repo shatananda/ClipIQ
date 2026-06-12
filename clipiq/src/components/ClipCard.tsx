@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ClipSuggestion } from '@/types';
 import { CheckIcon, XIcon, DownloadIcon } from './Icons';
 
@@ -21,74 +20,90 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
   };
 
   return (
-    <div className="card p-6 mb-4">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-bold text-dark">{clip.headline}</h3>
-            <span className="text-xs font-bold px-3 py-1 bg-primary-light text-primary rounded-full whitespace-nowrap">
-              {clip.confidence}%
-            </span>
+    <div className="card overflow-hidden mb-6">
+      {/* Header with type badge and duration */}
+      <div className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold px-3 py-1 bg-primary rounded-full">
+            {clip.type}
+          </span>
+          <span className="text-sm font-medium text-gray-300">
+            {clip.duration_seconds}s
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">Extract a {clip.duration_seconds}s clip</span>
+          <span className="text-sm font-semibold">from {formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}</span>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="p-6">
+        {/* Headline */}
+        <h3 className="text-2xl font-bold text-dark mb-3">{clip.headline}</h3>
+
+        {/* Hook/Quote */}
+        <div className="mb-4">
+          <p className="text-dark italic text-base leading-relaxed">"{clip.hook}"</p>
+        </div>
+
+        {/* Why clip-worthy */}
+        <p className="text-text-light text-sm mb-6">{clip.why_clip_worthy}</p>
+
+        {/* Metadata row */}
+        <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-t border-b border-gray-200">
+          <div>
+            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Timestamp</p>
+            <p className="text-dark font-mono font-semibold">{formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}</p>
           </div>
-          <p className="text-text-light text-sm">{clip.why_clip_worthy}</p>
+          <div>
+            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Confidence</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-primary h-2 rounded-full"
+                  style={{ width: `${clip.confidence}%` }}
+                />
+              </div>
+              <span className="text-dark font-bold text-sm">{clip.confidence}%</span>
+            </div>
+          </div>
+          <div>
+            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Best For</p>
+            <div className="flex flex-wrap gap-1">
+              {clip.suggested_platforms.map((platform) => (
+                <span key={platform} className="text-xs bg-primary-light text-primary font-medium px-2 py-0.5 rounded">
+                  {platform}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-        <span className="text-xs font-semibold px-3 py-1.5 bg-primary text-white rounded-lg whitespace-nowrap ml-4">
-          {clip.type}
-        </span>
-      </div>
 
-      <div className="bg-primary-light rounded-lg p-4 mb-4 border-l-4 border-primary">
-        <p className="text-dark italic text-sm">"{clip.hook}"</p>
-      </div>
-
-      <div className="grid grid-cols-4 gap-3 mb-4 text-sm">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Duration</p>
-          <p className="text-dark font-bold text-lg mt-1">{clip.duration_seconds}s</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-3 col-span-2">
-          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Timestamp</p>
-          <p className="text-dark font-mono text-sm mt-1">{formatTime(clip.start_ms)} → {formatTime(clip.end_ms)}</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Confidence</p>
-          <p className="text-dark font-bold text-lg mt-1">{clip.confidence}%</p>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <p className="text-text-light text-xs font-semibold uppercase tracking-wide mb-2">Best For</p>
-        <div className="flex flex-wrap gap-2">
-          {clip.suggested_platforms.map((platform) => (
-            <span key={platform} className="text-xs bg-primary-light text-primary font-medium px-3 py-1 rounded-full">
-              {platform}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          onClick={() => onAccept(clip)}
-          className="flex-1 btn-success flex items-center justify-center gap-2"
-        >
-          <CheckIcon /> Accept
-        </button>
-        <button
-          onClick={() => onDecline(clip)}
-          className="flex-1 btn-danger flex items-center justify-center gap-2"
-        >
-          <XIcon /> Decline
-        </button>
-        {onExtract && (
+        {/* Actions */}
+        <div className="flex gap-3">
           <button
-            onClick={() => onExtract(clip)}
-            disabled={isExtracting}
-            className="flex-1 btn-primary flex items-center justify-center gap-2"
+            onClick={() => onAccept(clip)}
+            className="flex-1 btn-success flex items-center justify-center gap-2 font-semibold"
           >
-            <DownloadIcon /> {isExtracting ? 'Extracting...' : 'Extract'}
+            <CheckIcon /> Accept
           </button>
-        )}
+          <button
+            onClick={() => onDecline(clip)}
+            className="flex-1 btn-danger flex items-center justify-center gap-2 font-semibold"
+          >
+            <XIcon /> Decline
+          </button>
+          {onExtract && (
+            <button
+              onClick={() => onExtract(clip)}
+              disabled={isExtracting}
+              className="flex-1 btn-primary flex items-center justify-center gap-2 font-semibold"
+            >
+              <DownloadIcon /> {isExtracting ? 'Extracting...' : 'Extract'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
