@@ -129,18 +129,16 @@ export default function Home() {
 
       <ProcessingProgress stage={stage} />
 
-      {keywords.length > 0 && (
-        <div className="card p-8 mt-8">
-          <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>Keywords (Optional)</label>
-          <KeywordDrawer
-            keywords={keywords}
-            excluded={excluded}
-            onToggleExcluded={handleToggleExcluded}
-            onAddKeyword={handleAddKeyword}
-            isLoading={loading}
-          />
-        </div>
-      )}
+      <div className="card p-8 mt-8">
+        <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>Keywords (Optional)</label>
+        <KeywordDrawer
+          keywords={keywords}
+          excluded={excluded}
+          onToggleExcluded={handleToggleExcluded}
+          onAddKeyword={handleAddKeyword}
+          isLoading={loading}
+        />
+      </div>
     </div>
   );
 }
