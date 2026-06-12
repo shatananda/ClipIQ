@@ -21,55 +21,62 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition">
+    <div className="card p-6 mb-4">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-dark mb-2">{clip.headline}</h3>
-          <p className="text-gray-600 text-sm mb-3">{clip.why_clip_worthy}</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="text-lg font-bold text-dark">{clip.headline}</h3>
+            <span className="text-xs font-bold px-3 py-1 bg-primary-light text-primary rounded-full whitespace-nowrap">
+              {clip.confidence}%
+            </span>
+          </div>
+          <p className="text-text-light text-sm">{clip.why_clip_worthy}</p>
         </div>
-        <span className="text-sm font-medium px-3 py-1 bg-blue-100 text-primary rounded-full whitespace-nowrap ml-4">
+        <span className="text-xs font-semibold px-3 py-1.5 bg-primary text-white rounded-lg whitespace-nowrap ml-4">
           {clip.type}
         </span>
       </div>
 
-      <p className="text-dark italic mb-4">"{clip.hook}"</p>
+      <div className="bg-primary-light rounded-lg p-4 mb-4 border-l-4 border-primary">
+        <p className="text-dark italic text-sm">"{clip.hook}"</p>
+      </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
-        <div>
-          <p className="text-gray-500 text-xs font-medium uppercase">Duration</p>
-          <p className="text-dark font-semibold">{clip.duration_seconds}s</p>
+      <div className="grid grid-cols-4 gap-3 mb-4 text-sm">
+        <div className="bg-gray-50 rounded-lg p-3">
+          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Duration</p>
+          <p className="text-dark font-bold text-lg mt-1">{clip.duration_seconds}s</p>
         </div>
-        <div>
-          <p className="text-gray-500 text-xs font-medium uppercase">Timestamp</p>
-          <p className="text-dark font-mono text-xs">{formatTime(clip.start_ms)} - {formatTime(clip.end_ms)}</p>
+        <div className="bg-gray-50 rounded-lg p-3 col-span-2">
+          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Timestamp</p>
+          <p className="text-dark font-mono text-sm mt-1">{formatTime(clip.start_ms)} → {formatTime(clip.end_ms)}</p>
         </div>
-        <div>
-          <p className="text-gray-500 text-xs font-medium uppercase">Confidence</p>
-          <p className="text-dark font-semibold">{clip.confidence}%</p>
+        <div className="bg-gray-50 rounded-lg p-3">
+          <p className="text-text-light text-xs font-semibold uppercase tracking-wide">Confidence</p>
+          <p className="text-dark font-bold text-lg mt-1">{clip.confidence}%</p>
         </div>
       </div>
 
       <div className="mb-4">
-        <p className="text-gray-500 text-xs font-medium uppercase mb-2">Suggested Platforms</p>
+        <p className="text-text-light text-xs font-semibold uppercase tracking-wide mb-2">Best For</p>
         <div className="flex flex-wrap gap-2">
           {clip.suggested_platforms.map((platform) => (
-            <span key={platform} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+            <span key={platform} className="text-xs bg-primary-light text-primary font-medium px-3 py-1 rounded-full">
               {platform}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button
           onClick={() => onAccept(clip)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+          className="flex-1 btn-success flex items-center justify-center gap-2"
         >
           <CheckIcon /> Accept
         </button>
         <button
           onClick={() => onDecline(clip)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+          className="flex-1 btn-danger flex items-center justify-center gap-2"
         >
           <XIcon /> Decline
         </button>
@@ -77,7 +84,7 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
           <button
             onClick={() => onExtract(clip)}
             disabled={isExtracting}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 transition"
+            className="flex-1 btn-primary flex items-center justify-center gap-2"
           >
             <DownloadIcon /> {isExtracting ? 'Extracting...' : 'Extract'}
           </button>

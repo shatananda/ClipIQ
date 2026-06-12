@@ -119,23 +119,40 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4 text-dark">Paste a YouTube Video</h2>
-        <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
+    <div className="py-12">
+      <div className="mb-12">
+        <h2 className="text-4xl font-bold text-dark mb-3">Analyze Your Videos</h2>
+        <p className="text-text-light text-lg">Paste a YouTube URL to find short-form clip opportunities for TikTok, Instagram Reels, and YouTube Shorts</p>
       </div>
 
-      <ProcessingProgress stage={stage} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center text-primary font-bold">1</div>
+              <h3 className="text-xl font-semibold text-dark">Enter YouTube URL</h3>
+            </div>
+            <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
+            <p className="text-text-light text-sm mt-4">Paste any public YouTube video link. We'll download, transcribe, and analyze it.</p>
+          </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4 text-dark">Keywords</h2>
-        <KeywordDrawer
-          keywords={keywords}
-          excluded={excluded}
-          onToggleExcluded={handleToggleExcluded}
-          onAddKeyword={handleAddKeyword}
-          isLoading={loading}
-        />
+          <ProcessingProgress stage={stage} />
+        </div>
+
+        <div className="card p-8 h-fit sticky top-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center text-primary font-bold">2</div>
+            <h3 className="text-lg font-semibold text-dark">Filter Keywords</h3>
+          </div>
+          <KeywordDrawer
+            keywords={keywords}
+            excluded={excluded}
+            onToggleExcluded={handleToggleExcluded}
+            onAddKeyword={handleAddKeyword}
+            isLoading={loading}
+          />
+          <p className="text-text-light text-sm mt-4">Select keywords to focus the analysis. Excluded keywords won't be used.</p>
+        </div>
       </div>
     </div>
   );

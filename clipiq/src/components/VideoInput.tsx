@@ -19,21 +19,21 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <input
           type="text"
-          placeholder="Paste YouTube URL here..."
+          placeholder="https://youtu.be/..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           disabled={isLoading}
-          className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-dark"
+          className="flex-1"
         />
         <button
           type="submit"
-          disabled={isLoading}
-          className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 transition"
+          disabled={isLoading || !url.trim()}
+          className="btn-primary px-8 whitespace-nowrap font-semibold"
         >
-          {isLoading ? 'Analyzing...' : 'Analyze'}
+          {isLoading ? '⏳ Analyzing...' : '▶ Analyze'}
         </button>
       </div>
     </form>
