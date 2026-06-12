@@ -9,23 +9,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ backgroundColor: '#fcf8ec' }}>
-        <header className="border-b" style={{ borderColor: '#e8e0d0', backgroundColor: '#fcf8ec' }}>
-          <div className="container py-6 flex items-center gap-4">
-            <img src="/logo/pure-ishvari.png" alt="Pure Ishvari" className="h-10" />
+      <body>
+        <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '16px 0' }}>
+          <div className="container flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>ClipIQ</h1>
-              <p className="text-sm" style={{ color: '#666' }}>Find short-form clip opportunities</p>
+              <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text)' }}>ClipIQ</h1>
+              <p style={{ fontSize: '13px', color: 'var(--text-light)', marginTop: '2px' }}>Find short-form clip opportunities</p>
             </div>
           </div>
         </header>
 
-        <main className="container py-12">
+        <main className="container" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
           {children}
         </main>
 
-        <footer className="text-center py-8 mt-12">
-          <p className="text-sm" style={{ color: '#999' }}>© 2026 ClipIQ by Pure Ishvari</p>
+        <footer style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-light)', fontSize: '13px', borderTop: '1px solid var(--border)' }}>
+          <p>© 2026 ClipIQ</p>
         </footer>
       </body>
     </html>

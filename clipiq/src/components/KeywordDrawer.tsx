@@ -34,58 +34,79 @@ export default function KeywordDrawer({
   const activeKeywords = keywords.filter((k) => !excluded.includes(k));
 
   return (
-    <div className="card overflow-hidden">
+    <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between font-medium transition"
-        style={{ backgroundColor: '#f9f7f3', borderBottom: '1px solid #e8e0d0' }}
+        style={{
+          width: '100%',
+          padding: '12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'none',
+          border: 'none',
+          fontSize: '14px',
+          fontWeight: '500',
+          color: 'var(--text)',
+          cursor: 'pointer',
+          borderBottom: isOpen ? '1px solid var(--border)' : 'none',
+        }}
       >
-        <span style={{ color: '#1a1a1a' }}>Keywords ({activeKeywords.length} active)</span>
+        <span>{activeKeywords.length} selected</span>
         <ChevronDownIcon />
       </button>
 
       {isOpen && (
-        <div className="p-4 bg-white">
-          <form onSubmit={handleAddKeyword} className="mb-4 pb-4" style={{ borderBottom: '1px solid #e8e0d0' }}>
-            <label className="block text-xs font-semibold mb-2" style={{ color: '#666' }}>ADD KEYWORD</label>
-            <div className="flex gap-2">
+        <div style={{ paddingTop: '12px' }}>
+          <form onSubmit={handleAddKeyword} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="e.g., chakra, mudra..."
+                placeholder="Add keyword..."
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
-                className="flex-1"
+                style={{ flex: 1 }}
               />
               <button
                 type="submit"
-                className="btn-primary px-4"
+                className="btn-primary"
+                style={{ padding: '10px 16px' }}
               >
                 Add
               </button>
             </div>
           </form>
 
-          <div className="max-h-80 overflow-y-auto">
-            <div className="flex flex-wrap gap-2">
+          <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {keywords.length === 0 ? (
-                <p style={{ color: '#999', fontSize: '14px' }}>No keywords yet</p>
+                <p style={{ color: 'var(--text-light)', fontSize: '14px' }}>No keywords</p>
               ) : (
                 keywords.map((keyword) => {
                   const isExcluded = excluded.includes(keyword);
                   return (
                     <div
                       key={keyword}
-                      className="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition group"
                       style={{
-                        backgroundColor: isExcluded ? '#f0f0f0' : '#fef3e6',
-                        color: isExcluded ? '#999' : '#dc9f72',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        backgroundColor: isExcluded ? 'var(--bg-gray)' : 'var(--primary-light)',
+                        color: isExcluded ? 'var(--text-light)' : 'white',
                         textDecoration: isExcluded ? 'line-through' : 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        group: 'group',
                       }}
+                      className="group"
                     >
                       <span
-                        className="cursor-pointer flex-1"
                         onClick={() => onToggleExcluded(keyword)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', flex: 1 }}
                       >
                         {keyword}
                       </span>
@@ -93,16 +114,18 @@ export default function KeywordDrawer({
                         <button
                           onClick={() => onDeleteKeyword(keyword)}
                           disabled={isLoading}
-                          className="opacity-0 group-hover:opacity-100 transition"
                           style={{
                             background: 'none',
                             border: 'none',
-                            cursor: 'pointer',
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
                             padding: '0',
                             display: 'flex',
                             alignItems: 'center',
+                            opacity: isLoading ? '0.5' : '0.7',
+                            transition: 'opacity 0.15s ease',
                           }}
-                          title="Delete keyword"
+                          className="group-hover:opacity-100"
+                          title="Delete"
                         >
                           <XIcon />
                         </button>

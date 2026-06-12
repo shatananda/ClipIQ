@@ -128,23 +128,29 @@ export default function Home() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="card p-8 mb-8">
-        <h1 className="text-3xl font-bold mb-3" style={{ color: '#1a1a1a' }}>Find Clip Opportunities</h1>
-        <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.6' }}>
-          Paste a YouTube URL and we'll analyze it to find the best clips for TikTok, Instagram Reels, and YouTube Shorts.
+    <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', color: 'var(--text)' }}>
+          Analyze Your Videos
+        </h2>
+        <p style={{ fontSize: '15px', color: 'var(--text-light)', lineHeight: '1.6' }}>
+          Paste a YouTube URL and we'll find the best short-form clips for TikTok, Instagram Reels, and YouTube Shorts.
         </p>
       </div>
 
-      <div className="card p-8 mb-8">
-        <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>YouTube URL</label>
+      <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>
+          YouTube URL
+        </label>
         <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
       </div>
 
       <ProcessingProgress stage={stage} />
 
-      <div className="card p-8 mt-8">
-        <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>Keywords (Optional)</label>
+      <div className="card" style={{ padding: '24px', marginTop: '24px' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>
+          Keywords
+        </label>
         <KeywordDrawer
           keywords={keywords}
           excluded={excluded}
