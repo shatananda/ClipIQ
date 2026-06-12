@@ -9,20 +9,23 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50">
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-          <div className="container py-3 flex items-center gap-3">
-            <img src="/logo/pure-ishvari.png" alt="Pure Ishvari" className="h-8" />
-            <h1 className="text-xl font-bold text-gray-900">ClipIQ</h1>
+      <body style={{ backgroundColor: '#fcf8ec' }}>
+        <header className="border-b" style={{ borderColor: '#e8e0d0', backgroundColor: '#fcf8ec' }}>
+          <div className="container py-6 flex items-center gap-4">
+            <img src="/logo/pure-ishvari.png" alt="Pure Ishvari" className="h-10" />
+            <div>
+              <h1 className="text-2xl font-bold" style={{ color: '#1a1a1a' }}>ClipIQ</h1>
+              <p className="text-sm" style={{ color: '#666' }}>Find short-form clip opportunities</p>
+            </div>
           </div>
         </header>
 
-        <main className="container py-8">
+        <main className="container py-12">
           {children}
         </main>
 
-        <footer className="text-center text-gray-500 text-xs py-6 mt-12">
-          <p>ClipIQ © 2026</p>
+        <footer className="text-center py-8 mt-12">
+          <p className="text-sm" style={{ color: '#999' }}>© 2026 ClipIQ by Pure Ishvari</p>
         </footer>
       </body>
     </html>

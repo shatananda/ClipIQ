@@ -114,22 +114,24 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="card p-8 mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Clip Opportunities</h1>
-        <p className="text-gray-600 text-sm">Paste a YouTube URL and we'll analyze it to find the best clips for TikTok, Instagram Reels, and YouTube Shorts.</p>
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="card p-8 mb-8">
+        <h1 className="text-3xl font-bold mb-3" style={{ color: '#1a1a1a' }}>Find Clip Opportunities</h1>
+        <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.6' }}>
+          Paste a YouTube URL and we'll analyze it to find the best clips for TikTok, Instagram Reels, and YouTube Shorts.
+        </p>
       </div>
 
-      <div className="card p-8 mb-6">
-        <label className="block text-sm font-semibold text-gray-900 mb-3">YouTube URL</label>
+      <div className="card p-8 mb-8">
+        <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>YouTube URL</label>
         <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
       </div>
 
       <ProcessingProgress stage={stage} />
 
       {keywords.length > 0 && (
-        <div className="card p-8">
-          <label className="block text-sm font-semibold text-gray-900 mb-3">Keywords (Optional)</label>
+        <div className="card p-8 mt-8">
+          <label className="block text-sm font-semibold mb-4" style={{ color: '#1a1a1a' }}>Keywords (Optional)</label>
           <KeywordDrawer
             keywords={keywords}
             excluded={excluded}
