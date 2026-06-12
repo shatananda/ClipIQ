@@ -11,7 +11,7 @@ export async function analyzeTranscript(paragraphs: Paragraph[], keywords: strin
 
     const prompt = `You are an expert at identifying short-form video clip opportunities from transcripts for platforms like TikTok, Instagram Reels, and YouTube Shorts.
 
-Analyze this transcript and suggest 3-7 clip opportunities. For each clip:
+Analyze this transcript and identify every good clip opportunity (no limit). For each clip:
 1. Identify the exact start and end timestamps (in milliseconds)
 2. Classify the clip type (Product Tip, Dosha Advice, Wisdom/Affirmation, Practice/Tutorial, Q&A, Behind-the-Scenes)
 3. Create an engaging headline
