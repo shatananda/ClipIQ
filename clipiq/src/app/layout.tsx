@@ -9,31 +9,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-          <div className="container py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/logo/pure-ishvari.png" alt="Pure Ishvari" className="h-10 w-10" />
-              <div>
-                <h1 className="text-2xl font-bold text-primary">ClipIQ</h1>
-                <p className="text-xs text-text-light">by Pure Ishvari</p>
-              </div>
-            </div>
-            <nav className="hidden sm:flex gap-6">
-              <a href="/" className="text-sm font-medium text-dark hover:text-primary">Home</a>
-              <a href="#" className="text-sm font-medium text-text-light hover:text-primary">Docs</a>
-            </nav>
+      <body className="bg-gray-50">
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+          <div className="container py-3 flex items-center gap-3">
+            <img src="/logo/pure-ishvari.png" alt="Pure Ishvari" className="h-8" />
+            <h1 className="text-xl font-bold text-gray-900">ClipIQ</h1>
           </div>
         </header>
 
-        <div className="container">
+        <main className="container py-8">
           {children}
-        </div>
+        </main>
 
-        <footer className="bg-gray-50 border-t border-gray-200 mt-20 py-8">
-          <div className="container text-center text-text-light text-sm">
-            <p>ClipIQ © 2026. Powered by Claude & AssemblyAI</p>
-          </div>
+        <footer className="text-center text-gray-500 text-xs py-6 mt-12">
+          <p>ClipIQ © 2026</p>
         </footer>
       </body>
     </html>

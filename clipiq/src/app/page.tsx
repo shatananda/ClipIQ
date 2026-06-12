@@ -69,8 +69,6 @@ export default function Home() {
     setStage('downloading');
 
     try {
-      // Download
-      setStage('downloading');
       const downloadRes = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,7 +78,6 @@ export default function Home() {
       if (!downloadData.success) throw new Error(downloadData.error);
       const { videoId, videoPath, title } = downloadData;
 
-      // Transcribe
       setStage('transcribing');
       const transcribeRes = await fetch('/api/transcribe', {
         method: 'POST',
@@ -91,7 +88,6 @@ export default function Home() {
       if (!transcribeData.success) throw new Error(transcribeData.error);
       const { paragraphs } = transcribeData;
 
-      // Analyze
       setStage('analyzing');
       const activeKeywords = keywords.filter((k) => !excluded.includes(k));
       const analyzeRes = await fetch('/api/analyze', {
@@ -103,7 +99,6 @@ export default function Home() {
       if (!analyzeData.success) throw new Error(analyzeData.error);
       const { clips } = analyzeData;
 
-      // Save to sessionStorage and redirect
       const state: ClipIQState = { clips, videoPath, videoId, title };
       sessionStorage.setItem('clipiq_state', JSON.stringify(state));
 
@@ -119,31 +114,22 @@ export default function Home() {
   };
 
   return (
-    <div className="py-12">
-      <div className="mb-12">
-        <h2 className="text-4xl font-bold text-dark mb-3">Analyze Your Videos</h2>
-        <p className="text-text-light text-lg">Paste a YouTube URL to find short-form clip opportunities for TikTok, Instagram Reels, and YouTube Shorts</p>
+    <div className="max-w-2xl mx-auto">
+      <div className="card p-8 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Clip Opportunities</h1>
+        <p className="text-gray-600 text-sm">Paste a YouTube URL and we'll analyze it to find the best clips for TikTok, Instagram Reels, and YouTube Shorts.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="card p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center text-primary font-bold">1</div>
-              <h3 className="text-xl font-semibold text-dark">Enter YouTube URL</h3>
-            </div>
-            <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
-            <p className="text-text-light text-sm mt-4">Paste any public YouTube video link. We'll download, transcribe, and analyze it.</p>
-          </div>
+      <div className="card p-8 mb-6">
+        <label className="block text-sm font-semibold text-gray-900 mb-3">YouTube URL</label>
+        <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
+      </div>
 
-          <ProcessingProgress stage={stage} />
-        </div>
+      <ProcessingProgress stage={stage} />
 
-        <div className="card p-8 h-fit sticky top-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center text-primary font-bold">2</div>
-            <h3 className="text-lg font-semibold text-dark">Filter Keywords</h3>
-          </div>
+      {keywords.length > 0 && (
+        <div className="card p-8">
+          <label className="block text-sm font-semibold text-gray-900 mb-3">Keywords (Optional)</label>
           <KeywordDrawer
             keywords={keywords}
             excluded={excluded}
@@ -151,9 +137,8 @@ export default function Home() {
             onAddKeyword={handleAddKeyword}
             isLoading={loading}
           />
-          <p className="text-text-light text-sm mt-4">Select keywords to focus the analysis. Excluded keywords won't be used.</p>
         </div>
-      </div>
+      )}
     </div>
   );
 }
