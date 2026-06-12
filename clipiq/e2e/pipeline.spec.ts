@@ -50,15 +50,15 @@ test.describe('ClipIQ E2E Pipeline', () => {
     // Step 5: Wait for processing stages with timeout handling
     try {
       // Download stage
-      await expect(page.locator('text=Downloading Video')).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('text=Downloading Video').first()).toBeVisible({ timeout: 15000 });
       console.log('✓ Download stage started');
 
       // Transcribing stage
-      await expect(page.locator('text=Transcribing Audio')).toBeVisible({ timeout: 90000 });
+      await expect(page.locator('text=Transcribing Audio').first()).toBeVisible({ timeout: 90000 });
       console.log('✓ Transcribing stage started');
 
       // Analyzing stage
-      await expect(page.locator('text=Analyzing with Claude')).toBeVisible({ timeout: 90000 });
+      await expect(page.locator('text=Analyzing with Claude').first()).toBeVisible({ timeout: 90000 });
       console.log('✓ Analyzing stage started');
     } catch (e) {
       console.error('⚠ Processing stages error - checking network');
