@@ -107,7 +107,7 @@ test.describe('ClipIQ E2E Pipeline', () => {
     // Verify clip card structure
     const firstCard = clipCards.first();
     await expect(firstCard.locator('h3')).toBeVisible();
-    await expect(firstCard.locator('text=Platform')).toBeVisible();
+    await expect(firstCard.locator('text=Best For')).toBeVisible();
 
     // Step 8: Accept first clip
     const acceptButtons = page.locator('button:has-text("Accept")');
