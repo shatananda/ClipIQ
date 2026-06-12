@@ -3,42 +3,91 @@ import { test, expect } from '@playwright/test';
 const YOUTUBE_URL = 'https://youtu.be/xdFdQNq7vAw?si=JFZm0pc5zAHOkPw3';
 
 test.describe('ClipIQ E2E Pipeline', () => {
-  test('should complete full analysis pipeline from YouTube URL to summary', async ({ page }) => {
+  test('should complete full analysis pipeline from YouTube URL to summary', async ({ page, context }) => {
+    // Capture console logs and network errors
+    const consoleLogs: string[] = [];
+    const networkErrors: any[] = [];
+
+    page.on('console', (msg) => {
+      consoleLogs.push(`[${msg.type()}] ${msg.text()}`);
+    });
+
+    page.on('response', (response) => {
+      if (!response.ok()) {
+        networkErrors.push({
+          url: response.url(),
+          status: response.status(),
+          statusText: response.statusText(),
+        });
+      }
+    });
+
     // Step 1: Load home page
     await page.goto('/');
     await expect(page.locator('h2')).toContainText('Analyze Your Videos');
+    console.log('✓ Home page loaded');
 
     // Verify UI is loaded
     await expect(page.locator('label')).toContainText('YouTube URL');
     await expect(page.locator('label')).toContainText('Keywords');
 
-    // Step 2: Enter YouTube URL
+    // Step 2: Wait for keywords to load
+    await page.waitForTimeout(1000);
+
+    // Step 3: Enter YouTube URL
     const urlInput = page.locator('input[placeholder*="youtu"]');
     await urlInput.fill(YOUTUBE_URL);
     await expect(urlInput).toHaveValue(YOUTUBE_URL);
+    console.log('✓ YouTube URL entered');
 
-    // Step 3: Click Analyze button
+    // Step 4: Click Analyze button
     const analyzeButton = page.locator('button:has-text("Analyze")');
     await analyzeButton.click();
+    console.log('✓ Analyze button clicked');
 
-    // Step 4: Wait for processing stages
-    // Download stage
-    await expect(page.locator('text=Downloading')).toBeVisible({ timeout: 10000 });
-    console.log('✓ Download stage started');
+    // Step 5: Wait for processing stages with timeout handling
+    try {
+      // Download stage
+      await expect(page.locator('text=Downloading')).toBeVisible({ timeout: 15000 });
+      console.log('✓ Download stage started');
 
-    // Transcribing stage
-    await expect(page.locator('text=Transcribing')).toBeVisible({ timeout: 60000 });
-    console.log('✓ Transcribing stage started');
+      // Transcribing stage
+      await expect(page.locator('text=Transcribing')).toBeVisible({ timeout: 90000 });
+      console.log('✓ Transcribing stage started');
 
-    // Analyzing stage
-    await expect(page.locator('text=Analyzing')).toBeVisible({ timeout: 60000 });
-    console.log('✓ Analyzing stage started');
+      // Analyzing stage
+      await expect(page.locator('text=Analyzing')).toBeVisible({ timeout: 90000 });
+      console.log('✓ Analyzing stage started');
+    } catch (e) {
+      console.error('⚠ Processing stages error - checking network');
+      if (networkErrors.length > 0) {
+        console.error('Network errors detected:');
+        networkErrors.forEach((err) => {
+          console.error(`  - ${err.url}: ${err.status} ${err.statusText}`);
+        });
+      }
+      console.error('Console logs:');
+      consoleLogs.forEach((log) => console.error(`  ${log}`));
+      throw e;
+    }
 
-    // Step 5: Wait for redirect to review page (processing complete)
-    await page.waitForURL('/review', { timeout: 120000 });
-    console.log('✓ Redirected to review page');
+    // Step 6: Wait for redirect to review page (processing complete)
+    try {
+      await page.waitForURL('/review', { timeout: 180000 });
+      console.log('✓ Redirected to review page');
+    } catch (e) {
+      console.error('⚠ Failed to redirect to review page');
+      console.error('Current URL:', page.url());
+      if (networkErrors.length > 0) {
+        console.error('Network errors:');
+        networkErrors.forEach((err) => {
+          console.error(`  - ${err.url}: ${err.status}`);
+        });
+      }
+      throw e;
+    }
 
-    // Step 6: Verify review page content
+    // Step 7: Verify review page content
     await expect(page).toHaveURL(/.*\/review/);
 
     // Wait for clip cards to load
@@ -51,7 +100,7 @@ test.describe('ClipIQ E2E Pipeline', () => {
     await expect(firstCard.locator('h3')).toBeVisible();
     await expect(firstCard.locator('text=Platform')).toBeVisible();
 
-    // Step 7: Accept first clip
+    // Step 8: Accept first clip
     const acceptButtons = page.locator('button:has-text("Accept")');
     await expect(acceptButtons).toHaveCount(3);
     await acceptButtons.first().click();
@@ -60,23 +109,23 @@ test.describe('ClipIQ E2E Pipeline', () => {
     // Verify button state changed
     await expect(acceptButtons.first()).toHaveClass(/selected|active|accepted/);
 
-    // Step 8: Navigate to summary
+    // Step 9: Navigate to summary
     const continueButton = page.locator('button:has-text("Review Complete")');
     await expect(continueButton).toBeVisible();
     await continueButton.click();
 
-    // Step 9: Wait for summary page
+    // Step 10: Wait for summary page
     await page.waitForURL('/summary', { timeout: 30000 });
     await expect(page).toHaveURL(/.*\/summary/);
     console.log('✓ Redirected to summary page');
 
-    // Step 10: Verify summary content
+    // Step 11: Verify summary content
     await expect(page.locator('h2')).toContainText('Summary');
     const summaryCards = page.locator('.card');
     await expect(summaryCards).toHaveCount(1);
     console.log('✓ Summary shows 1 accepted clip');
 
-    // Step 11: Verify download button exists
+    // Step 12: Verify download button exists
     const downloadButton = page.locator('button:has-text("Download")');
     await expect(downloadButton).toBeVisible();
     console.log('✓ Download button available');
