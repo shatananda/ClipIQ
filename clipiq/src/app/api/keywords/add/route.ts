@@ -2,9 +2,10 @@ import { addCustomKeyword } from '@/lib/keywords';
 
 export async function POST(req: Request) {
   try {
-    const { keyword } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { keyword } = body;
 
-    if (!keyword) {
+    if (!keyword || typeof keyword !== 'string') {
       return Response.json({ error: 'keyword required' }, { status: 400 });
     }
 
