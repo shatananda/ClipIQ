@@ -61,8 +61,8 @@ export function extractClip(
 
     const sanitizedHeadline = headline.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 50);
     const filename = `clip_${clipId}_${sanitizedHeadline}.mp4`;
-    const clipPath = path.join(PATHS.clips, filename);
-    const srtPath = path.join(PATHS.clips, `clip_${clipId}.srt`);
+    const clipPath = path.resolve(path.join(PATHS.clips, filename));
+    const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
 
     // Generate captions if transcript is provided
     if (transcript && transcript.length > 0) {
@@ -85,20 +85,21 @@ export function extractClip(
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
+    // Always quote complex args to handle special characters
     const command = [
       'ffmpeg',
       '-ss', startSeconds.toString(),
-      '-i', videoPath,
+      '-i', `"${videoPath}"`,
       '-t', durationSeconds.toString(),
-      '-vf', videoFilter,
+      '-vf', `"${videoFilter}"`,
       '-c:v', 'libx264',
       '-preset', 'fast',
       '-crf', '23',
       '-c:a', 'aac',
       '-b:a', '128k',
       '-movflags', '+faststart',
-      '-n', clipPath
-    ].map(arg => (arg.includes(' ') || arg.includes("'") ? `"${arg}"` : arg)).join(' ');
+      '-n', `"${clipPath}"`
+    ].join(' ');
 
     console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript });
     execSync(command, { stdio: 'ignore' });
