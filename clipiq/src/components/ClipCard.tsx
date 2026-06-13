@@ -20,59 +20,133 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
   };
 
   return (
-    <div className="card overflow-hidden mb-6">
+    <div className="card" style={{ marginBottom: '24px', overflow: 'hidden' }}>
       {/* Header with type badge and duration */}
-      <div className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold px-3 py-1 bg-primary rounded-full">
+      <div
+        style={{
+          backgroundColor: '#1a1f36',
+          color: 'white',
+          padding: '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span
+            style={{
+              fontSize: '13px',
+              fontWeight: '600',
+              padding: '6px 12px',
+              backgroundColor: 'var(--primary)',
+              borderRadius: '20px',
+            }}
+          >
             {clip.type}
           </span>
-          <span className="text-sm font-medium text-gray-300">
+          <span style={{ fontSize: '13px', fontWeight: '500', color: '#ccc' }}>
             {clip.duration_seconds}s
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">Extract a {clip.duration_seconds}s clip</span>
-          <span className="text-sm font-semibold">from {formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+          <span style={{ color: '#999' }}>Extract a {clip.duration_seconds}s clip</span>
+          <span style={{ fontWeight: '600' }}>
+            from {formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}
+          </span>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="p-6">
+      <div style={{ padding: '24px' }}>
         {/* Headline */}
-        <h3 className="text-2xl font-bold text-dark mb-3">{clip.headline}</h3>
+        <h3 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: 'var(--text)' }}>
+          {clip.headline}
+        </h3>
 
         {/* Hook/Quote */}
-        <div className="mb-4">
-          <p className="text-dark italic text-base leading-relaxed">"{clip.hook}"</p>
+        <div style={{ marginBottom: '16px' }}>
+          <p
+            style={{
+              color: 'var(--text)',
+              fontStyle: 'italic',
+              fontSize: '15px',
+              lineHeight: '1.6',
+            }}
+          >
+            "{clip.hook}"
+          </p>
         </div>
 
         {/* Why clip-worthy */}
-        <p className="text-text-light text-sm mb-6">{clip.why_clip_worthy}</p>
+        <p style={{ color: 'var(--text-light)', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>
+          {clip.why_clip_worthy}
+        </p>
 
         {/* Metadata row */}
-        <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-t border-b border-gray-200">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '24px',
+            marginBottom: '24px',
+            paddingTop: '16px',
+            paddingBottom: '16px',
+            borderTop: '1px solid var(--border)',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
           <div>
-            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Timestamp</p>
-            <p className="text-dark font-mono font-semibold">{formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}</p>
+            <p style={{ color: 'var(--text-light)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              Timestamp
+            </p>
+            <p style={{ color: 'var(--text)', fontFamily: 'monospace', fontWeight: '600', fontSize: '13px' }}>
+              {formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}
+            </p>
           </div>
           <div>
-            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Confidence</p>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
+            <p style={{ color: 'var(--text-light)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              Confidence
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: 'var(--bg-gray)',
+                  borderRadius: '3px',
+                  height: '6px',
+                  overflow: 'hidden',
+                }}
+              >
                 <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: `${clip.confidence}%` }}
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'var(--primary)',
+                    width: `${clip.confidence}%`,
+                  }}
                 />
               </div>
-              <span className="text-dark font-bold text-sm">{clip.confidence}%</span>
+              <span style={{ color: 'var(--text)', fontWeight: '700', fontSize: '13px' }}>
+                {clip.confidence}%
+              </span>
             </div>
           </div>
           <div>
-            <p className="text-text-light text-xs font-semibold uppercase tracking-wider mb-2">Best For</p>
-            <div className="flex flex-wrap gap-1">
+            <p style={{ color: 'var(--text-light)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              Best For
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {clip.suggested_platforms.map((platform) => (
-                <span key={platform} className="text-xs bg-primary-light text-primary font-medium px-2 py-0.5 rounded">
+                <span
+                  key={platform}
+                  style={{
+                    fontSize: '12px',
+                    backgroundColor: 'rgba(91, 108, 246, 0.1)',
+                    color: 'var(--primary)',
+                    fontWeight: '500',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                  }}
+                >
                   {platform}
                 </span>
               ))}
@@ -81,16 +155,56 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={() => onAccept(clip)}
-            className="flex-1 btn-success flex items-center justify-center gap-2 font-semibold"
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontWeight: '600',
+              backgroundColor: 'var(--success)',
+              color: 'white',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '0.9';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '1';
+            }}
           >
             <CheckIcon /> Accept
           </button>
           <button
             onClick={() => onDecline(clip)}
-            className="flex-1 btn-danger flex items-center justify-center gap-2 font-semibold"
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontWeight: '600',
+              backgroundColor: 'var(--danger)',
+              color: 'white',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '0.9';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '1';
+            }}
           >
             <XIcon /> Decline
           </button>
@@ -98,7 +212,28 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
             <button
               onClick={() => onExtract(clip)}
               disabled={isExtracting}
-              className="flex-1 btn-primary flex items-center justify-center gap-2 font-semibold"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: '600',
+                backgroundColor: 'var(--primary)',
+                color: 'white',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: isExtracting ? 'not-allowed' : 'pointer',
+                opacity: isExtracting ? 0.5 : 1,
+                transition: 'all 0.15s ease',
+              }}
+              onMouseOver={(e) => {
+                if (!isExtracting) (e.target as HTMLButtonElement).style.opacity = '0.9';
+              }}
+              onMouseOut={(e) => {
+                if (!isExtracting) (e.target as HTMLButtonElement).style.opacity = '1';
+              }}
             >
               <DownloadIcon /> {isExtracting ? 'Extracting...' : 'Extract'}
             </button>

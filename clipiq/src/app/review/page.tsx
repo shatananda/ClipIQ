@@ -57,31 +57,65 @@ export default function ReviewPage() {
   };
 
   if (!state) {
-    return <div className="text-center py-12">Loading...</div>;
+    return <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-light)' }}>Loading...</div>;
   }
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-dark mb-2">{state.title}</h2>
-        <p className="text-gray-600 mb-4">Review and accept clips to extract</p>
-        <div className="flex gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div className="card" style={{ padding: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px', color: 'var(--text)' }}>
+          {state.title}
+        </h2>
+        <p style={{ color: 'var(--text-light)', marginBottom: '16px' }}>
+          Review and accept clips to extract
+        </p>
+        <div style={{ display: 'flex', gap: '16px' }}>
           <button
             onClick={() => router.push('/')}
-            className="px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+            style={{
+              padding: '10px 16px',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              fontWeight: '500',
+              backgroundColor: 'transparent',
+              color: 'var(--text)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.backgroundColor = 'var(--bg-gray)';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.backgroundColor = 'transparent';
+            }}
           >
             Analyze Another Video
           </button>
           <button
             onClick={handleProceedToSummary}
-            className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:opacity-90"
+            style={{
+              padding: '10px 16px',
+              backgroundColor: 'var(--primary)',
+              color: 'white',
+              borderRadius: '8px',
+              fontWeight: '500',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '0.9';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.opacity = '1';
+            }}
           >
             Proceed to Summary ({accepted.length} clips)
           </button>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {state.clips.map((clip) => (
           <ClipCard
             key={clip.id}
