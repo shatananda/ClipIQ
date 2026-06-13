@@ -29,6 +29,21 @@ export function readExcluded(): string[] {
   return [];
 }
 
+export function readDeleted(): string[] {
+  try {
+    if (fs.existsSync(PATHS.keywordsDeleted)) {
+      return JSON.parse(fs.readFileSync(PATHS.keywordsDeleted, 'utf-8')) as string[];
+    }
+  } catch (e) {
+    console.error('Error reading deleted keywords:', e);
+  }
+  return [];
+}
+
+export function writeDeleted(deleted: string[]) {
+  fs.writeFileSync(PATHS.keywordsDeleted, JSON.stringify(deleted, null, 2));
+}
+
 export function writeKeywords(keywords: string[], lastScraped?: string) {
   const data: KeywordsData = {
     keywords,
@@ -86,9 +101,12 @@ export async function scrapeKeywords(): Promise<string[]> {
       }
     });
 
-    const keywordArray = Array.from(keywords);
-    writeKeywords(keywordArray);
-    return keywordArray;
+    // Filter out permanently deleted keywords
+    const deleted = readDeleted();
+    const filteredKeywords = Array.from(keywords).filter((k) => !deleted.includes(k));
+
+    writeKeywords(filteredKeywords);
+    return filteredKeywords;
   } catch (e) {
     console.error('Error scraping keywords:', e);
     return readKeywords();

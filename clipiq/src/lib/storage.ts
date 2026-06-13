@@ -10,6 +10,7 @@ export const PATHS = {
   clips: path.join(STORAGE_PATH, 'clips'),
   keywordsCache: path.join(STORAGE_PATH, 'keywords.json'),
   keywordsExcluded: path.join(STORAGE_PATH, 'keywords-excluded.json'),
+  keywordsDeleted: path.join(STORAGE_PATH, 'keywords-deleted.json'),
 };
 
 export function ensureDirs() {
