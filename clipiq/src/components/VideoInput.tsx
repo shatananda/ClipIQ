@@ -37,6 +37,7 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             {isLoading ? <LoadingIcon /> : <PlayIcon />}
+            Analyze
           </button>
         </div>
       </div>
