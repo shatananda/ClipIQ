@@ -21,6 +21,7 @@ export default function KeywordDrawer({
   isLoading,
 }: KeywordDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const [newKeyword, setNewKeyword] = useState('');
 
   const handleAddKeyword = (e: React.FormEvent) => {
@@ -35,26 +36,67 @@ export default function KeywordDrawer({
 
   return (
     <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: '100%',
-          padding: '12px 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'none',
-          border: 'none',
-          fontSize: '14px',
-          fontWeight: '500',
-          color: 'var(--text)',
-          cursor: 'pointer',
-          borderBottom: isOpen ? '1px solid var(--border)' : 'none',
-        }}
-      >
-        <span>{activeKeywords.length} selected</span>
-        <ChevronDownIcon />
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            flex: 1,
+            padding: '12px 0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'none',
+            border: 'none',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            borderBottom: isOpen || showInfo ? '1px solid var(--border)' : 'none',
+          }}
+        >
+          <span>{activeKeywords.length} selected</span>
+          <ChevronDownIcon />
+        </button>
+
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: '12px 8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: 'var(--text-light)',
+            transition: 'color 0.15s ease',
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+          onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text-light)')}
+          title="Learn about keywords"
+        >
+          ?
+        </button>
+      </div>
+
+      {showInfo && (
+        <div style={{ paddingTop: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{
+            background: 'var(--bg-gray)',
+            padding: '12px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: 'var(--text)',
+            lineHeight: '1.6',
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: 'var(--primary)' }}>What are keywords?</p>
+            <p style={{ margin: 0 }}>
+              Keywords help ClipIQ identify moments that match your content focus. When analyzing videos, the AI prioritizes clips that mention or relate to your selected keywords.
+            </p>
+            <p style={{ margin: '8px 0 0 0' }}>
+              <strong>Strikethrough keywords</strong> are excluded from analysis. Click a keyword to toggle it on/off.
+            </p>
+          </div>
+        </div>
+      )}
 
       {isOpen && (
         <div style={{ paddingTop: '12px' }}>
