@@ -6,10 +6,9 @@ interface ClipCardProps {
   clip: ClipSuggestion;
   onPreview: (clip: ClipSuggestion) => void;
   isApproved?: boolean;
-  onApprove?: (approved: boolean) => void;
 }
 
-export default function ClipCard({ clip, onPreview, isApproved, onApprove }: ClipCardProps) {
+export default function ClipCard({ clip, onPreview, isApproved }: ClipCardProps) {
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -207,31 +206,6 @@ export default function ClipCard({ clip, onPreview, isApproved, onApprove }: Cli
           >
             Preview
           </button>
-          {onApprove && (
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isApproved || false}
-                onChange={(e) => onApprove(e.target.checked)}
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  cursor: 'pointer',
-                }}
-              />
-              <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>
-                Approve
-              </span>
-            </label>
-          )}
         </div>
       </div>
     </div>

@@ -18,8 +18,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const clipData = clip as ClipSuggestion;
-    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline);
+    const clipData = clip as any;
+    const cropPosition = clipData.cropPosition || 'center';
+    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition);
 
     return Response.json({ success: true, filename, clipPath: `/api/serve-clip/${filename}` });
   } catch (error) {

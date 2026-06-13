@@ -30,3 +30,9 @@ export interface KeywordState {
   excluded: string[];
   custom: string[];
 }
+
+export type CropPosition = 'left' | 'center' | 'right';
+
+export interface ApprovedClip extends ClipSuggestion {
+  cropPosition: CropPosition;
+}

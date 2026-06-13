@@ -20,7 +20,8 @@ export function extractClip(
   startMs: number,
   endMs: number,
   clipId: number,
-  headline: string
+  headline: string,
+  cropPosition: 'left' | 'center' | 'right' = 'center'
 ): string {
   try {
     const startSeconds = startMs / 1000;
@@ -30,9 +31,17 @@ export function extractClip(
     const filename = `clip_${clipId}_${sanitizedHeadline}.mp4`;
     const clipPath = path.join(PATHS.clips, filename);
 
+    // Calculate crop position: left=0, center=(ow-iw)/2, right=ow-iw
+    let cropX = '(ow-iw)/2'; // center (default)
+    if (cropPosition === 'left') {
+      cropX = '0';
+    } else if (cropPosition === 'right') {
+      cropX = 'ow-iw';
+    }
+
     // Extract and scale to 1080x1920 (9:16 vertical)
     const command = `ffmpeg -ss ${startSeconds} -i "${videoPath}" -t ${durationSeconds} \
-      -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+      -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2" \
       -c:v libx264 -preset fast -crf 23 \
       -c:a aac -b:a 128k -movflags +faststart \
       -n "${clipPath}"`;

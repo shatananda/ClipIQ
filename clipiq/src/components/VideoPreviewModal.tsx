@@ -1,13 +1,15 @@
 'use client';
 
-import { ClipSuggestion } from '@/types';
+import { useState } from 'react';
+import { ClipSuggestion, CropPosition } from '@/types';
 import { PauseIcon } from './Icons';
 
 interface VideoPreviewModalProps {
   clip: ClipSuggestion;
   videoId: string;
   isApproved: boolean;
-  onApprove: (approved: boolean) => void;
+  cropPosition: CropPosition;
+  onApprove: (approved: boolean, cropPosition: CropPosition) => void;
   onClose: () => void;
 }
 
@@ -15,9 +17,11 @@ export default function VideoPreviewModal({
   clip,
   videoId,
   isApproved,
+  cropPosition,
   onApprove,
   onClose,
 }: VideoPreviewModalProps) {
+  const [selectedCrop, setSelectedCrop] = useState<CropPosition>(cropPosition);
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -206,6 +210,48 @@ export default function VideoPreviewModal({
             </div>
           </div>
 
+          {/* Crop Selection */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Portrait Crop
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['left', 'center', 'right'] as const).map((position) => (
+                  <button
+                    key={position}
+                    onClick={() => setSelectedCrop(position)}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: selectedCrop === position ? '2px solid var(--primary)' : '1px solid var(--border)',
+                      backgroundColor: selectedCrop === position ? 'rgba(91, 108, 246, 0.1)' : 'var(--bg-gray)',
+                      color: 'var(--text)',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      if (selectedCrop !== position) {
+                        (e.target as HTMLButtonElement).style.backgroundColor = 'var(--border)';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (selectedCrop !== position) {
+                        (e.target as HTMLButtonElement).style.backgroundColor = 'var(--bg-gray)';
+                      }
+                    }}
+                  >
+                    {position === 'left' ? '◀ Left' : position === 'right' ? 'Right ▶' : '◆ Center'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Actions */}
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <label
@@ -220,7 +266,7 @@ export default function VideoPreviewModal({
               <input
                 type="checkbox"
                 checked={isApproved}
-                onChange={(e) => onApprove(e.target.checked)}
+                onChange={(e) => onApprove(e.target.checked, selectedCrop)}
                 style={{
                   width: '20px',
                   height: '20px',

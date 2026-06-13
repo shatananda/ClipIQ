@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ClipCard from '@/components/ClipCard';
 import VideoPreviewModal from '@/components/VideoPreviewModal';
-import { ClipIQState, ClipSuggestion } from '@/types';
+import { ClipIQState, ClipSuggestion, CropPosition } from '@/types';
 
 export default function ReviewPage() {
   const router = useRouter();
   const [state, setState] = useState<ClipIQState | null>(null);
   const [approved, setApproved] = useState<Set<number>>(new Set());
+  const [cropPositions, setCropPositions] = useState<Record<number, CropPosition>>({});
   const [previewingClip, setPreviewingClip] = useState<ClipSuggestion | null>(null);
 
   useEffect(() => {
@@ -25,11 +26,12 @@ export default function ReviewPage() {
     setPreviewingClip(clip);
   };
 
-  const handleApprove = (isApproved: boolean) => {
+  const handleApprove = (isApproved: boolean, cropPosition: CropPosition) => {
     if (!previewingClip) return;
     const newApproved = new Set(approved);
     if (isApproved) {
       newApproved.add(previewingClip.id);
+      setCropPositions({ ...cropPositions, [previewingClip.id]: cropPosition });
     } else {
       newApproved.delete(previewingClip.id);
     }
@@ -38,7 +40,10 @@ export default function ReviewPage() {
 
   const handleProceedToDownload = () => {
     if (!state) return;
-    const approvedClips = state.clips.filter((clip) => approved.has(clip.id));
+    const approvedClips = state.clips.filter((clip) => approved.has(clip.id)).map((clip) => ({
+      ...clip,
+      cropPosition: cropPositions[clip.id] || 'center'
+    }));
     sessionStorage.setItem('approved_clips', JSON.stringify(approvedClips));
     sessionStorage.setItem('clipiq_state', JSON.stringify(state));
     router.push('/download');
@@ -111,7 +116,6 @@ export default function ReviewPage() {
               key={clip.id}
               clip={clip}
               onPreview={handlePreview}
-              onApprove={handleApprove}
               isApproved={approved.has(clip.id)}
             />
           ))}
@@ -123,6 +127,7 @@ export default function ReviewPage() {
           clip={previewingClip}
           videoId={state.videoId}
           isApproved={approved.has(previewingClip.id)}
+          cropPosition={cropPositions[previewingClip.id] || 'center'}
           onApprove={handleApprove}
           onClose={() => setPreviewingClip(null)}
         />
