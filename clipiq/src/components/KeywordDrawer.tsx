@@ -92,7 +92,7 @@ export default function KeywordDrawer({
               Keywords help ClipIQ identify moments that match your content focus. When analyzing videos, the AI prioritizes clips that mention or relate to your selected keywords.
             </p>
             <p style={{ margin: '8px 0 0 0' }}>
-              <strong>Strikethrough keywords</strong> are excluded from analysis. Click a keyword to toggle it on/off.
+              <strong>To exclude keywords</strong> that aren't relevant to your content, simply click on them in the list below. Excluded keywords will appear faded and won't be used during analysis.
             </p>
           </div>
         </div>
