@@ -1,10 +1,11 @@
 import { extractClip } from '@/lib/ffmpeg';
-import { ClipSuggestion } from '@/types';
+import { ClipSuggestion, Paragraph } from '@/types';
 import fs from 'fs';
+import path from 'path';
 
 export async function POST(req: Request) {
   try {
-    const { videoPath, clip } = await req.json();
+    const { videoPath, clip, videoId } = await req.json();
 
     if (!videoPath || !clip) {
       return Response.json({ error: 'videoPath and clip required' }, { status: 400 });
@@ -18,10 +19,25 @@ export async function POST(req: Request) {
       );
     }
 
+    // Try to load transcript from file if available
+    let transcript: Paragraph[] | undefined;
+    if (videoId) {
+      const transcriptPath = path.join(process.cwd(), '.transcripts', `${videoId}.json`);
+      try {
+        if (fs.existsSync(transcriptPath)) {
+          const transcriptData = fs.readFileSync(transcriptPath, 'utf-8');
+          transcript = JSON.parse(transcriptData);
+          console.log('Loaded transcript from file:', transcriptPath);
+        }
+      } catch (e) {
+        console.warn('Could not load transcript:', e);
+      }
+    }
+
     const clipData = clip as any;
     const cropPosition = clipData.cropPosition || 'center';
-    console.log('Extracting clip:', { id: clipData.id, headline: clipData.headline, cropPosition });
-    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition);
+    console.log('Extracting clip:', { id: clipData.id, headline: clipData.headline, cropPosition, hasTranscript: !!transcript });
+    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition, transcript);
 
     return Response.json({ success: true, filename, clipPath: `/api/serve-clip/${filename}` });
   } catch (error) {
