@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import { PATHS } from './storage';
 
 export interface VideoInfo {
@@ -26,9 +27,10 @@ export function downloadVideo(url: string): VideoInfo {
     }
 
     const videoPath = path.join(PATHS.videos, `${videoId}.mp4`);
+    const absoluteVideoPath = path.resolve(videoPath);
 
     // Download using yt-dlp
-    const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4" -o "${videoPath}" "${url}"`;
+    const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4" -o "${absoluteVideoPath}" "${url}"`;
     const output = execSync(command, { encoding: 'utf-8' });
     console.log('Video downloaded:', output);
 
@@ -39,7 +41,7 @@ export function downloadVideo(url: string): VideoInfo {
 
     return {
       videoId,
-      videoPath,
+      videoPath: absoluteVideoPath,
       title: info.title || videoId,
       durationSeconds: info.duration || 0,
     };
