@@ -116,16 +116,20 @@ export default function ReviewPage() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {state.clips.map((clip) => (
-          <ClipCard
-            key={clip.id}
-            clip={clip}
-            onAccept={handleAccept}
-            onDecline={handleDecline}
-            onExtract={handleExtract}
-            isExtracting={extracting === clip.id}
-          />
-        ))}
+        {state.clips.map((clip) => {
+          const isAccepted = accepted.some((c) => c.id === clip.id);
+          return (
+            <ClipCard
+              key={clip.id}
+              clip={clip}
+              onAccept={handleAccept}
+              onDecline={handleDecline}
+              onExtract={handleExtract}
+              isExtracting={extracting === clip.id}
+              isAccepted={isAccepted}
+            />
+          );
+        })}
       </div>
     </div>
   );

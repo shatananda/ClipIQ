@@ -9,9 +9,10 @@ interface ClipCardProps {
   onDecline: (clip: ClipSuggestion) => void;
   onExtract?: (clip: ClipSuggestion) => void;
   isExtracting?: boolean;
+  isAccepted?: boolean;
 }
 
-export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtracting }: ClipCardProps) {
+export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtracting, isAccepted }: ClipCardProps) {
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -20,7 +21,33 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
   };
 
   return (
-    <div className="card" style={{ marginBottom: '24px', overflow: 'hidden' }}>
+    <div className="card" style={{
+      marginBottom: '24px',
+      overflow: 'hidden',
+      border: isAccepted ? '2px solid var(--success)' : 'none',
+      position: 'relative',
+    }}>
+      {/* Accepted Indicator Badge */}
+      {isAccepted && (
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          zIndex: 10,
+          background: 'var(--success)',
+          color: 'white',
+          padding: '6px 12px',
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+        }}>
+          ✓ Accepted
+        </div>
+      )}
+
       {/* Header with type badge and duration */}
       <div
         style={{
