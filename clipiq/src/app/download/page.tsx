@@ -19,6 +19,7 @@ export default function DownloadPage() {
   const [allDownloading, setAllDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadPrefs, setDownloadPrefs] = useState<Record<number, ClipDownloadPrefs>>({});
+  const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
 
   useEffect(() => {
     const clipiqState = sessionStorage.getItem('clipiq_state');
@@ -136,8 +137,12 @@ export default function DownloadPage() {
 
   const handleDownloadAll = async () => {
     setAllDownloading(true);
+    setDownloadProgress({ current: 0, total: approvedClips.length });
     try {
-      for (const clip of approvedClips) {
+      for (let idx = 0; idx < approvedClips.length; idx++) {
+        const clip = approvedClips[idx];
+        setDownloadProgress({ current: idx + 1, total: approvedClips.length });
+
         // Download metadata first
         downloadMetadata(clip);
 
@@ -177,6 +182,7 @@ export default function DownloadPage() {
       }
     } finally {
       setAllDownloading(false);
+      setDownloadProgress(null);
     }
   };
 
@@ -244,6 +250,29 @@ export default function DownloadPage() {
         <p style={{ color: 'var(--text-light)', marginBottom: '16px' }}>
           {approvedClips.length} clip{approvedClips.length !== 1 ? 's' : ''} approved and ready to download
         </p>
+
+        {downloadProgress && (
+          <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(91, 108, 246, 0.05)', borderRadius: '8px', border: '1px solid var(--primary)' }}>
+            <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '8px', fontSize: '14px' }}>
+              Downloading: {downloadProgress.current} of {downloadProgress.total}
+            </p>
+            <div style={{
+              width: '100%',
+              height: '6px',
+              backgroundColor: 'var(--border)',
+              borderRadius: '3px',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+                backgroundColor: 'var(--primary)',
+                transition: 'width 0.3s ease',
+              }} />
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: '16px' }}>
           <button
             onClick={() => router.push('/review')}

@@ -33,6 +33,7 @@ export default function ClipCard({ clip, onPreview, isApproved }: ClipCardProps)
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'relative',
+          paddingRight: isApproved ? '140px' : '24px',
         }}
       >
         {/* Approval Indicator */}
@@ -56,7 +57,7 @@ export default function ClipCard({ clip, onPreview, isApproved }: ClipCardProps)
             ✓ Approved
           </div>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
           <span
             style={{
               fontSize: '13px',
