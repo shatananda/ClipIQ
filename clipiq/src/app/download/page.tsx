@@ -88,7 +88,6 @@ export default function DownloadPage() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Download error:', error);
-      alert(error instanceof Error ? error.message : 'Download failed');
     } finally {
       newDownloading.delete(clip.id);
       setDownloading(newDownloading);
@@ -126,6 +125,7 @@ export default function DownloadPage() {
           await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (error) {
           console.error(`Error downloading clip ${clip.id}:`, error);
+          // Silently fail - user can try again
         }
       }
     } finally {

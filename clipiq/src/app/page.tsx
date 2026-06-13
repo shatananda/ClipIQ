@@ -121,7 +121,6 @@ export default function Home() {
     } catch (error) {
       console.error('Pipeline error:', error);
       setStage('idle');
-      alert(error instanceof Error ? error.message : 'Analysis failed');
     } finally {
       setLoading(false);
     }
