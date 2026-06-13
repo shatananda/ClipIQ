@@ -37,7 +37,7 @@ export default function SummaryPage() {
 
   return (
     <div className="space-y-8">
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="card" style={{ padding: '24px' }}>
         <h2 className="text-2xl font-bold text-dark mb-2">Summary</h2>
         <p className="text-gray-600 mb-4">{clips.length} clips selected for extraction</p>
         <button
@@ -50,7 +50,7 @@ export default function SummaryPage() {
 
       <div className="space-y-4">
         {clips.map((clip) => (
-          <div key={clip.id} className="bg-white rounded-lg border border-gray-200 p-6">
+          <div key={clip.id} className="card" style={{ padding: '24px' }}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-bold text-dark">{clip.headline}</h3>
