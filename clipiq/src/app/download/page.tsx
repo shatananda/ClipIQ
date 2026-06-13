@@ -6,6 +6,11 @@ import ClipCard from '@/components/ClipCard';
 import { ClipIQState, ClipSuggestion } from '@/types';
 import { DownloadIcon } from '@/components/Icons';
 
+interface ClipDownloadPrefs {
+  mp4: boolean;
+  metadata: boolean;
+}
+
 export default function DownloadPage() {
   const router = useRouter();
   const [state, setState] = useState<ClipIQState | null>(null);
@@ -13,6 +18,7 @@ export default function DownloadPage() {
   const [downloading, setDownloading] = useState<Set<number>>(new Set());
   const [allDownloading, setAllDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloadPrefs, setDownloadPrefs] = useState<Record<number, ClipDownloadPrefs>>({});
 
   useEffect(() => {
     const clipiqState = sessionStorage.getItem('clipiq_state');
@@ -23,8 +29,16 @@ export default function DownloadPage() {
       return;
     }
 
+    const parsedClips = JSON.parse(approvedClipsStr);
     setState(JSON.parse(clipiqState));
-    setApprovedClips(JSON.parse(approvedClipsStr));
+    setApprovedClips(parsedClips);
+
+    // Initialize download preferences with both checked by default
+    const prefs: Record<number, ClipDownloadPrefs> = {};
+    parsedClips.forEach((clip: ClipSuggestion) => {
+      prefs[clip.id] = { mp4: true, metadata: true };
+    });
+    setDownloadPrefs(prefs);
   }, [router]);
 
   const generateMetadataText = (clip: ClipSuggestion): string => {
@@ -67,26 +81,40 @@ export default function DownloadPage() {
   const handleDownloadClip = async (clip: ClipSuggestion) => {
     if (!state) return;
 
+    const prefs = downloadPrefs[clip.id];
+    if (!prefs || (!prefs.mp4 && !prefs.metadata)) {
+      return;
+    }
+
     const newDownloading = new Set(downloading);
     newDownloading.add(clip.id);
     setDownloading(newDownloading);
 
     try {
-      const res = await fetch('/api/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoPath: state.videoPath, clip }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
+      // Download metadata if selected
+      if (prefs.metadata) {
+        downloadMetadata(clip);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
 
-      const videoUrl = data.downloadUrl || `/api/download-clip/${clip.id}`;
-      const a = document.createElement('a');
-      a.href = videoUrl;
-      a.download = data.filename || `${clip.headline}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // Download MP4 if selected
+      if (prefs.mp4) {
+        const res = await fetch('/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoPath: state.videoPath, clip }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        const videoUrl = data.downloadUrl || `/api/download-clip/${clip.id}`;
+        const a = document.createElement('a');
+        a.href = videoUrl;
+        a.download = data.filename || `${clip.headline}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to download clip';
       console.error('Download error:', error);
@@ -275,10 +303,40 @@ export default function DownloadPage() {
                   <span>{clip.confidence}%</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '200px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={downloadPrefs[clip.id]?.mp4 ?? true}
+                      onChange={(e) => {
+                        setDownloadPrefs({
+                          ...downloadPrefs,
+                          [clip.id]: { ...downloadPrefs[clip.id], mp4: e.target.checked }
+                        });
+                      }}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>Download MP4</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={downloadPrefs[clip.id]?.metadata ?? true}
+                      onChange={(e) => {
+                        setDownloadPrefs({
+                          ...downloadPrefs,
+                          [clip.id]: { ...downloadPrefs[clip.id], metadata: e.target.checked }
+                        });
+                      }}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>Download Metadata</span>
+                  </label>
+                </div>
                 <button
                   onClick={() => handleDownloadClip(clip)}
-                  disabled={downloading.has(clip.id) || allDownloading}
+                  disabled={downloading.has(clip.id) || allDownloading || (!downloadPrefs[clip.id]?.mp4 && !downloadPrefs[clip.id]?.metadata)}
                   style={{
                     padding: '10px 16px',
                     backgroundColor: downloading.has(clip.id) ? 'var(--text-light)' : 'var(--primary)',
@@ -286,15 +344,16 @@ export default function DownloadPage() {
                     border: 'none',
                     borderRadius: '8px',
                     fontWeight: '500',
-                    cursor: downloading.has(clip.id) ? 'not-allowed' : 'pointer',
+                    cursor: downloading.has(clip.id) || (!downloadPrefs[clip.id]?.mp4 && !downloadPrefs[clip.id]?.metadata) ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '6px',
                     transition: 'all 0.15s ease',
                     whiteSpace: 'nowrap',
                   }}
                   onMouseOver={(e) => {
-                    if (!downloading.has(clip.id) && !allDownloading) {
+                    if (!downloading.has(clip.id) && !allDownloading && (downloadPrefs[clip.id]?.mp4 || downloadPrefs[clip.id]?.metadata)) {
                       (e.target as HTMLButtonElement).style.opacity = '0.9';
                     }
                   }}
@@ -304,37 +363,7 @@ export default function DownloadPage() {
                     }
                   }}
                 >
-                  <DownloadIcon /> {downloading.has(clip.id) ? 'Downloading...' : 'Download MP4'}
-                </button>
-                <button
-                  onClick={() => downloadMetadata(clip)}
-                  disabled={downloading.has(clip.id) || allDownloading}
-                  style={{
-                    padding: '10px 16px',
-                    backgroundColor: 'var(--bg-gray)',
-                    color: 'var(--text)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    fontWeight: '500',
-                    cursor: downloading.has(clip.id) || allDownloading ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.15s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseOver={(e) => {
-                    if (!downloading.has(clip.id) && !allDownloading) {
-                      (e.target as HTMLButtonElement).style.backgroundColor = 'var(--border)';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!downloading.has(clip.id) && !allDownloading) {
-                      (e.target as HTMLButtonElement).style.backgroundColor = 'var(--bg-gray)';
-                    }
-                  }}
-                >
-                  <DownloadIcon /> Metadata
+                  <DownloadIcon /> {downloading.has(clip.id) ? 'Downloading...' : 'Download'}
                 </button>
               </div>
             </div>
