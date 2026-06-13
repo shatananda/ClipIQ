@@ -34,7 +34,7 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
             disabled={isLoading || !url.trim()}
             className="btn-primary px-8 font-semibold"
           >
-            {isLoading ? '⏳ Analyzing...' : '▶ Analyze'}
+            {isLoading ? 'Analyzing...' : 'Analyze'}
           </button>
         </div>
       </div>
