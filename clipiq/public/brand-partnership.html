@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipIQ for Pure Ishvari</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    h1 {
+      font-size: 42px;
+      color: #333;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    /* Main partnership display */
+    .partnership {
+      background: white;
+      border-radius: 20px;
+      padding: 60px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+      margin-bottom: 60px;
+    }
+
+    .partnership-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%);
+      border-radius: 16px;
+      padding: 40px;
+    }
+
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-section.main {
+      flex-direction: row;
+      gap: 0;
+    }
+
+    .logo-section.main .logo-label {
+      display: none;
+    }
+
+    .clipiq-logo {
+      width: 120px;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clipiq-logo svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .clipiq-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #5b6cf6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .for-text {
+      font-size: 36px;
+      font-weight: 300;
+      color: #666;
+      margin: 0 15px;
+    }
+
+    .pureishvari-logo {
+      width: 180px;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pureishvari-logo img {
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    /* Variants section */
+    .variants {
+      margin-top: 80px;
+      border-top: 1px solid #eee;
+      padding-top: 60px;
+    }
+
+    .variants h2 {
+      text-align: center;
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 40px;
+    }
+
+    .variant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .variant-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .variant-card h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #5b6cf6;
+    }
+
+    .variant-display {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      min-height: 120px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .variant-display svg {
+      width: 80px;
+      height: 80px;
+    }
+
+    .variant-display .for {
+      font-size: 24px;
+      color: #999;
+      font-weight: 300;
+    }
+
+    .variant-display img {
+      max-height: 80px;
+      width: auto;
+    }
+
+    .variant-description {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* Use cases */
+    .use-cases {
+      margin-top: 60px;
+      border-top: 1px solid #eee;
+      padding-top: 60px;
+    }
+
+    .use-cases h2 {
+      text-align: center;
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 40px;
+    }
+
+    .use-cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .use-case {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid #d4deff;
+    }
+
+    .use-case-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .use-case-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #5b6cf6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Files section */
+    .files-section {
+      margin-top: 60px;
+      border-top: 1px solid #eee;
+      padding-top: 60px;
+    }
+
+    .files-section h2 {
+      text-align: center;
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 40px;
+    }
+
+    .files-list {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .file-item {
+      padding: 15px 0;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 13px;
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-icon {
+      font-size: 20px;
+      width: 30px;
+      text-align: center;
+    }
+
+    .file-name {
+      font-family: monospace;
+      color: #5b6cf6;
+      font-weight: 500;
+    }
+
+    .file-desc {
+      color: #666;
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .partnership {
+        padding: 30px;
+      }
+      .partnership-display {
+        gap: 20px;
+      }
+      .for-text {
+        font-size: 36px;
+      }
+      .clipiq-logo,
+      .pureishvari-logo {
+        transform: scale(0.85);
+      }
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ClipIQ for Pure Ishvari</h1>
+      <p class="subtitle">AI-powered video clip creation for Ayurvedic wellness content</p>
+    </div>
+
+    <div class="partnership">
+      <div class="partnership-display">
+        <div class="logo-section main">
+          <div class="clipiq-logo">
+            <img src="/clipiq-icon.jpg" alt="ClipIQ Logo" style="height: 120px; width: auto; object-fit: contain;">
+          </div>
+          <div class="for-text">for</div>
+          <div class="pureishvari-logo">
+            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style="max-width: 200px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variants">
+      <h2>Display Variants</h2>
+      <div class="variant-grid">
+        <div class="variant-card">
+          <h3>Horizontal Layout</h3>
+          <div class="variant-display">
+            <img src="/clipiq-icon.jpg" alt="ClipIQ Logo" style="height: 60px; width: auto; object-fit: contain;">
+            <span class="for">for</span>
+            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style="max-height: 60px;">
+          </div>
+          <p class="variant-description">Best for headers, footers, social media</p>
+        </div>
+
+        <div class="variant-card">
+          <h3>Stacked Layout</h3>
+          <div class="variant-display" style="flex-direction: column; gap: 8px;">
+            <img src="/clipiq-icon.jpg" alt="ClipIQ Logo" style="height: 50px; width: auto; object-fit: contain;">
+            <span class="for" style="font-size: 16px;">for</span>
+            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style="max-height: 40px;">
+          </div>
+          <p class="variant-description">Best for mobile, narrow spaces</p>
+        </div>
+
+        <div class="variant-card">
+          <h3>Compact Icons Only</h3>
+          <div class="variant-display" style="gap: 8px;">
+            <img src="/clipiq-icon.jpg" alt="ClipIQ Logo" style="height: 50px; width: auto; object-fit: contain;">
+            <span class="for" style="font-size: 12px;">for</span>
+            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style="max-height: 50px;">
+          </div>
+          <p class="variant-description">Best for favicons, app icons</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="use-cases">
+      <h2>Perfect For</h2>
+      <div class="use-cases-grid">
+        <div class="use-case">
+          <div class="use-case-icon">📸</div>
+          <div class="use-case-title">Social Media</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-icon">📧</div>
+          <div class="use-case-title">Email Headers</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-icon">💼</div>
+          <div class="use-case-title">Presentations</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-icon">🌐</div>
+          <div class="use-case-title">Website</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-icon">🎥</div>
+          <div class="use-case-title">Video Intros</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-icon">📱</div>
+          <div class="use-case-title">App Branding</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="files-section">
+      <h2>Asset Files</h2>
+      <div class="files-list">
+        <div class="file-item">
+          <div class="file-icon">📄</div>
+          <div>
+            <div class="file-name">clipiq-icon.svg</div>
+            <div class="file-desc">ClipIQ standalone logo (scalable)</div>
+          </div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🔗</div>
+          <div>
+            <div class="file-name">pureishvari-logo.png</div>
+            <div class="file-desc">Pure Ishvari logo (from website)</div>
+          </div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🎨</div>
+          <div>
+            <div class="file-name">brand-partnership.html</div>
+            <div class="file-desc">This showcase page (responsive)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

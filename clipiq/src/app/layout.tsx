@@ -10,11 +10,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '16px 0' }}>
-          <div className="container flex items-center justify-between">
-            <div>
-              <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text)' }}>ClipIQ</h1>
-              <p style={{ fontSize: '13px', color: 'var(--text-light)', marginTop: '2px' }}>Find short-form clip opportunities</p>
+        <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '12px 0' }}>
+          <div className="container flex items-center justify-between" style={{ alignItems: 'center', gap: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <img src="/clipiq-icon.jpg" alt="ClipIQ" style={{ height: '48px', width: 'auto' }} />
+              <div>
+                <h1 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', margin: 0 }}>ClipIQ</h1>
+                <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '2px 0 0 0' }}>Intelligent video clipping</p>
+              </div>
             </div>
           </div>
         </header>
