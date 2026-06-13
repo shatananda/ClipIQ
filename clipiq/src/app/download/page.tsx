@@ -79,10 +79,16 @@ export default function DownloadPage() {
   };
 
   const handleDownloadClip = async (clip: ClipSuggestion) => {
-    if (!state) return;
+    console.log('Download clicked for clip:', clip.id, 'State:', !!state, 'Prefs:', downloadPrefs[clip.id]);
+
+    if (!state) {
+      console.error('No state available');
+      return;
+    }
 
     const prefs = downloadPrefs[clip.id];
     if (!prefs || (!prefs.mp4 && !prefs.metadata)) {
+      console.error('No preferences or both unchecked', prefs);
       return;
     }
 
