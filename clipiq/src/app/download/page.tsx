@@ -107,6 +107,12 @@ export default function DownloadPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoPath: state.videoPath, clip }),
         });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API error: ${res.status} ${text.slice(0, 100)}`);
+        }
+
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
 
@@ -145,6 +151,12 @@ export default function DownloadPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ videoPath: state.videoPath, clip }),
           });
+
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`API error: ${res.status} ${text.slice(0, 100)}`);
+          }
+
           const data = await res.json();
           if (!data.success) throw new Error(data.error);
 
