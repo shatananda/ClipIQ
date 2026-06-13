@@ -79,16 +79,13 @@ export default function DownloadPage() {
   };
 
   const handleDownloadClip = async (clip: ClipSuggestion) => {
-    console.log('Download clicked for clip:', clip.id, 'State:', !!state, 'Prefs:', downloadPrefs[clip.id]);
-
     if (!state) {
-      console.error('No state available');
+      setError('No video state available');
       return;
     }
 
     const prefs = downloadPrefs[clip.id];
     if (!prefs || (!prefs.mp4 && !prefs.metadata)) {
-      console.error('No preferences or both unchecked', prefs);
       return;
     }
 
@@ -113,7 +110,7 @@ export default function DownloadPage() {
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
 
-        const videoUrl = data.downloadUrl || `/api/download-clip/${clip.id}`;
+        const videoUrl = data.clipPath || `/api/serve-clip/${data.filename}`;
         const a = document.createElement('a');
         a.href = videoUrl;
         a.download = data.filename || `${clip.headline}.mp4`;
@@ -151,7 +148,7 @@ export default function DownloadPage() {
           const data = await res.json();
           if (!data.success) throw new Error(data.error);
 
-          const videoUrl = data.downloadUrl || `/api/download-clip/${clip.id}`;
+          const videoUrl = data.clipPath || `/api/serve-clip/${data.filename}`;
           const a = document.createElement('a');
           a.href = videoUrl;
           a.download = data.filename || `${clip.headline}.mp4`;
