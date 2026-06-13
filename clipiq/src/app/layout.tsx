@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '10px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '0 20px', flexWrap: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '20px', padding: '0 20px', flexWrap: 'nowrap' }}>
             {/* ClipIQ Section with Logo and Text */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
               <img src="/clipiq-icon.jpg" alt="ClipIQ" style={{ height: '48px', width: 'auto', flexShrink: 0 }} />
