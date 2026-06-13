@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PlayIcon, LoadingIcon } from './Icons';
 
 interface VideoInputProps {
   onAnalyze: (url: string) => void;
@@ -33,8 +34,9 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
             type="submit"
             disabled={isLoading || !url.trim()}
             className="btn-primary px-8 font-semibold"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            {isLoading ? 'Analyzing...' : 'Analyze'}
+            {isLoading ? <LoadingIcon /> : <PlayIcon />}
           </button>
         </div>
       </div>
