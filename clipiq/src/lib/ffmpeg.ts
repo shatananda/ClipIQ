@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { PATHS } from './storage';
@@ -64,16 +64,14 @@ export function extractClip(
     const clipPath = path.resolve(path.join(PATHS.clips, filename));
     const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
 
-    // Generate captions if transcript is provided
-    let hasCaptions = false;
+    // Note: SRT generation prepared for when FFmpeg with libass is available
+    // Currently skipping caption burning - FFmpeg build lacks subtitles filter
     if (transcript && transcript.length > 0) {
       try {
         generateSrtSubtitles(transcript, startMs, endMs, srtPath);
-        hasCaptions = fs.existsSync(srtPath) && fs.statSync(srtPath).size > 0;
-        console.log('SRT file created:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
+        console.log('SRT file prepared (captions not applied - FFmpeg lacks libass support):', srtPath);
       } catch (srtError) {
         console.warn('Failed to create SRT file:', srtError);
-        hasCaptions = false;
       }
     }
 
@@ -85,39 +83,48 @@ export function extractClip(
       cropX = 'iw-ow';
     }
 
-    // Build video filter with captions if available
+    // Build video filter - captions would be added here if FFmpeg had libass support
     let videoFilter = `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2`;
-    if (hasCaptions) {
-      videoFilter += `,subtitles='${srtPath}':force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
-      console.log('Adding subtitles to filter:', { srtPath });
-    }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
-    // Always quote complex args to handle special characters
-    const command = [
-      'ffmpeg',
+    // Use spawnSync with array args to avoid shell escaping issues
+    const args = [
       '-ss', startSeconds.toString(),
-      '-i', `"${videoPath}"`,
+      '-i', videoPath,
       '-t', durationSeconds.toString(),
-      '-vf', `"${videoFilter}"`,
+      '-vf', videoFilter,
       '-c:v', 'libx264',
       '-preset', 'fast',
       '-crf', '23',
       '-c:a', 'aac',
       '-b:a', '128k',
       '-movflags', '+faststart',
-      '-n', `"${clipPath}"`
-    ].join(' ');
+      '-n', clipPath
+    ];
 
-    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, hasCaptions, videoFilterLength: videoFilter.length });
-    console.log('FFmpeg command:', command);
+    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, videoFilterLength: videoFilter.length });
+    console.log('FFmpeg args:', args);
 
     try {
-      execSync(command, { stdio: 'pipe', maxBuffer: 10 * 1024 * 1024 });
+      const result = spawnSync('ffmpeg', args, {
+        stdio: 'pipe',
+        maxBuffer: 10 * 1024 * 1024,
+        encoding: 'utf-8'
+      });
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (result.status !== 0) {
+        console.error('FFmpeg error:', result.stderr);
+        throw new Error(`FFmpeg failed: ${result.stderr}`);
+      }
+
       console.log('Clip extracted:', clipPath);
     } catch (execError: any) {
       console.error('FFmpeg error:', execError.message);
-      console.error('FFmpeg stderr:', execError.stderr?.toString());
+      console.error('FFmpeg stderr:', execError.stderr?.toString?.() || execError.message);
       throw execError;
     }
 
