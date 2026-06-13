@@ -61,8 +61,8 @@ export function ChevronDownIcon() {
 
 export function LoadingIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" style={{ animation: 'spin 1s linear infinite' }} />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <circle cx="12" cy="12" r="9" strokeDasharray="14 56.5" style={{ animation: 'spin 1s linear infinite' }} />
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
