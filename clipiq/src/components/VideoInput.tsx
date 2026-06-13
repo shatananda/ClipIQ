@@ -19,7 +19,7 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <input
           type="text"
           placeholder="https://youtu.be/..."
