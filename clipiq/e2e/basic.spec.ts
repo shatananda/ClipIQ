@@ -8,10 +8,14 @@ test.describe('ClipIQ Basic Functionality', () => {
     await expect(page).toHaveTitle(/ClipIQ/);
     await expect(page.locator('h1')).toContainText('ClipIQ');
     await expect(page.locator('h2')).toContainText('Analyze Your Videos');
-    console.log('✓ Home page loaded');
+
+    // Verify new subtitle text (in main section, not header)
+    const mainContent = page.locator('main');
+    await expect(mainContent).toContainText('Intelligently clip from your long form videos');
+    console.log('✓ Home page loaded with new text');
   });
 
-  test('should render form elements', async ({ page }) => {
+  test('should render form elements with proper layout', async ({ page }) => {
     await page.goto('/');
 
     // Check for URL input
@@ -23,7 +27,22 @@ test.describe('ClipIQ Basic Functionality', () => {
     await expect(analyzeButton).toBeVisible();
     await expect(analyzeButton).toBeDisabled();
 
-    console.log('✓ Form elements visible');
+    // Verify button and input are in a flex column layout with gap
+    const formDiv = page.locator('form');
+    const formClass = await formDiv.getAttribute('class');
+    expect(formClass).toContain('w-full');
+    console.log('✓ Form has proper width class');
+
+    // Verify input is full width
+    const inputClass = await urlInput.getAttribute('class');
+    expect(inputClass).toContain('w-full');
+
+    // Verify button is full width
+    const buttonClass = await analyzeButton.getAttribute('class');
+    expect(buttonClass).toContain('w-full');
+    console.log('✓ Button and input are full width');
+
+    console.log('✓ Form elements visible with proper layout');
   });
 
   test('should enable Analyze button with URL', async ({ page }) => {

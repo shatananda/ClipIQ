@@ -1,0 +1,47 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="clipGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5b6cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3d4fb8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Film strip (curved/flowing) -->
+  <path d="M 30 50 Q 60 40 90 50 L 95 55 Q 70 65 40 55 Z" fill="#e8ecff" stroke="url(#clipGradient3)" stroke-width="2"/>
+  <path d="M 25 70 Q 55 65 85 75 L 88 80 Q 65 85 30 80 Z" fill="#e8ecff" stroke="url(#clipGradient3)" stroke-width="2"/>
+  <path d="M 110 55 Q 140 48 170 60 L 172 65 Q 145 70 115 60 Z" fill="#e8ecff" stroke="url(#clipGradient3)" stroke-width="2"/>
+  <path d="M 115 80 Q 145 78 175 90 L 176 95 Q 150 100 120 85 Z" fill="#e8ecff" stroke="url(#clipGradient3)" stroke-width="2"/>
+
+  <!-- Film perforations left -->
+  <rect x="35" y="52" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="55" y="48" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="30" y="72" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="50" y="70" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+
+  <!-- Film perforations right -->
+  <rect x="125" y="57" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="150" y="63" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="135" y="82" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+  <rect x="160" y="88" width="6" height="6" fill="url(#clipGradient3)" opacity="0.6"/>
+
+  <!-- LEFT SCISSORS HANDLE (large filled circle) -->
+  <circle cx="55" cy="135" r="12" fill="url(#clipGradient3)" opacity="0.9"/>
+  <circle cx="55" cy="135" r="7" fill="white" opacity="0.5"/>
+
+  <!-- RIGHT SCISSORS HANDLE (large filled circle) -->
+  <circle cx="145" cy="135" r="12" fill="url(#clipGradient3)" opacity="0.9"/>
+  <circle cx="145" cy="135" r="7" fill="white" opacity="0.5"/>
+
+  <!-- LEFT SCISSOR BLADE (solid triangle/wedge) -->
+  <path d="M 60 125 L 95 80 L 103 90 L 68 130 Z" fill="url(#clipGradient3)" opacity="0.88"/>
+
+  <!-- RIGHT SCISSOR BLADE (solid triangle/wedge) -->
+  <path d="M 140 125 L 105 80 L 97 90 L 132 130 Z" fill="url(#clipGradient3)" opacity="0.88"/>
+
+  <!-- Blade highlight -->
+  <line x1="100" y1="75" x2="100" y2="130" stroke="white" stroke-width="1" opacity="0.3"/>
+
+  <!-- CENTER SCREW/PIVOT -->
+  <circle cx="100" cy="110" r="3.5" fill="url(#clipGradient3)"/>
+  <line x1="98" y1="110" x2="102" y2="110" stroke="white" stroke-width="0.8" opacity="0.6"/>
+</svg>

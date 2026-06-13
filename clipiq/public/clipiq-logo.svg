@@ -1,0 +1,47 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a9d6f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5a3d;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Leaf shape (curved) -->
+  <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50"
+        fill="url(#leafGradient)" filter="url(#shadow)"/>
+
+  <!-- Leaf vein (center line) -->
+  <path d="M150 50 Q150 145 147 230"
+        stroke="#ffffff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- Film frame 1 (top) -->
+  <rect x="125" y="85" width="20" height="20"
+        fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.8" rx="2"/>
+  <circle cx="128" cy="88" r="2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="138" cy="88" r="2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="128" cy="98" r="2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="138" cy="98" r="2" fill="#ffffff" opacity="0.6"/>
+
+  <!-- Film frame 2 -->
+  <rect x="125" y="120" width="20" height="20"
+        fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.75" rx="2"/>
+  <circle cx="128" cy="123" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="138" cy="123" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="128" cy="133" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="138" cy="133" r="2" fill="#ffffff" opacity="0.5"/>
+
+  <!-- Film frame 3 -->
+  <rect x="125" y="155" width="20" height="20"
+        fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7" rx="2"/>
+  <circle cx="128" cy="158" r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="138" cy="158" r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="128" cy="168" r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="138" cy="168" r="2" fill="#ffffff" opacity="0.4"/>
+
+  <!-- Play button icon (center) -->
+  <circle cx="150" cy="145" r="18" fill="#ffffff" opacity="0.15"/>
+  <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.7"/>
+</svg>

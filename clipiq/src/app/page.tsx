@@ -134,7 +134,7 @@ export default function Home() {
           Analyze Your Videos
         </h2>
         <p style={{ fontSize: '15px', color: 'var(--text-light)', lineHeight: '1.6' }}>
-          Paste a YouTube URL and we'll find the best short-form clips for TikTok, Instagram Reels, and YouTube Shorts.
+          Intelligently clip from your long form videos for TikTok, Instagram Reels, and YouTube Shorts.
         </p>
       </div>
 
