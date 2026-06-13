@@ -80,8 +80,9 @@ export function extractClip(
     // Build video filter with captions if available
     let videoFilter = `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2`;
     if (transcript && transcript.length > 0 && fs.existsSync(srtPath)) {
-      const escapedSrtPath = srtPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      videoFilter += `,subtitles='${escapedSrtPath}':force_style='FontSize=20,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
+      // Escape backslashes for FFmpeg filter syntax
+      const escapedSrtPath = srtPath.replace(/\\/g, '/');
+      videoFilter += `,subtitles=${escapedSrtPath}:force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
