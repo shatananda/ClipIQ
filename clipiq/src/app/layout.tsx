@@ -10,22 +10,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '12px 0' }}>
-          <div className="container flex items-center justify-center" style={{ alignItems: 'center', gap: '20px', whiteSpace: 'nowrap', overflowX: 'auto' }}>
+        <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg)', padding: '10px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '0 20px', flexWrap: 'nowrap' }}>
             {/* ClipIQ Section with Logo and Text */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <img src="/clipiq-icon.jpg" alt="ClipIQ" style={{ height: '56px', width: 'auto' }} />
-              <div>
-                <h1 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text)', margin: 0 }}>ClipIQ</h1>
-                <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '2px 0 0 0' }}>Intelligent video clipping</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+              <img src="/clipiq-icon.jpg" alt="ClipIQ" style={{ height: '48px', width: 'auto', flexShrink: 0 }} />
+              <div style={{ whiteSpace: 'nowrap' }}>
+                <h1 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text)', margin: 0, lineHeight: '1' }}>ClipIQ</h1>
+                <p style={{ fontSize: '11px', color: 'var(--text-light)', margin: '1px 0 0 0', lineHeight: '1' }}>Intelligent clipping</p>
               </div>
             </div>
 
             {/* For Text */}
-            <span style={{ fontSize: '20px', fontWeight: '300', color: 'var(--text-light)' }}>for</span>
+            <span style={{ fontSize: '18px', fontWeight: '300', color: 'var(--text-light)', flexShrink: 0 }}>for</span>
 
             {/* Pure Ishvari Logo */}
-            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style={{ height: '44px', width: 'auto' }} />
+            <img src="https://www.pureishvari.com/cdn/shop/files/logo_110x.png?v=1665464646" alt="Pure Ishvari" style={{ height: '36px', width: 'auto', flexShrink: 0 }} />
           </div>
         </header>
 
