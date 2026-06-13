@@ -327,7 +327,7 @@ export default function DownloadPage() {
                       onChange={(e) => {
                         setDownloadPrefs({
                           ...downloadPrefs,
-                          [clip.id]: { ...downloadPrefs[clip.id], mp4: e.target.checked }
+                          [clip.id]: { ...(downloadPrefs[clip.id] || { mp4: true, metadata: true }), mp4: e.target.checked }
                         });
                       }}
                       style={{ width: '18px', height: '18px', cursor: 'pointer' }}
@@ -341,7 +341,7 @@ export default function DownloadPage() {
                       onChange={(e) => {
                         setDownloadPrefs({
                           ...downloadPrefs,
-                          [clip.id]: { ...downloadPrefs[clip.id], metadata: e.target.checked }
+                          [clip.id]: { ...(downloadPrefs[clip.id] || { mp4: true, metadata: true }), metadata: e.target.checked }
                         });
                       }}
                       style={{ width: '18px', height: '18px', cursor: 'pointer' }}
