@@ -20,6 +20,7 @@ export async function uploadFile(
 
   // Production: upload to Vercel Blob
   try {
+    // @ts-ignore - @vercel/blob only available in production
     const { put } = await import('@vercel/blob');
     const fileContent = fs.readFileSync(filePath);
     const blob = await put(blobKey, fileContent, { access: 'public' });
@@ -38,6 +39,7 @@ export async function downloadFile(blobKey: string, localPath: string): Promise<
 
   // Production: download from Vercel Blob
   try {
+    // @ts-ignore - @vercel/blob only available in production
     const { get } = await import('@vercel/blob');
     const blob = await get(blobKey);
 
@@ -68,6 +70,7 @@ export async function deleteFile(blobKey: string): Promise<void> {
 
   // Production: delete from Vercel Blob
   try {
+    // @ts-ignore - @vercel/blob only available in production
     const { del } = await import('@vercel/blob');
     await del(blobKey);
   } catch (error) {

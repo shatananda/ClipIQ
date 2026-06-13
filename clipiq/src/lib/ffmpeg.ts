@@ -85,11 +85,20 @@ export function extractClip(
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
-    const command = `ffmpeg -ss ${startSeconds} -i "${videoPath}" -t ${durationSeconds} \
-      -vf "${videoFilter}" \
-      -c:v libx264 -preset fast -crf 23 \
-      -c:a aac -b:a 128k -movflags +faststart \
-      -n "${clipPath}"`;
+    const command = [
+      'ffmpeg',
+      '-ss', startSeconds.toString(),
+      '-i', videoPath,
+      '-t', durationSeconds.toString(),
+      '-vf', videoFilter,
+      '-c:v', 'libx264',
+      '-preset', 'fast',
+      '-crf', '23',
+      '-c:a', 'aac',
+      '-b:a', '128k',
+      '-movflags', '+faststart',
+      '-n', clipPath
+    ].map(arg => (arg.includes(' ') || arg.includes("'") ? `"${arg}"` : arg)).join(' ');
 
     console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript });
     execSync(command, { stdio: 'ignore' });
