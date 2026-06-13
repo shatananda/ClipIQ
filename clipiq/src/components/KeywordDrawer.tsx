@@ -89,10 +89,13 @@ export default function KeywordDrawer({
           }}>
             <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: 'var(--primary)' }}>What are keywords?</p>
             <p style={{ margin: 0 }}>
-              Keywords help ClipIQ identify moments that match your content focus. When analyzing videos, the AI prioritizes clips that mention or relate to your selected keywords.
+              These keywords were automatically extracted from the Pure Ishvari website and represent your core products, services, and concepts. They help ClipIQ identify moments in your videos that align with your brand.
             </p>
             <p style={{ margin: '8px 0 0 0' }}>
-              <strong>To exclude keywords</strong> that aren't relevant to your content, simply click on them in the list below. Excluded keywords will appear faded and won't be used during analysis.
+              When analyzing videos, the AI prioritizes clips that mention or relate to your selected keywords, ensuring the suggested clips are always relevant to your content.
+            </p>
+            <p style={{ margin: '8px 0 0 0' }}>
+              <strong>To exclude keywords</strong> that aren't relevant, simply click on them in the list below. Excluded keywords will appear faded and won't be used during analysis.
             </p>
           </div>
         </div>
