@@ -12,6 +12,7 @@ export default function DownloadPage() {
   const [approvedClips, setApprovedClips] = useState<ClipSuggestion[]>([]);
   const [downloading, setDownloading] = useState<Set<number>>(new Set());
   const [allDownloading, setAllDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const clipiqState = sessionStorage.getItem('clipiq_state');
@@ -87,7 +88,9 @@ export default function DownloadPage() {
       a.click();
       document.body.removeChild(a);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to download clip';
       console.error('Download error:', error);
+      setError(`Error downloading "${clip.headline}": ${errorMsg}`);
     } finally {
       newDownloading.delete(clip.id);
       setDownloading(newDownloading);
@@ -124,8 +127,9 @@ export default function DownloadPage() {
 
           await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
           console.error(`Error downloading clip ${clip.id}:`, error);
-          // Silently fail - user can try again
+          setError(`Error downloading "${clip.headline}": ${errorMsg}`);
         }
       }
     } finally {
@@ -161,6 +165,35 @@ export default function DownloadPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      {error && (
+        <div style={{
+          backgroundColor: 'rgba(220, 38, 38, 0.1)',
+          border: '1px solid rgba(220, 38, 38, 0.5)',
+          borderRadius: '8px',
+          padding: '16px',
+          color: '#dc2626',
+          fontSize: '14px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#dc2626',
+                cursor: 'pointer',
+                fontSize: '20px',
+                padding: '0',
+                width: '24px',
+                height: '24px',
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <div className="card" style={{ padding: '24px' }}>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px', color: 'var(--text)' }}>
           Download Your Clips

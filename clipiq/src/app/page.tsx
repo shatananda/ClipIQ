@@ -15,6 +15,7 @@ export default function Home() {
   const [excluded, setExcluded] = useState<string[]>([]);
   const [stage, setStage] = useState<ProcessingStage>('idle');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadKeywords();
@@ -119,8 +120,10 @@ export default function Home() {
       setStage('complete');
       router.push('/review');
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Analysis failed';
       console.error('Pipeline error:', error);
       setStage('idle');
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -136,6 +139,37 @@ export default function Home() {
           Intelligently clip from your long form videos for TikTok, Instagram Reels, and YouTube Shorts.
         </p>
       </div>
+
+      {error && (
+        <div style={{
+          backgroundColor: 'rgba(220, 38, 38, 0.1)',
+          border: '1px solid rgba(220, 38, 38, 0.5)',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '24px',
+          color: '#dc2626',
+          fontSize: '14px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#dc2626',
+                cursor: 'pointer',
+                fontSize: '20px',
+                padding: '0',
+                width: '24px',
+                height: '24px',
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
         <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>
