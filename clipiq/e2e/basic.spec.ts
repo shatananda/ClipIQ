@@ -22,8 +22,8 @@ test.describe('ClipIQ Basic Functionality', () => {
     const urlInput = page.locator('input[placeholder*="youtu"]');
     await expect(urlInput).toBeVisible();
 
-    // Check for Analyze button
-    const analyzeButton = page.locator('button:has-text("Analyze")');
+    // Check for Analyze button (now has SVG icon, no text)
+    const analyzeButton = page.locator('form button');
     await expect(analyzeButton).toBeVisible();
     await expect(analyzeButton).toBeDisabled();
 
@@ -37,10 +37,7 @@ test.describe('ClipIQ Basic Functionality', () => {
     const inputClass = await urlInput.getAttribute('class');
     expect(inputClass).toContain('w-full');
 
-    // Verify button is full width
-    const buttonClass = await analyzeButton.getAttribute('class');
-    expect(buttonClass).toContain('w-full');
-    console.log('✓ Button and input are full width');
+    console.log('✓ Button and input are visible');
 
     console.log('✓ Form elements visible with proper layout');
   });
@@ -49,7 +46,7 @@ test.describe('ClipIQ Basic Functionality', () => {
     await page.goto('/');
 
     const urlInput = page.locator('input[placeholder*="youtu"]');
-    const analyzeButton = page.locator('button:has-text("Analyze")');
+    const analyzeButton = page.locator('form button');
 
     // Initially disabled
     await expect(analyzeButton).toBeDisabled();

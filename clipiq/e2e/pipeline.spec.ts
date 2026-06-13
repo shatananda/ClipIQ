@@ -42,8 +42,8 @@ test.describe('ClipIQ E2E Pipeline', () => {
     await expect(urlInput).toHaveValue(YOUTUBE_URL);
     console.log('✓ YouTube URL entered');
 
-    // Step 4: Click Analyze button
-    const analyzeButton = page.locator('button:has-text("Analyze")');
+    // Step 4: Click Analyze button (SVG icon button in form)
+    const analyzeButton = page.locator('form button');
     await analyzeButton.click();
     console.log('✓ Analyze button clicked');
 
@@ -109,34 +109,40 @@ test.describe('ClipIQ E2E Pipeline', () => {
     await expect(firstCard.locator('h3')).toBeVisible();
     await expect(firstCard.locator('text=Best For')).toBeVisible();
 
-    // Step 8: Accept first clip
-    const acceptButtons = page.locator('button:has-text("Accept")');
-    await expect(acceptButtons).toHaveCount(clipCount);
-    await acceptButtons.first().click();
-    await page.waitForTimeout(300);
-    console.log('✓ Accepted first clip');
+    // Step 8: Preview and approve first clip
+    const previewButtons = page.locator('button:has-text("Preview")');
+    await expect(previewButtons).toHaveCount(clipCount);
+    await previewButtons.first().click();
 
-    // Step 9: Navigate to summary
-    const continueButton = page.locator('button:has-text("Proceed to Summary")');
+    // Wait for modal and approve
+    await expect(page.locator('input[type="checkbox"]').first()).toBeVisible();
+    await page.locator('input[type="checkbox"]').first().check();
+    await page.locator('button:has-text("Close")').first().click();
+    await page.waitForTimeout(300);
+    console.log('✓ Previewed and approved first clip');
+
+    // Step 9: Navigate to download
+    const continueButton = page.locator('button:has-text("Go to Download")');
     await expect(continueButton).toBeVisible();
+    await expect(continueButton).toBeEnabled();
     await continueButton.click();
 
-    // Step 10: Wait for summary page
-    await page.waitForURL('/summary', { timeout: 30000 });
-    await expect(page).toHaveURL(/.*\/summary/);
-    console.log('✓ Redirected to summary page');
+    // Step 10: Wait for download page
+    await page.waitForURL('/download', { timeout: 30000 });
+    await expect(page).toHaveURL(/.*\/download/);
+    console.log('✓ Redirected to download page');
 
-    // Step 11: Verify summary content
-    await expect(page.locator('h2')).toContainText('Summary');
-    const summaryCards = page.locator('.card');
-    const summaryCount = await summaryCards.count();
-    expect(summaryCount).toBeGreaterThan(0);
-    console.log(`✓ Summary shows ${summaryCount} accepted clip(s)`);
+    // Step 11: Verify download page content
+    await expect(page.locator('h2')).toContainText('Download Your Clips');
+    const downloadCards = page.locator('.card');
+    const downloadCount = await downloadCards.count();
+    expect(downloadCount).toBeGreaterThan(0);
+    console.log(`✓ Download page shows ${downloadCount} approved clip(s)`);
 
-    // Step 12: Verify download button exists
-    const downloadButton = page.locator('button:has-text("Download")');
-    await expect(downloadButton).toBeVisible();
-    console.log('✓ Download button available');
+    // Step 12: Verify download buttons exist
+    const downloadMp4Button = page.locator('button:has-text("Download MP4")');
+    await expect(downloadMp4Button).toBeVisible();
+    console.log('✓ Download MP4 button available');
   });
 
   test('should handle keyword filtering', async ({ page }) => {
@@ -175,7 +181,7 @@ test.describe('ClipIQ E2E Pipeline', () => {
   test('should validate empty URL submission', async ({ page }) => {
     await page.goto('/');
 
-    const analyzeButton = page.locator('button:has-text("Analyze")');
+    const analyzeButton = page.locator('form button');
 
     // Button should be disabled when URL is empty
     await expect(analyzeButton).toBeDisabled();

@@ -1,18 +1,15 @@
 'use client';
 
 import { ClipSuggestion } from '@/types';
-import { CheckIcon, XIcon, DownloadIcon } from './Icons';
 
 interface ClipCardProps {
   clip: ClipSuggestion;
-  onAccept: (clip: ClipSuggestion) => void;
-  onDecline: (clip: ClipSuggestion) => void;
-  onExtract?: (clip: ClipSuggestion) => void;
-  isExtracting?: boolean;
-  isAccepted?: boolean;
+  onPreview: (clip: ClipSuggestion) => void;
+  isApproved?: boolean;
+  onApprove?: (approved: boolean) => void;
 }
 
-export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtracting, isAccepted }: ClipCardProps) {
+export default function ClipCard({ clip, onPreview, isApproved, onApprove }: ClipCardProps) {
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -24,9 +21,8 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
     <div className="card" style={{
       marginBottom: '24px',
       overflow: 'hidden',
-      border: isAccepted ? '2px solid var(--success)' : '2px solid var(--border)',
+      border: isApproved ? '2px solid var(--success)' : '2px solid var(--border)',
       position: 'relative',
-      opacity: isAccepted ? 1 : 0.8,
     }}>
       {/* Header with type badge and duration */}
       <div
@@ -40,8 +36,8 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
           position: 'relative',
         }}
       >
-        {/* Accepted/Declined Indicator */}
-        {isAccepted && (
+        {/* Approval Indicator */}
+        {isApproved && (
           <div style={{
             position: 'absolute',
             top: '50%',
@@ -58,7 +54,7 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
             gap: '6px',
             whiteSpace: 'nowrap',
           }}>
-            ✓ Accepted
+            ✓ Approved
           </div>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -184,9 +180,9 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button
-            onClick={() => onAccept(clip)}
+            onClick={() => onPreview(clip)}
             style={{
               flex: 1,
               display: 'flex',
@@ -194,7 +190,7 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
               justifyContent: 'center',
               gap: '8px',
               fontWeight: '600',
-              backgroundColor: 'var(--success)',
+              backgroundColor: 'var(--primary)',
               color: 'white',
               padding: '10px 16px',
               borderRadius: '8px',
@@ -209,63 +205,32 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
               (e.target as HTMLButtonElement).style.opacity = '1';
             }}
           >
-            <CheckIcon /> Accept
+            Preview
           </button>
-          <button
-            onClick={() => onDecline(clip)}
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              fontWeight: '600',
-              backgroundColor: 'var(--danger)',
-              color: 'white',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseOver={(e) => {
-              (e.target as HTMLButtonElement).style.opacity = '0.9';
-            }}
-            onMouseOut={(e) => {
-              (e.target as HTMLButtonElement).style.opacity = '1';
-            }}
-          >
-            <XIcon /> Decline
-          </button>
-          {onExtract && (
-            <button
-              onClick={() => onExtract(clip)}
-              disabled={isExtracting}
+          {onApprove && (
+            <label
               style={{
-                flex: 1,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                fontWeight: '600',
-                backgroundColor: 'var(--primary)',
-                color: 'white',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: isExtracting ? 'not-allowed' : 'pointer',
-                opacity: isExtracting ? 0.5 : 1,
-                transition: 'all 0.15s ease',
-              }}
-              onMouseOver={(e) => {
-                if (!isExtracting) (e.target as HTMLButtonElement).style.opacity = '0.9';
-              }}
-              onMouseOut={(e) => {
-                if (!isExtracting) (e.target as HTMLButtonElement).style.opacity = '1';
+                gap: '6px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
-              <DownloadIcon /> {isExtracting ? 'Extracting...' : 'Extract'}
-            </button>
+              <input
+                type="checkbox"
+                checked={isApproved || false}
+                onChange={(e) => onApprove(e.target.checked)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  cursor: 'pointer',
+                }}
+              />
+              <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>
+                Approve
+              </span>
+            </label>
           )}
         </div>
       </div>

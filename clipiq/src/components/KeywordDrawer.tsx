@@ -145,7 +145,6 @@ export default function KeywordDrawer({
                         textDecoration: isExcluded ? 'line-through' : 'none',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
-                        group: 'group',
                       }}
                       className="group"
                     >
