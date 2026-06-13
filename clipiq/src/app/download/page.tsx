@@ -336,7 +336,7 @@ export default function DownloadPage() {
                 </div>
                 <button
                   onClick={() => handleDownloadClip(clip)}
-                  disabled={downloading.has(clip.id) || allDownloading || (!downloadPrefs[clip.id]?.mp4 && !downloadPrefs[clip.id]?.metadata)}
+                  disabled={downloading.has(clip.id) || allDownloading || (!(downloadPrefs[clip.id]?.mp4 ?? true) && !(downloadPrefs[clip.id]?.metadata ?? true))}
                   style={{
                     padding: '10px 16px',
                     backgroundColor: downloading.has(clip.id) ? 'var(--text-light)' : 'var(--primary)',
@@ -344,7 +344,7 @@ export default function DownloadPage() {
                     border: 'none',
                     borderRadius: '8px',
                     fontWeight: '500',
-                    cursor: downloading.has(clip.id) || (!downloadPrefs[clip.id]?.mp4 && !downloadPrefs[clip.id]?.metadata) ? 'not-allowed' : 'pointer',
+                    cursor: downloading.has(clip.id) || (!(downloadPrefs[clip.id]?.mp4 ?? true) && !(downloadPrefs[clip.id]?.metadata ?? true)) ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -353,7 +353,7 @@ export default function DownloadPage() {
                     whiteSpace: 'nowrap',
                   }}
                   onMouseOver={(e) => {
-                    if (!downloading.has(clip.id) && !allDownloading && (downloadPrefs[clip.id]?.mp4 || downloadPrefs[clip.id]?.metadata)) {
+                    if (!downloading.has(clip.id) && !allDownloading && ((downloadPrefs[clip.id]?.mp4 ?? true) || (downloadPrefs[clip.id]?.metadata ?? true))) {
                       (e.target as HTMLButtonElement).style.opacity = '0.9';
                     }
                   }}
