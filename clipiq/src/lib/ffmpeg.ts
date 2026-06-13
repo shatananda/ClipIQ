@@ -65,8 +65,16 @@ export function extractClip(
     const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
 
     // Generate captions if transcript is provided
+    let hasCaptions = false;
     if (transcript && transcript.length > 0) {
-      generateSrtSubtitles(transcript, startMs, endMs, srtPath);
+      try {
+        generateSrtSubtitles(transcript, startMs, endMs, srtPath);
+        hasCaptions = fs.existsSync(srtPath) && fs.statSync(srtPath).size > 0;
+        console.log('SRT file created:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
+      } catch (srtError) {
+        console.warn('Failed to create SRT file:', srtError);
+        hasCaptions = false;
+      }
     }
 
     // Calculate crop position: left=0, center=(iw-ow)/2, right=iw-ow
@@ -79,10 +87,9 @@ export function extractClip(
 
     // Build video filter with captions if available
     let videoFilter = `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2`;
-    if (transcript && transcript.length > 0 && fs.existsSync(srtPath)) {
-      // Escape backslashes for FFmpeg filter syntax
-      const escapedSrtPath = srtPath.replace(/\\/g, '/');
-      videoFilter += `,subtitles=${escapedSrtPath}:force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
+    if (hasCaptions) {
+      videoFilter += `,subtitles='${srtPath}':force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
+      console.log('Adding subtitles to filter:', { srtPath });
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
@@ -102,13 +109,22 @@ export function extractClip(
       '-n', `"${clipPath}"`
     ].join(' ');
 
-    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript });
-    execSync(command, { stdio: 'ignore' });
-    console.log('Clip extracted:', clipPath);
+    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, hasCaptions, videoFilterLength: videoFilter.length });
+    console.log('FFmpeg command:', command);
+
+    try {
+      execSync(command, { stdio: 'pipe', maxBuffer: 10 * 1024 * 1024 });
+      console.log('Clip extracted:', clipPath);
+    } catch (execError: any) {
+      console.error('FFmpeg error:', execError.message);
+      console.error('FFmpeg stderr:', execError.stderr?.toString());
+      throw execError;
+    }
 
     // Clean up SRT file after encoding
     if (fs.existsSync(srtPath)) {
       fs.unlinkSync(srtPath);
+      console.log('SRT file cleaned up');
     }
 
     return filename;
