@@ -19,7 +19,7 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4 items-center">
         <input
           type="text"
           placeholder="https://youtu.be/..."
@@ -31,7 +31,7 @@ export default function VideoInput({ onAnalyze, isLoading }: VideoInputProps) {
         <button
           type="submit"
           disabled={isLoading || !url.trim()}
-          className="btn-primary w-full font-semibold"
+          className="btn-primary px-8 font-semibold"
         >
           {isLoading ? '⏳ Analyzing...' : '▶ Analyze'}
         </button>
