@@ -9,7 +9,7 @@ export default function ProcessingProgress({ stage, estimatedWait }: ProcessingP
   const stages = [
     { id: 'downloading', label: 'Downloading Video', duration: 30 },
     { id: 'transcribing', label: 'Transcribing Audio', duration: 60 },
-    { id: 'analyzing', label: 'Analyzing with Claude', duration: 20 },
+    { id: 'analyzing', label: 'Analyzing with AI', duration: 20 },
   ];
 
   const currentIndex = stages.findIndex((s) => s.id === stage);

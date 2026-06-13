@@ -58,7 +58,7 @@ test.describe('ClipIQ E2E Pipeline', () => {
       console.log('✓ Transcribing stage started');
 
       // Analyzing stage
-      await expect(page.locator('text=Analyzing with Claude').first()).toBeVisible({ timeout: 90000 });
+      await expect(page.locator('text=Analyzing with AI').first()).toBeVisible({ timeout: 90000 });
       console.log('✓ Analyzing stage started');
     } catch (e) {
       console.error('⚠ Processing stages error - checking network');

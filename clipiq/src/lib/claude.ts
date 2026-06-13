@@ -62,7 +62,7 @@ ${transcriptText}`;
     const parsed = JSON.parse(cleanedText);
     return parsed.clips || [];
   } catch (error) {
-    console.error('Claude analysis error:', error);
+    console.error('AI analysis error:', error);
     throw error;
   }
 }
