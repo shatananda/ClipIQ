@@ -64,14 +64,16 @@ export function extractClip(
     const clipPath = path.resolve(path.join(PATHS.clips, filename));
     const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
 
-    // Note: SRT generation prepared for when FFmpeg with libass is available
-    // Currently skipping caption burning - FFmpeg build lacks subtitles filter
+    // Generate captions if transcript is provided
+    let hasCaptions = false;
     if (transcript && transcript.length > 0) {
       try {
         generateSrtSubtitles(transcript, startMs, endMs, srtPath);
-        console.log('SRT file prepared (captions not applied - FFmpeg lacks libass support):', srtPath);
+        hasCaptions = fs.existsSync(srtPath) && fs.statSync(srtPath).size > 0;
+        console.log('SRT file created:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
       } catch (srtError) {
         console.warn('Failed to create SRT file:', srtError);
+        hasCaptions = false;
       }
     }
 
@@ -83,8 +85,13 @@ export function extractClip(
       cropX = 'iw-ow';
     }
 
-    // Build video filter - captions would be added here if FFmpeg had libass support
+    // Build video filter with captions if available
     let videoFilter = `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2`;
+    if (hasCaptions) {
+      // FFmpeg subtitles filter with libass support - burn captions into video
+      videoFilter += `,subtitles=${srtPath}:force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
+      console.log('Adding subtitles to filter:', { srtPath });
+    }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
     // Use spawnSync with array args to avoid shell escaping issues
@@ -102,7 +109,7 @@ export function extractClip(
       '-n', clipPath
     ];
 
-    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, videoFilterLength: videoFilter.length });
+    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, hasCaptions, videoFilterLength: videoFilter.length });
     console.log('FFmpeg args:', args);
 
     try {
