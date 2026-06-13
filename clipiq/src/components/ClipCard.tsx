@@ -24,30 +24,10 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
     <div className="card" style={{
       marginBottom: '24px',
       overflow: 'hidden',
-      border: isAccepted ? '2px solid var(--success)' : 'none',
+      border: isAccepted ? '2px solid var(--success)' : '2px solid var(--border)',
       position: 'relative',
+      opacity: isAccepted ? 1 : 0.8,
     }}>
-      {/* Accepted Indicator Badge */}
-      {isAccepted && (
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          zIndex: 10,
-          background: 'var(--success)',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '600',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-        }}>
-          ✓ Accepted
-        </div>
-      )}
-
       {/* Header with type badge and duration */}
       <div
         style={{
@@ -57,8 +37,30 @@ export default function ClipCard({ clip, onAccept, onDecline, onExtract, isExtra
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          position: 'relative',
         }}
       >
+        {/* Accepted/Declined Indicator */}
+        {isAccepted && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            right: '24px',
+            transform: 'translateY(-50%)',
+            background: 'var(--success)',
+            color: 'white',
+            padding: '6px 12px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            whiteSpace: 'nowrap',
+          }}>
+            ✓ Accepted
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span
             style={{
