@@ -95,7 +95,7 @@ export default function KeywordDrawer({
               When analyzing videos, the AI prioritizes clips that mention or relate to your selected keywords, ensuring the suggested clips are always relevant to your content.
             </p>
             <p style={{ margin: '8px 0 0 0' }}>
-              <strong>To exclude keywords</strong> that aren't relevant, simply click on them in the list below. Excluded keywords will appear faded and won't be used during analysis.
+              <strong>To exclude keywords</strong> that aren't relevant, simply click on them in the list below. Excluded keywords won't be used during analysis.
             </p>
           </div>
         </div>
