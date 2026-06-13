@@ -28,10 +28,13 @@ export default function ReviewPage() {
 
   const handleApprove = (isApproved: boolean, cropPosition: CropPosition) => {
     if (!previewingClip) return;
+    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition });
     const newApproved = new Set(approved);
     if (isApproved) {
       newApproved.add(previewingClip.id);
-      setCropPositions({ ...cropPositions, [previewingClip.id]: cropPosition });
+      const newCropPositions = { ...cropPositions, [previewingClip.id]: cropPosition };
+      console.log('Setting cropPositions:', newCropPositions);
+      setCropPositions(newCropPositions);
     } else {
       newApproved.delete(previewingClip.id);
     }

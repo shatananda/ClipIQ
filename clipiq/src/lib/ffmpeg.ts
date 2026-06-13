@@ -31,12 +31,12 @@ export function extractClip(
     const filename = `clip_${clipId}_${sanitizedHeadline}.mp4`;
     const clipPath = path.join(PATHS.clips, filename);
 
-    // Calculate crop position: left=0, center=(ow-iw)/2, right=ow-iw
-    let cropX = '(ow-iw)/2'; // center (default)
+    // Calculate crop position: left=0, center=(iw-ow)/2, right=iw-ow
+    let cropX = '(iw-ow)/2'; // center (default)
     if (cropPosition === 'left') {
       cropX = '0';
     } else if (cropPosition === 'right') {
-      cropX = 'ow-iw';
+      cropX = 'iw-ow';
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
@@ -46,6 +46,7 @@ export function extractClip(
       -c:a aac -b:a 128k -movflags +faststart \
       -n "${clipPath}"`;
 
+    console.log('Extracting clip:', { cropPosition, cropX });
     execSync(command, { stdio: 'ignore' });
     console.log('Clip extracted:', clipPath);
 
