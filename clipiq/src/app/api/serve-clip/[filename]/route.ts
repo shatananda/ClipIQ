@@ -5,6 +5,18 @@ import { PATHS } from '@/lib/storage';
 export async function GET(req: Request, { params }: { params: Promise<{ filename: string }> }) {
   try {
     const { filename } = await params;
+
+    // If filename is a Blob URL, redirect to it
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+      return new Response(null, {
+        status: 303,
+        headers: {
+          'Location': filename,
+        },
+      });
+    }
+
+    // Otherwise serve from local storage (development mode)
     const clipPath = path.join(PATHS.clips, filename);
 
     if (!fs.existsSync(clipPath)) {

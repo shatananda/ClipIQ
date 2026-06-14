@@ -50,7 +50,7 @@ export async function POST(req: Request) {
           burnCaptions,
         });
 
-        const filename = extractClip(
+        const filename = await extractClip(
           videoPath,
           clipData.start_ms,
           clipData.end_ms,

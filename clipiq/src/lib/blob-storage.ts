@@ -31,30 +31,24 @@ export async function uploadFile(
   }
 }
 
-export async function downloadFile(blobKey: string, localPath: string): Promise<string> {
+export async function downloadFile(blobUrl: string, localPath: string): Promise<string> {
   if (!isProduction) {
-    // Development: file already exists locally
     return localPath;
   }
 
-  // Production: download from Vercel Blob
   try {
-    // @ts-ignore - @vercel/blob only available in production
-    const { get } = await import('@vercel/blob');
-    const blob = await get(blobKey);
-
-    if (!blob) {
-      throw new Error(`Blob not found: ${blobKey}`);
+    const response = await fetch(blobUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download blob: ${response.statusText}`);
     }
 
-    // Ensure directory exists
+    const buffer = await response.arrayBuffer();
     const dir = path.dirname(localPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Write to temporary local file
-    fs.writeFileSync(localPath, blob);
+    fs.writeFileSync(localPath, Buffer.from(buffer));
     return localPath;
   } catch (error) {
     console.error('Blob download failed:', error);

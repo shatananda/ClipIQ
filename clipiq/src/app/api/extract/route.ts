@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     const burnCaptions = clipData.burnCaptions !== false;
     const captionFontSize = clipData.captionFontSize || 18;
     console.log('Extracting clip:', { id: clipData.id, headline: clipData.headline, cropPosition, hasTranscript: !!transcript, burnCaptions, captionFontSize });
-    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition, transcript, burnCaptions, captionFontSize);
+    const filename = await extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition, transcript, burnCaptions, captionFontSize);
 
     return Response.json({ success: true, filename, clipPath: `/api/serve-clip/${filename}` });
   } catch (error) {

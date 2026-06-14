@@ -1,8 +1,10 @@
 import { execSync, spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { PATHS } from './storage';
 import { Paragraph } from '@/types';
+import { uploadFile, getBlobKey } from './blob-storage';
 
 export function extractAudio(videoPath: string, videoId: string): string {
   try {
@@ -46,7 +48,7 @@ function generateSrtSubtitles(transcript: Paragraph[], startMs: number, endMs: n
   fs.writeFileSync(srtPath, srtContent);
 }
 
-export function extractClip(
+export async function extractClip(
   videoPath: string,
   startMs: number,
   endMs: number,
@@ -56,15 +58,22 @@ export function extractClip(
   transcript?: Paragraph[],
   burnCaptions: boolean = true,
   captionFontSize: number = 18
-): string {
+): Promise<string> {
   try {
     const startSeconds = startMs / 1000;
     const durationSeconds = (endMs - startMs) / 1000;
 
     const sanitizedHeadline = headline.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 50);
     const filename = `clip_${clipId}_${sanitizedHeadline}.mp4`;
-    const clipPath = path.resolve(path.join(PATHS.clips, filename));
-    const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
+
+    // Use /tmp for temporary clip file (cleaned up automatically after request)
+    const tmpDir = path.join(os.tmpdir(), 'clipiq-tmp');
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+
+    const clipPath = path.resolve(path.join(tmpDir, filename));
+    const srtPath = path.resolve(path.join(tmpDir, `clip_${clipId}.srt`));
 
     // Generate captions if transcript is provided and burning is enabled
     let hasCaptions = false;
@@ -143,6 +152,25 @@ export function extractClip(
     if (fs.existsSync(srtPath)) {
       fs.unlinkSync(srtPath);
       console.log('SRT file cleaned up');
+    }
+
+    // Upload to Blob storage if in production, otherwise return filename for local serving
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    if (isProduction) {
+      try {
+        const blobKey = getBlobKey('clip', `${clipId}_${sanitizedHeadline}`);
+        const blobUrl = await uploadFile(clipPath, blobKey);
+        console.log('Clip uploaded to Blob:', { blobKey, blobUrl });
+        // Clean up temporary file after upload
+        if (fs.existsSync(clipPath)) {
+          fs.unlinkSync(clipPath);
+        }
+        return blobUrl;
+      } catch (uploadError) {
+        console.error('Failed to upload clip to Blob:', uploadError);
+        // Fall back to local filename if upload fails
+        return filename;
+      }
     }
 
     return filename;
