@@ -66,13 +66,24 @@ export async function extractClip(
     const sanitizedHeadline = headline.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 50);
     const filename = `clip_${clipId}_${sanitizedHeadline}.mp4`;
 
-    // Use /tmp for temporary clip file (cleaned up automatically after request)
+    // In development: store clips in storage/clips
+    // In production: store in /tmp and upload to Blob
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    const clipsDir = isProduction
+      ? path.join(os.tmpdir(), 'clipiq-tmp')
+      : path.resolve(PATHS.clips);
+
+    if (!fs.existsSync(clipsDir)) {
+      fs.mkdirSync(clipsDir, { recursive: true });
+    }
+
+    // SRT file goes to temp directory
     const tmpDir = path.join(os.tmpdir(), 'clipiq-tmp');
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir, { recursive: true });
     }
 
-    const clipPath = path.resolve(path.join(tmpDir, filename));
+    const clipPath = path.resolve(path.join(clipsDir, filename));
     const srtPath = path.resolve(path.join(tmpDir, `clip_${clipId}.srt`));
 
     // Generate captions if transcript is provided and burning is enabled
@@ -154,8 +165,7 @@ export async function extractClip(
       console.log('SRT file cleaned up');
     }
 
-    // Upload to Blob storage if in production, otherwise return filename for local serving
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    // In production: upload to Blob storage
     if (isProduction) {
       try {
         const blobKey = getBlobKey('clip', `${clipId}_${sanitizedHeadline}`);
@@ -173,6 +183,7 @@ export async function extractClip(
       }
     }
 
+    // In development: return filename for local serving
     return filename;
   } catch (error) {
     console.error('Clip extraction error:', error);
