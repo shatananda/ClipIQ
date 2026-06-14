@@ -49,43 +49,55 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
 
     console.log('Downloading video:', { url, videoId, videoPath: absoluteVideoPath });
 
-    // Get video info first
-    const info = await ytdl.getInfo(url);
-    const title = info.videoDetails.title;
-    const durationSeconds = parseInt(info.videoDetails.lengthSeconds);
+    try {
+      // Get video info first
+      const info = await ytdl.getInfo(url);
+      const title = info.videoDetails.title;
+      const durationSeconds = parseInt(info.videoDetails.lengthSeconds);
 
-    // Download best quality MP4
-    const videoStream = ytdl(url, {
-      quality: 'highest',
-      filter: (format) => format.container === 'mp4',
-    });
+      console.log('Video info retrieved:', { title, durationSeconds });
 
-    // Write to file
-    const writeStream = fs.createWriteStream(absoluteVideoPath);
+      // Download best available format (not necessarily MP4, let FFmpeg handle it)
+      const videoStream = ytdl(url, {
+        quality: 'highest',
+      });
 
-    return new Promise((resolve, reject) => {
-      videoStream.pipe(writeStream);
+      // Write to file
+      const writeStream = fs.createWriteStream(absoluteVideoPath);
 
-      writeStream.on('finish', () => {
-        console.log('Video downloaded successfully:', absoluteVideoPath);
-        resolve({
-          videoId,
-          videoPath: absoluteVideoPath,
-          title,
-          durationSeconds,
+      return new Promise((resolve, reject) => {
+        videoStream.pipe(writeStream);
+
+        writeStream.on('finish', () => {
+          console.log('Video downloaded successfully:', absoluteVideoPath);
+          resolve({
+            videoId,
+            videoPath: absoluteVideoPath,
+            title,
+            durationSeconds,
+          });
         });
-      });
 
-      writeStream.on('error', (err) => {
-        console.error('Write error:', err);
-        reject(err);
-      });
+        writeStream.on('error', (err) => {
+          console.error('Write error:', err);
+          reject(err);
+        });
 
-      videoStream.on('error', (err) => {
-        console.error('Stream error:', err);
-        reject(err);
+        videoStream.on('error', (err) => {
+          console.error('Stream error:', err);
+          reject(new Error(`Failed to download video stream: ${err.message}`));
+        });
+
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          videoStream.destroy();
+          reject(new Error('Download timeout after 5 minutes'));
+        }, 5 * 60 * 1000);
       });
-    });
+    } catch (err) {
+      console.error('Video info error:', err);
+      throw new Error(`Failed to get video info: ${err instanceof Error ? err.message : String(err)}`);
+    }
   } catch (error) {
     console.error('Download error:', error);
     throw error;
