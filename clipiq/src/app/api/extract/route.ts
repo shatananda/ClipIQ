@@ -36,8 +36,9 @@ export async function POST(req: Request) {
 
     const clipData = clip as any;
     const cropPosition = clipData.cropPosition || 'center';
-    console.log('Extracting clip:', { id: clipData.id, headline: clipData.headline, cropPosition, hasTranscript: !!transcript });
-    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition, transcript);
+    const burnCaptions = clipData.burnCaptions !== false;
+    console.log('Extracting clip:', { id: clipData.id, headline: clipData.headline, cropPosition, hasTranscript: !!transcript, burnCaptions });
+    const filename = extractClip(videoPath, clipData.start_ms, clipData.end_ms, clipData.id, clipData.headline, cropPosition, transcript, burnCaptions);
 
     return Response.json({ success: true, filename, clipPath: `/api/serve-clip/${filename}` });
   } catch (error) {

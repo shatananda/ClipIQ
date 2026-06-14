@@ -223,4 +223,57 @@ test.describe('Captions Integration - End-to-End', () => {
       fs.unlinkSync(transcriptPath);
     }
   });
+
+  test('captions can be disabled via burnCaptions flag', async ({ request }) => {
+    const testVideoId = 'no_captions_test';
+
+    const mockTranscript = [
+      { text: 'This should not be burned', start: 2000, end: 5000, confidence: 0.95 },
+      { text: 'Caption burning disabled', start: 5000, end: 8000, confidence: 0.93 },
+    ];
+
+    if (!fs.existsSync(transcriptDir)) {
+      fs.mkdirSync(transcriptDir, { recursive: true });
+    }
+    const transcriptPath = path.join(transcriptDir, `${testVideoId}.json`);
+    fs.writeFileSync(transcriptPath, JSON.stringify(mockTranscript));
+
+    const clipData = {
+      id: 250,
+      start_ms: 2000,
+      end_ms: 8000,
+      duration_seconds: 6,
+      type: 'Tip',
+      headline: 'No Captions Test',
+      why_clip_worthy: 'Test caption disabling',
+      hook: 'Test',
+      suggested_platforms: ['TikTok'],
+      confidence: 88,
+      cropPosition: 'center',
+      burnCaptions: false
+    };
+
+    const response = await request.post('/api/extract', {
+      data: {
+        videoPath: testVideoPath,
+        clip: clipData,
+        videoId: testVideoId
+      }
+    });
+
+    expect(response.ok()).toBeTruthy();
+    const result = await response.json();
+    expect(result.success).toBe(true);
+
+    const outputPath = path.join(clipsDir, result.filename);
+    expect(fs.existsSync(outputPath)).toBe(true);
+
+    // File should be smaller without captions
+    const stats = fs.statSync(outputPath);
+    console.log(`✓ Clip without captions created: ${result.filename} (${stats.size} bytes)`);
+    expect(stats.size).toBeGreaterThan(10000);
+
+    // Clean up
+    fs.unlinkSync(transcriptPath);
+  });
 });

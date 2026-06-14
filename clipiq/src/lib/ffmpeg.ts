@@ -53,7 +53,8 @@ export function extractClip(
   clipId: number,
   headline: string,
   cropPosition: 'left' | 'center' | 'right' = 'center',
-  transcript?: Paragraph[]
+  transcript?: Paragraph[],
+  burnCaptions: boolean = true
 ): string {
   try {
     const startSeconds = startMs / 1000;
@@ -64,17 +65,19 @@ export function extractClip(
     const clipPath = path.resolve(path.join(PATHS.clips, filename));
     const srtPath = path.resolve(path.join(PATHS.clips, `clip_${clipId}.srt`));
 
-    // Generate captions if transcript is provided
+    // Generate captions if transcript is provided and burning is enabled
     let hasCaptions = false;
-    if (transcript && transcript.length > 0) {
+    if (transcript && transcript.length > 0 && burnCaptions) {
       try {
         generateSrtSubtitles(transcript, startMs, endMs, srtPath);
         hasCaptions = fs.existsSync(srtPath) && fs.statSync(srtPath).size > 0;
-        console.log('SRT file created:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
+        console.log('SRT file created and captions will be burned:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
       } catch (srtError) {
         console.warn('Failed to create SRT file:', srtError);
         hasCaptions = false;
       }
+    } else if (transcript && transcript.length > 0 && !burnCaptions) {
+      console.log('Transcript available but caption burning disabled by user');
     }
 
     // Calculate crop position: left=0, center=(iw-ow)/2, right=iw-ow
@@ -109,7 +112,7 @@ export function extractClip(
       '-n', clipPath
     ];
 
-    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, hasCaptions, videoFilterLength: videoFilter.length });
+    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, burnCaptions, hasCaptions, videoFilterLength: videoFilter.length });
     console.log('FFmpeg args:', args);
 
     try {

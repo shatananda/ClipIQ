@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ClipCard from '@/components/ClipCard';
 import VideoPreviewModal from '@/components/VideoPreviewModal';
-import { ClipIQState, ClipSuggestion, CropPosition } from '@/types';
+import { ClipIQState, ClipSuggestion, CropPosition, ApprovedClip } from '@/types';
 
 export default function ReviewPage() {
   const router = useRouter();
   const [state, setState] = useState<ClipIQState | null>(null);
   const [approved, setApproved] = useState<Set<number>>(new Set());
   const [cropPositions, setCropPositions] = useState<Record<number, CropPosition>>({});
+  const [captionSettings, setCaptionSettings] = useState<Record<number, boolean>>({});
   const [previewingClip, setPreviewingClip] = useState<ClipSuggestion | null>(null);
 
   useEffect(() => {
@@ -26,15 +27,18 @@ export default function ReviewPage() {
     setPreviewingClip(clip);
   };
 
-  const handleApprove = (isApproved: boolean, cropPosition: CropPosition) => {
+  const handleApprove = (isApproved: boolean, cropPosition: CropPosition, burnCaptions: boolean = true) => {
     if (!previewingClip) return;
-    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition });
+    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition, burnCaptions });
     const newApproved = new Set(approved);
     if (isApproved) {
       newApproved.add(previewingClip.id);
       const newCropPositions = { ...cropPositions, [previewingClip.id]: cropPosition };
+      const newCaptionSettings = { ...captionSettings, [previewingClip.id]: burnCaptions };
       console.log('Setting cropPositions:', newCropPositions);
+      console.log('Setting captionSettings:', newCaptionSettings);
       setCropPositions(newCropPositions);
+      setCaptionSettings(newCaptionSettings);
     } else {
       newApproved.delete(previewingClip.id);
     }
@@ -43,9 +47,10 @@ export default function ReviewPage() {
 
   const handleProceedToDownload = () => {
     if (!state) return;
-    const approvedClips = state.clips.filter((clip) => approved.has(clip.id)).map((clip) => ({
+    const approvedClips: ApprovedClip[] = state.clips.filter((clip) => approved.has(clip.id)).map((clip) => ({
       ...clip,
-      cropPosition: cropPositions[clip.id] || 'center'
+      cropPosition: cropPositions[clip.id] || 'center',
+      burnCaptions: captionSettings[clip.id] !== false
     }));
     sessionStorage.setItem('approved_clips', JSON.stringify(approvedClips));
     sessionStorage.setItem('clipiq_state', JSON.stringify(state));
@@ -131,6 +136,7 @@ export default function ReviewPage() {
           videoId={state.videoId}
           isApproved={approved.has(previewingClip.id)}
           cropPosition={cropPositions[previewingClip.id] || 'center'}
+          burnCaptions={captionSettings[previewingClip.id] !== false}
           onApprove={handleApprove}
           onClose={() => setPreviewingClip(null)}
         />
