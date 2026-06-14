@@ -64,6 +64,7 @@ export default function VideoPreviewModal({
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -95,8 +96,8 @@ export default function VideoPreviewModal({
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Content - Scrollable */}
+        <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px', overflowY: 'auto', flex: 1 }}>
           {/* Metadata */}
           <div>
             <h3 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: 'var(--text)' }}>
@@ -263,65 +264,67 @@ export default function VideoPreviewModal({
               <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Captions
               </p>
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  marginBottom: '12px',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={shouldBurnCaptions}
-                  onChange={(e) => setShouldBurnCaptions(e.target.checked)}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <label
                   style={{
-                    width: '18px',
-                    height: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
                     cursor: 'pointer',
                   }}
-                />
-                <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>
-                  Burn captions into video
-                </span>
-              </label>
-
-              {shouldBurnCaptions && (
-                <div style={{ marginLeft: '26px' }}>
-                  <p style={{ color: 'var(--text)', fontWeight: '500', fontSize: '13px', marginBottom: '8px' }}>
-                    Font Size: <span style={{ color: 'var(--primary)', fontWeight: '600' }}>{selectedFontSize}px</span>
-                  </p>
+                >
                   <input
-                    type="range"
-                    min="12"
-                    max="28"
-                    value={selectedFontSize}
-                    onChange={(e) => setSelectedFontSize(parseInt(e.target.value))}
+                    type="checkbox"
+                    checked={shouldBurnCaptions}
+                    onChange={(e) => setShouldBurnCaptions(e.target.checked)}
                     style={{
-                      width: '100%',
-                      height: '6px',
-                      borderRadius: '3px',
-                      backgroundColor: 'var(--bg-gray)',
+                      width: '18px',
+                      height: '18px',
                       cursor: 'pointer',
-                      outline: 'none',
                     }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-light)', marginTop: '4px' }}>
-                    <span>Small</span>
-                    <span>Large</span>
+                  <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>
+                    Burn captions
+                  </span>
+                </label>
+
+                {shouldBurnCaptions && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text)', fontWeight: '500' }}>
+                      Size:
+                      <input
+                        type="range"
+                        min="12"
+                        max="28"
+                        value={selectedFontSize}
+                        onChange={(e) => setSelectedFontSize(parseInt(e.target.value))}
+                        style={{
+                          width: '100px',
+                          height: '5px',
+                          borderRadius: '3px',
+                          backgroundColor: 'var(--bg-gray)',
+                          cursor: 'pointer',
+                          outline: 'none',
+                        }}
+                      />
+                      <span style={{ color: 'var(--primary)', fontWeight: '600', minWidth: '28px' }}>
+                        {selectedFontSize}px
+                      </span>
+                    </label>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <p style={{ color: 'var(--text-light)', fontSize: '12px', marginTop: '8px' }}>
-                {shouldBurnCaptions ? 'Adjust font size for readability on different platforms' : 'Uncheck if you want to add captions manually'}
+                {shouldBurnCaptions ? 'Adjust font size for readability (small=12px, large=28px)' : 'Uncheck if you want to add captions manually'}
               </p>
             </div>
           </div>
 
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        </div>
+
+        {/* Actions - Fixed at bottom */}
+        <div style={{ padding: '24px', display: 'flex', gap: '12px', alignItems: 'center', borderTop: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}>
             <label
               style={{
                 display: 'flex',
@@ -366,7 +369,6 @@ export default function VideoPreviewModal({
             >
               Close
             </button>
-          </div>
         </div>
       </div>
     </div>
