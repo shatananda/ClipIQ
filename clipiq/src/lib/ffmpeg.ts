@@ -54,7 +54,8 @@ export function extractClip(
   headline: string,
   cropPosition: 'left' | 'center' | 'right' = 'center',
   transcript?: Paragraph[],
-  burnCaptions: boolean = true
+  burnCaptions: boolean = true,
+  captionFontSize: number = 18
 ): string {
   try {
     const startSeconds = startMs / 1000;
@@ -92,8 +93,8 @@ export function extractClip(
     let videoFilter = `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:${cropX}:(oh-ih)/2`;
     if (hasCaptions) {
       // FFmpeg subtitles filter with libass support - burn captions into video
-      videoFilter += `,subtitles=${srtPath}:force_style='FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
-      console.log('Adding subtitles to filter:', { srtPath });
+      videoFilter += `,subtitles=${srtPath}:force_style='FontSize=${captionFontSize},PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
+      console.log('Adding subtitles to filter:', { srtPath, captionFontSize });
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)

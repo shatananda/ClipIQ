@@ -20,6 +20,8 @@ export default function DownloadPage() {
   const [error, setError] = useState<string | null>(null);
   const [downloadPrefs, setDownloadPrefs] = useState<Record<number, ClipDownloadPrefs>>({});
   const [downloadProgress, setDownloadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
+  const [extractedFiles, setExtractedFiles] = useState<Record<number, string>>({});
 
   useEffect(() => {
     const clipiqState = sessionStorage.getItem('clipiq_state');
@@ -98,15 +100,20 @@ export default function DownloadPage() {
       // Download metadata if selected
       if (prefs.metadata) {
         downloadMetadata(clip);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
       // Download MP4 if selected
       if (prefs.mp4) {
-        const res = await fetch('/api/extract', {
+        // Use batch-extract for consistency (single clip in array)
+        const res = await fetch('/api/batch-extract', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoPath: state.videoPath, clip, videoId: state.videoId }),
+          body: JSON.stringify({
+            videoPath: state.videoPath,
+            clips: [clip],
+            videoId: state.videoId,
+          }),
         });
 
         if (!res.ok) {
@@ -115,12 +122,15 @@ export default function DownloadPage() {
         }
 
         const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        if (!data.success || data.extracted === 0) {
+          throw new Error(data.error || data.results[0]?.error || 'Failed to extract clip');
+        }
 
-        const videoUrl = data.clipPath || `/api/serve-clip/${data.filename}`;
+        const filename = data.results[0].filename;
+        const videoUrl = `/api/serve-clip/${filename}`;
         const a = document.createElement('a');
         a.href = videoUrl;
-        a.download = data.filename || `${clip.headline}.mp4`;
+        a.download = filename || `${clip.headline}.mp4`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -136,53 +146,85 @@ export default function DownloadPage() {
   };
 
   const handleDownloadAll = async () => {
+    if (!state) {
+      setError('No video state available');
+      return;
+    }
+
     setAllDownloading(true);
-    setDownloadProgress({ current: 0, total: approvedClips.length });
+    setProcessingStatus('Generating clips...');
+    setError(null);
+
     try {
+      // Step 1: Batch extract all clips
+      const extractRes = await fetch('/api/batch-extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          videoPath: state.videoPath,
+          clips: approvedClips,
+          videoId: state.videoId,
+        }),
+      });
+
+      if (!extractRes.ok) {
+        const text = await extractRes.text();
+        throw new Error(`Batch extraction failed: ${extractRes.status} ${text.slice(0, 100)}`);
+      }
+
+      const extractData = await extractRes.json();
+      if (!extractData.success) {
+        throw new Error(extractData.error || 'Batch extraction failed');
+      }
+
+      // Map filenames by clip ID
+      const fileMap: Record<number, string> = {};
+      extractData.results.forEach((result: any) => {
+        if (result.success) {
+          fileMap[result.id] = result.filename;
+        }
+      });
+      setExtractedFiles(fileMap);
+
+      // Step 2: Download all files
+      setProcessingStatus(null);
+      setDownloadProgress({ current: 0, total: approvedClips.length });
+
       for (let idx = 0; idx < approvedClips.length; idx++) {
         const clip = approvedClips[idx];
         setDownloadProgress({ current: idx + 1, total: approvedClips.length });
 
-        // Download metadata first
-        downloadMetadata(clip);
+        const prefs = downloadPrefs[clip.id];
+        if (!prefs || (!prefs.mp4 && !prefs.metadata)) {
+          continue;
+        }
 
-        // Then download video with slight delay
-        if (!state) return;
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Download metadata
+        if (prefs.metadata) {
+          downloadMetadata(clip);
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
 
-        try {
-          const res = await fetch('/api/extract', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ videoPath: state.videoPath, clip, videoId: state.videoId }),
-          });
-
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`API error: ${res.status} ${text.slice(0, 100)}`);
-          }
-
-          const data = await res.json();
-          if (!data.success) throw new Error(data.error);
-
-          const videoUrl = data.clipPath || `/api/serve-clip/${data.filename}`;
+        // Download video if it was successfully extracted
+        if (prefs.mp4 && fileMap[clip.id]) {
+          const videoUrl = `/api/serve-clip/${fileMap[clip.id]}`;
           const a = document.createElement('a');
           a.href = videoUrl;
-          a.download = data.filename || `${clip.headline}.mp4`;
+          a.download = fileMap[clip.id];
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`Error downloading clip ${clip.id}:`, error);
-          setError(`Error downloading "${clip.headline}": ${errorMsg}`);
+          await new Promise((resolve) => setTimeout(resolve, 300));
         }
       }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Download all error:', error);
+      setError(`Error: ${errorMsg}`);
     } finally {
       setAllDownloading(false);
       setDownloadProgress(null);
+      setProcessingStatus(null);
     }
   };
 
@@ -251,11 +293,25 @@ export default function DownloadPage() {
           {approvedClips.length} clip{approvedClips.length !== 1 ? 's' : ''} approved and ready to download
         </p>
 
-        {downloadProgress && (
-          <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(91, 108, 246, 0.05)', borderRadius: '8px', border: '1px solid var(--primary)' }}>
-            <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '8px', fontSize: '14px' }}>
-              Downloading: {downloadProgress.current} of {downloadProgress.total}
-            </p>
+        {(processingStatus || downloadProgress) && (
+          <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(91, 108, 246, 0.05)', borderRadius: '8px', border: '1px solid var(--primary)' }}>
+            {processingStatus && (
+              <>
+                <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '12px', fontSize: '15px' }}>
+                  ⏳ {processingStatus}
+                </p>
+                <p style={{ color: 'var(--text-light)', fontSize: '13px', marginBottom: '8px' }}>
+                  Extracting and encoding clips... This may take a few minutes.
+                </p>
+              </>
+            )}
+            {downloadProgress && !processingStatus && (
+              <>
+                <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '8px', fontSize: '14px' }}>
+                  📥 Downloading: {downloadProgress.current} of {downloadProgress.total}
+                </p>
+              </>
+            )}
             <div style={{
               width: '100%',
               height: '6px',
@@ -265,7 +321,7 @@ export default function DownloadPage() {
             }}>
               <div style={{
                 height: '100%',
-                width: `${(downloadProgress.current / downloadProgress.total) * 100}%`,
+                width: processingStatus ? '100%' : `${(downloadProgress?.current || 0) / (downloadProgress?.total || 1) * 100}%`,
                 backgroundColor: 'var(--primary)',
                 transition: 'width 0.3s ease',
               }} />
