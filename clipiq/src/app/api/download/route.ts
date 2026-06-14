@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return Response.json({ error: 'URL required' }, { status: 400 });
     }
 
-    const info = downloadVideo(url);
+    const info = await downloadVideo(url);
     return Response.json({ success: true, ...info });
   } catch (error) {
     console.error('Download error:', error);

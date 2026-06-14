@@ -1,6 +1,7 @@
-import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { Writable } from 'stream';
+import ytdl from 'ytdl-core';
 import { PATHS } from './storage';
 
 export interface VideoInfo {
@@ -10,7 +11,7 @@ export interface VideoInfo {
   durationSeconds: number;
 }
 
-export function downloadVideo(url: string): VideoInfo {
+export async function downloadVideo(url: string): Promise<VideoInfo> {
   try {
     // Validate YouTube URL
     const urlObj = new URL(url);
@@ -26,25 +27,65 @@ export function downloadVideo(url: string): VideoInfo {
       throw new Error('Invalid YouTube URL');
     }
 
+    // Ensure videos directory exists
+    if (!fs.existsSync(PATHS.videos)) {
+      fs.mkdirSync(PATHS.videos, { recursive: true });
+    }
+
     const videoPath = path.join(PATHS.videos, `${videoId}.mp4`);
     const absoluteVideoPath = path.resolve(videoPath);
 
-    // Download using yt-dlp
-    const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4" -o "${absoluteVideoPath}" "${url}"`;
-    const output = execSync(command, { encoding: 'utf-8' });
-    console.log('Video downloaded:', output);
+    // Check if already downloaded
+    if (fs.existsSync(absoluteVideoPath)) {
+      console.log('Video already downloaded:', absoluteVideoPath);
+      const info = await ytdl.getInfo(url);
+      return {
+        videoId,
+        videoPath: absoluteVideoPath,
+        title: info.videoDetails.title,
+        durationSeconds: parseInt(info.videoDetails.lengthSeconds),
+      };
+    }
 
-    // Get video info
-    const infoCommand = `yt-dlp --dump-json "${url}"`;
-    const infoJson = execSync(infoCommand, { encoding: 'utf-8' });
-    const info = JSON.parse(infoJson);
+    console.log('Downloading video:', { url, videoId, videoPath: absoluteVideoPath });
 
-    return {
-      videoId,
-      videoPath: absoluteVideoPath,
-      title: info.title || videoId,
-      durationSeconds: info.duration || 0,
-    };
+    // Get video info first
+    const info = await ytdl.getInfo(url);
+    const title = info.videoDetails.title;
+    const durationSeconds = parseInt(info.videoDetails.lengthSeconds);
+
+    // Download best quality MP4
+    const videoStream = ytdl(url, {
+      quality: 'highest',
+      filter: (format) => format.container === 'mp4',
+    });
+
+    // Write to file
+    const writeStream = fs.createWriteStream(absoluteVideoPath);
+
+    return new Promise((resolve, reject) => {
+      videoStream.pipe(writeStream);
+
+      writeStream.on('finish', () => {
+        console.log('Video downloaded successfully:', absoluteVideoPath);
+        resolve({
+          videoId,
+          videoPath: absoluteVideoPath,
+          title,
+          durationSeconds,
+        });
+      });
+
+      writeStream.on('error', (err) => {
+        console.error('Write error:', err);
+        reject(err);
+      });
+
+      videoStream.on('error', (err) => {
+        console.error('Stream error:', err);
+        reject(err);
+      });
+    });
   } catch (error) {
     console.error('Download error:', error);
     throw error;
