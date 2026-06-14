@@ -298,17 +298,20 @@ export default function DownloadPage() {
             {processingStatus && (
               <>
                 <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '12px', fontSize: '15px' }}>
-                  ⏳ {processingStatus}
+                  ⏳ Generating {approvedClips.length} clip{approvedClips.length !== 1 ? 's' : ''}...
                 </p>
                 <p style={{ color: 'var(--text-light)', fontSize: '13px', marginBottom: '8px' }}>
-                  Extracting and encoding clips... This may take a few minutes.
+                  Extracting and encoding {approvedClips.length} video{approvedClips.length !== 1 ? 's' : ''} with captions. This may take a few minutes.
+                </p>
+                <p style={{ color: 'var(--text-light)', fontSize: '12px' }}>
+                  Expected downloads: {approvedClips.length} MP4 video{approvedClips.length !== 1 ? 's' : ''} + {approvedClips.length} metadata file{approvedClips.length !== 1 ? 's' : ''}
                 </p>
               </>
             )}
             {downloadProgress && !processingStatus && (
               <>
                 <p style={{ color: 'var(--text)', fontWeight: '500', marginBottom: '8px', fontSize: '14px' }}>
-                  📥 Downloading: {downloadProgress.current} of {downloadProgress.total}
+                  📥 Downloading: {downloadProgress.current} of {downloadProgress.total} ({Math.round((downloadProgress.current / downloadProgress.total) * 100)}%)
                 </p>
               </>
             )}
@@ -374,7 +377,7 @@ export default function DownloadPage() {
               if (!allDownloading) (e.target as HTMLButtonElement).style.opacity = '1';
             }}
           >
-            <DownloadIcon /> {allDownloading ? 'Downloading...' : 'Download All'}
+            <DownloadIcon /> {allDownloading ? 'Processing...' : `Download All (${approvedClips.length} clips)`}
           </button>
         </div>
       </div>
