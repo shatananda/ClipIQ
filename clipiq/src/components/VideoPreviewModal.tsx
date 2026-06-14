@@ -10,7 +10,8 @@ interface VideoPreviewModalProps {
   isApproved: boolean;
   cropPosition: CropPosition;
   burnCaptions?: boolean;
-  onApprove: (approved: boolean, cropPosition: CropPosition, burnCaptions?: boolean) => void;
+  captionFontSize?: number;
+  onApprove: (approved: boolean, cropPosition: CropPosition, burnCaptions?: boolean, captionFontSize?: number) => void;
   onClose: () => void;
 }
 
@@ -20,11 +21,13 @@ export default function VideoPreviewModal({
   isApproved,
   cropPosition,
   burnCaptions = true,
+  captionFontSize = 18,
   onApprove,
   onClose,
 }: VideoPreviewModalProps) {
   const [selectedCrop, setSelectedCrop] = useState<CropPosition>(cropPosition);
   const [shouldBurnCaptions, setShouldBurnCaptions] = useState(burnCaptions);
+  const [selectedFontSize, setSelectedFontSize] = useState(captionFontSize);
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -257,7 +260,7 @@ export default function VideoPreviewModal({
 
             {/* Caption Options */}
             <div>
-              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Captions
               </p>
               <label
@@ -266,6 +269,7 @@ export default function VideoPreviewModal({
                   alignItems: 'center',
                   gap: '8px',
                   cursor: 'pointer',
+                  marginBottom: '12px',
                 }}
               >
                 <input
@@ -282,8 +286,36 @@ export default function VideoPreviewModal({
                   Burn captions into video
                 </span>
               </label>
-              <p style={{ color: 'var(--text-light)', fontSize: '12px', marginTop: '6px' }}>
-                Uncheck if you want to add captions manually
+
+              {shouldBurnCaptions && (
+                <div style={{ marginLeft: '26px' }}>
+                  <p style={{ color: 'var(--text)', fontWeight: '500', fontSize: '13px', marginBottom: '8px' }}>
+                    Font Size: <span style={{ color: 'var(--primary)', fontWeight: '600' }}>{selectedFontSize}px</span>
+                  </p>
+                  <input
+                    type="range"
+                    min="12"
+                    max="28"
+                    value={selectedFontSize}
+                    onChange={(e) => setSelectedFontSize(parseInt(e.target.value))}
+                    style={{
+                      width: '100%',
+                      height: '6px',
+                      borderRadius: '3px',
+                      backgroundColor: 'var(--bg-gray)',
+                      cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-light)', marginTop: '4px' }}>
+                    <span>Small</span>
+                    <span>Large</span>
+                  </div>
+                </div>
+              )}
+
+              <p style={{ color: 'var(--text-light)', fontSize: '12px', marginTop: '8px' }}>
+                {shouldBurnCaptions ? 'Adjust font size for readability on different platforms' : 'Uncheck if you want to add captions manually'}
               </p>
             </div>
           </div>
@@ -302,7 +334,7 @@ export default function VideoPreviewModal({
               <input
                 type="checkbox"
                 checked={isApproved}
-                onChange={(e) => onApprove(e.target.checked, selectedCrop, shouldBurnCaptions)}
+                onChange={(e) => onApprove(e.target.checked, selectedCrop, shouldBurnCaptions, selectedFontSize)}
                 style={{
                   width: '20px',
                   height: '20px',

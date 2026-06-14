@@ -12,6 +12,7 @@ export default function ReviewPage() {
   const [approved, setApproved] = useState<Set<number>>(new Set());
   const [cropPositions, setCropPositions] = useState<Record<number, CropPosition>>({});
   const [captionSettings, setCaptionSettings] = useState<Record<number, boolean>>({});
+  const [fontSizes, setFontSizes] = useState<Record<number, number>>({});
   const [previewingClip, setPreviewingClip] = useState<ClipSuggestion | null>(null);
 
   useEffect(() => {
@@ -27,18 +28,21 @@ export default function ReviewPage() {
     setPreviewingClip(clip);
   };
 
-  const handleApprove = (isApproved: boolean, cropPosition: CropPosition, burnCaptions: boolean = true) => {
+  const handleApprove = (isApproved: boolean, cropPosition: CropPosition, burnCaptions: boolean = true, captionFontSize: number = 18) => {
     if (!previewingClip) return;
-    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition, burnCaptions });
+    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition, burnCaptions, captionFontSize });
     const newApproved = new Set(approved);
     if (isApproved) {
       newApproved.add(previewingClip.id);
       const newCropPositions = { ...cropPositions, [previewingClip.id]: cropPosition };
       const newCaptionSettings = { ...captionSettings, [previewingClip.id]: burnCaptions };
+      const newFontSizes = { ...fontSizes, [previewingClip.id]: captionFontSize };
       console.log('Setting cropPositions:', newCropPositions);
       console.log('Setting captionSettings:', newCaptionSettings);
+      console.log('Setting fontSizes:', newFontSizes);
       setCropPositions(newCropPositions);
       setCaptionSettings(newCaptionSettings);
+      setFontSizes(newFontSizes);
     } else {
       newApproved.delete(previewingClip.id);
     }
@@ -50,7 +54,8 @@ export default function ReviewPage() {
     const approvedClips: ApprovedClip[] = state.clips.filter((clip) => approved.has(clip.id)).map((clip) => ({
       ...clip,
       cropPosition: cropPositions[clip.id] || 'center',
-      burnCaptions: captionSettings[clip.id] !== false
+      burnCaptions: captionSettings[clip.id] !== false,
+      captionFontSize: fontSizes[clip.id] || 18
     }));
     sessionStorage.setItem('approved_clips', JSON.stringify(approvedClips));
     sessionStorage.setItem('clipiq_state', JSON.stringify(state));
@@ -137,6 +142,7 @@ export default function ReviewPage() {
           isApproved={approved.has(previewingClip.id)}
           cropPosition={cropPositions[previewingClip.id] || 'center'}
           burnCaptions={captionSettings[previewingClip.id] !== false}
+          captionFontSize={fontSizes[previewingClip.id] || 18}
           onApprove={handleApprove}
           onClose={() => setPreviewingClip(null)}
         />

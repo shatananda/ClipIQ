@@ -36,4 +36,5 @@ export type CropPosition = 'left' | 'center' | 'right';
 export interface ApprovedClip extends ClipSuggestion {
   cropPosition: CropPosition;
   burnCaptions?: boolean;
+  captionFontSize?: number;
 }
