@@ -51,7 +51,13 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
 
     try {
       // Get video info first
-      const info = await ytdl.getInfo(url);
+      const info = await ytdl.getInfo(url, {
+        requestOptions: {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        },
+      });
       const title = info.videoDetails.title;
       const durationSeconds = parseInt(info.videoDetails.lengthSeconds);
 
@@ -60,6 +66,11 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
       // Download best available format (not necessarily MP4, let FFmpeg handle it)
       const videoStream = ytdl(url, {
         quality: 'highest',
+        requestOptions: {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        },
       });
 
       // Write to file
