@@ -129,46 +129,56 @@ export function TimeSuggestionAdjuster({
           {(confidence !== undefined || platforms) && (
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexShrink: 0 }}>
               {confidence !== undefined && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div
-                    style={{
-                      width: '50px',
-                      backgroundColor: 'var(--bg-gray)',
-                      borderRadius: '2px',
-                      height: '4px',
-                      overflow: 'hidden',
-                    }}
-                  >
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    Confidence
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div
                       style={{
-                        height: '100%',
-                        backgroundColor: 'var(--primary)',
-                        width: `${confidence}%`,
+                        width: '50px',
+                        backgroundColor: 'var(--bg-gray)',
+                        borderRadius: '2px',
+                        height: '4px',
+                        overflow: 'hidden',
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          height: '100%',
+                          backgroundColor: 'var(--primary)',
+                          width: `${confidence}%`,
+                        }}
+                      />
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)', minWidth: '32px' }}>
+                      {confidence}%
+                    </span>
                   </div>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)', minWidth: '32px' }}>
-                    {confidence}%
-                  </span>
                 </div>
               )}
               {platforms && platforms.length > 0 && (
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  {platforms.map((platform) => (
-                    <span
-                      key={platform}
-                      style={{
-                        fontSize: '11px',
-                        backgroundColor: 'rgba(91, 108, 246, 0.1)',
-                        color: 'var(--primary)',
-                        fontWeight: '600',
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                      }}
-                    >
-                      {platform}
-                    </span>
-                  ))}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                    Best For
+                  </span>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {platforms.map((platform) => (
+                      <span
+                        key={platform}
+                        style={{
+                          fontSize: '11px',
+                          backgroundColor: 'rgba(91, 108, 246, 0.1)',
+                          color: 'var(--primary)',
+                          fontWeight: '600',
+                          padding: '2px 6px',
+                          borderRadius: '3px',
+                        }}
+                      >
+                        {platform}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
