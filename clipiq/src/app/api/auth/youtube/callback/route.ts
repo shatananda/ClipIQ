@@ -1,6 +1,5 @@
-import { exchangeCode } from '@/lib/youtube-oauth';
+import { exchangeCode, getOAuthClient } from '@/lib/youtube-oauth';
 import { getSession } from '@/lib/session';
-import { getChannelUploadsPlaylistId } from '@/lib/youtube-api';
 import { google } from 'googleapis';
 
 export async function GET(request: Request) {
@@ -19,9 +18,17 @@ export async function GET(request: Request) {
     session.refreshToken = refreshToken;
     session.expiryDate = expiryDate;
 
+    // Set up OAuth client with the new credentials
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expiry_date: expiryDate,
+    });
+
     const youtube = google.youtube('v3');
     const response = await youtube.channels.list({
-      auth: accessToken,
+      auth: oauth2Client,
       part: ['id'],
       mine: true,
     });

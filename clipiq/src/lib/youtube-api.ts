@@ -1,11 +1,15 @@
 import { google } from 'googleapis';
+import { getOAuthClient } from './youtube-oauth';
 import { YouTubeVideo } from '@/types';
 
 const youtube = google.youtube('v3');
 
 export async function getChannelUploadsPlaylistId(accessToken: string): Promise<string> {
+  const oauth2Client = getOAuthClient();
+  oauth2Client.setCredentials({ access_token: accessToken });
+
   const response = await youtube.channels.list({
-    auth: accessToken,
+    auth: oauth2Client,
     part: ['contentDetails'],
     mine: true,
   });
@@ -23,8 +27,11 @@ export async function listVideos(
   playlistId: string,
   pageToken?: string
 ): Promise<{ videos: YouTubeVideo[]; nextPageToken: string | null }> {
+  const oauth2Client = getOAuthClient();
+  oauth2Client.setCredentials({ access_token: accessToken });
+
   const response = await youtube.playlistItems.list({
-    auth: accessToken,
+    auth: oauth2Client,
     part: ['snippet'],
     playlistId,
     maxResults: 50,
@@ -39,7 +46,7 @@ export async function listVideos(
   let videoDurations: Record<string, number> = {};
   if (videoIds.length > 0) {
     const videoResponse = await youtube.videos.list({
-      auth: accessToken,
+      auth: oauth2Client,
       part: ['contentDetails'],
       id: videoIds,
     });
