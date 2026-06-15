@@ -268,6 +268,7 @@ export default function ConfigureContent() {
                 />
               </div>
             )}
+            </div>
           </div>
 
           <button
