@@ -255,13 +255,16 @@ export default function ConfigureContent() {
             {/* Caption font size - Only shown when captions enabled */}
             {burnCaptions && (
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
                   Font size: {captionFontSize}px
                 </label>
+                <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  Recommended: 16–20px for mobile readability
+                </p>
                 <input
                   type="range"
-                  min="12"
-                  max="28"
+                  min="14"
+                  max="24"
                   value={captionFontSize}
                   onChange={(e) => setCaptionFontSize(parseInt(e.target.value, 10))}
                   style={{ width: '100%' }}
