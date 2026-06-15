@@ -1,4 +1,5 @@
 import { extractClip } from '@/lib/ffmpeg';
+import { extractClipWithReTranscription } from '@/lib/ffmpeg-with-transcribe';
 import { ClipSuggestion, Paragraph } from '@/types';
 import fs from 'fs';
 import path from 'path';
@@ -50,17 +51,29 @@ export async function POST(req: Request) {
           burnCaptions,
         });
 
-        const filename = await extractClip(
-          videoPath,
-          clipData.start_ms,
-          clipData.end_ms,
-          clipData.id,
-          clipData.headline,
-          cropPosition,
-          transcript,
-          burnCaptions,
-          captionFontSize
-        );
+        // Use re-transcription method if captions are enabled (ensures accurate captions for adjusted times)
+        const filename = burnCaptions
+          ? await extractClipWithReTranscription(
+              videoPath,
+              clipData.start_ms,
+              clipData.end_ms,
+              clipData.id,
+              clipData.headline,
+              cropPosition,
+              burnCaptions,
+              captionFontSize
+            )
+          : await extractClip(
+              videoPath,
+              clipData.start_ms,
+              clipData.end_ms,
+              clipData.id,
+              clipData.headline,
+              cropPosition,
+              transcript,
+              burnCaptions,
+              captionFontSize
+            );
 
         results.push({
           id: clipData.id,
