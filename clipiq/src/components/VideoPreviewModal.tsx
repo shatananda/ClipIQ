@@ -87,6 +87,7 @@ export default function VideoPreviewModal({
               flexDirection: 'column',
               gap: '12px',
               maxWidth: '200px',
+              zIndex: 10,
             }}
           >
             {/* Confidence Badge */}
@@ -155,6 +156,7 @@ export default function VideoPreviewModal({
               borderRadius: '6px',
               fontSize: '13px',
               fontWeight: '600',
+              zIndex: 10,
             }}
           >
             Ends at {formatTime(clip.end_ms)}
