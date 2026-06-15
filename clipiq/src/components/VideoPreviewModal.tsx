@@ -77,6 +77,73 @@ export default function VideoPreviewModal({
             allowFullScreen
             style={{ border: 'none' }}
           />
+          {/* Top Right: Confidence & Platforms */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              maxWidth: '200px',
+            }}
+          >
+            {/* Confidence Badge */}
+            <div
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                color: 'white',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderRadius: '2px',
+                    height: '4px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      backgroundColor: '#5b6cf6',
+                      width: `${clip.confidence}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <span>{clip.confidence}%</span>
+            </div>
+            {/* Platform Badges */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'flex-end' }}>
+              {clip.suggested_platforms.map((platform) => (
+                <span
+                  key={platform}
+                  style={{
+                    fontSize: '11px',
+                    backgroundColor: 'rgba(91, 108, 246, 0.9)',
+                    color: 'white',
+                    fontWeight: '600',
+                    padding: '3px 8px',
+                    borderRadius: '3px',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {platform}
+                </span>
+              ))}
+            </div>
+          </div>
+          {/* Bottom Right: Clip End Time */}
           <div
             style={{
               position: 'absolute',
@@ -117,103 +184,6 @@ export default function VideoPreviewModal({
             </p>
           </div>
 
-          {/* Info Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '24px',
-              paddingTop: '16px',
-              paddingBottom: '16px',
-              borderTop: '1px solid var(--border)',
-              borderBottom: '1px solid var(--border)',
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  color: 'var(--text-light)',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '8px',
-                }}
-              >
-                Timestamp
-              </p>
-              <p style={{ color: 'var(--text)', fontFamily: 'monospace', fontWeight: '600', fontSize: '13px' }}>
-                {formatTime(clip.start_ms)} to {formatTime(clip.end_ms)}
-              </p>
-            </div>
-            <div>
-              <p
-                style={{
-                  color: 'var(--text-light)',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '8px',
-                }}
-              >
-                Confidence
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'var(--bg-gray)',
-                    borderRadius: '3px',
-                    height: '6px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      height: '100%',
-                      backgroundColor: 'var(--primary)',
-                      width: `${clip.confidence}%`,
-                    }}
-                  />
-                </div>
-                <span style={{ color: 'var(--text)', fontWeight: '700', fontSize: '13px' }}>
-                  {clip.confidence}%
-                </span>
-              </div>
-            </div>
-            <div>
-              <p
-                style={{
-                  color: 'var(--text-light)',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '8px',
-                }}
-              >
-                Best For
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {clip.suggested_platforms.map((platform) => (
-                  <span
-                    key={platform}
-                    style={{
-                      fontSize: '12px',
-                      backgroundColor: 'rgba(91, 108, 246, 0.1)',
-                      color: 'var(--primary)',
-                      fontWeight: '500',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    {platform}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
 
           {/* Time Adjustment */}
           {videoDurationSeconds > 0 && onTimeChange && (
