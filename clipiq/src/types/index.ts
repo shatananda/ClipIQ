@@ -38,3 +38,20 @@ export interface ApprovedClip extends ClipSuggestion {
   burnCaptions?: boolean;
   captionFontSize?: number;
 }
+
+export interface YouTubeVideo {
+  videoId: string;
+  title: string;
+  thumbnailUrl: string;
+  publishedAt: string;
+  duration: string;
+  durationSeconds: number;
+  viewCount: number;
+  description: string;
+}
+
+export type VideoStatus = 'none' | 'analyzed' | 'clipped';
+
+export interface SessionData {
+  isLoggedIn: boolean;
+}

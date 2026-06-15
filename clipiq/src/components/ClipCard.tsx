@@ -1,20 +1,30 @@
 'use client';
 
+import React from 'react';
 import { ClipSuggestion } from '@/types';
+import { TimeAdjuster } from './TimeAdjuster';
 
 interface ClipCardProps {
   clip: ClipSuggestion;
   onPreview: (clip: ClipSuggestion) => void;
   isApproved?: boolean;
+  adjustedTimes?: { start_ms: number; end_ms: number };
+  videoDurationSeconds?: number;
+  onTimeChange?: (startMs: number, endMs: number) => void;
 }
 
-export default function ClipCard({ clip, onPreview, isApproved }: ClipCardProps) {
+export default function ClipCard({ clip, onPreview, isApproved, adjustedTimes, videoDurationSeconds = 0, onTimeChange }: ClipCardProps) {
+  const [showTimeAdjuster, setShowTimeAdjuster] = React.useState(false);
+
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const currentStart = adjustedTimes?.start_ms ?? clip.start_ms;
+  const currentEnd = adjustedTimes?.end_ms ?? clip.end_ms;
 
   return (
     <div className="card" style={{
@@ -178,6 +188,34 @@ export default function ClipCard({ clip, onPreview, isApproved }: ClipCardProps)
             </div>
           </div>
         </div>
+
+        {/* Time Adjuster (optional) */}
+        {videoDurationSeconds > 0 && onTimeChange && (
+          <div style={{ marginBottom: '16px' }}>
+            <button
+              onClick={() => setShowTimeAdjuster(!showTimeAdjuster)}
+              style={{
+                fontSize: '13px',
+                fontWeight: '500',
+                color: 'var(--primary)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              {showTimeAdjuster ? 'Hide time adjuster' : 'Adjust times'}
+            </button>
+            {showTimeAdjuster && (
+              <TimeAdjuster
+                startMs={currentStart}
+                endMs={currentEnd}
+                durationMs={videoDurationSeconds * 1000}
+                onChange={onTimeChange}
+              />
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>

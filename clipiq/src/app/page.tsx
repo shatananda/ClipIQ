@@ -1,198 +1,97 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import VideoInput from '@/components/VideoInput';
-import ProcessingProgress from '@/components/ProcessingProgress';
-import KeywordDrawer from '@/components/KeywordDrawer';
-import { ClipIQState } from '@/types';
-
-type ProcessingStage = 'idle' | 'downloading' | 'transcribing' | 'analyzing' | 'complete';
 
 export default function Home() {
   const router = useRouter();
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [excluded, setExcluded] = useState<string[]>([]);
-  const [stage, setStage] = useState<ProcessingStage>('idle');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadKeywords();
-  }, []);
-
-  const loadKeywords = async () => {
-    try {
-      const res = await fetch('/api/keywords');
-      const data = await res.json();
-      setKeywords(data.keywords || []);
-      const excludedRes = await fetch('/api/keywords/excluded');
-      const excludedData = await excludedRes.json();
-      setExcluded(excludedData.excluded || []);
-    } catch (e) {
-      console.error('Error loading keywords:', e);
-    }
-  };
-
-  const handleToggleExcluded = async (keyword: string) => {
-    try {
-      await fetch('/api/keywords/exclude', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword }),
-      });
-      const newExcluded = excluded.includes(keyword)
-        ? excluded.filter((k) => k !== keyword)
-        : [...excluded, keyword];
-      setExcluded(newExcluded);
-    } catch (e) {
-      console.error('Error toggling keyword:', e);
-    }
-  };
-
-  const handleAddKeyword = async (keyword: string) => {
-    try {
-      await fetch('/api/keywords/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword }),
-      });
-      if (!keywords.includes(keyword)) {
-        setKeywords([...keywords, keyword]);
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/session');
+        const data = await res.json();
+        if (data.isLoggedIn) {
+          router.push('/videos');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
       }
-    } catch (e) {
-      console.error('Error adding keyword:', e);
-    }
-  };
+    };
 
-  const handleDeleteKeyword = async (keyword: string) => {
-    try {
-      await fetch('/api/keywords/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword }),
-      });
-      setKeywords(keywords.filter((k) => k !== keyword));
-      setExcluded(excluded.filter((k) => k !== keyword));
-    } catch (e) {
-      console.error('Error deleting keyword:', e);
-    }
-  };
+    checkAuth();
+  }, [router]);
 
-  const handleAnalyze = async (url: string) => {
-    setLoading(true);
-    setStage('downloading');
-
-    try {
-      const downloadRes = await fetch('/api/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-      const downloadData = await downloadRes.json();
-      if (!downloadData.success) throw new Error(downloadData.error);
-      const { videoId, videoPath, title } = downloadData;
-
-      setStage('transcribing');
-      const transcribeRes = await fetch('/api/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId, videoPath }),
-      });
-      const transcribeData = await transcribeRes.json();
-      if (!transcribeData.success) throw new Error(transcribeData.error);
-      const { paragraphs } = transcribeData;
-
-      setStage('analyzing');
-      const activeKeywords = keywords.filter((k) => !excluded.includes(k));
-      const analyzeRes = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paragraphs, keywords: activeKeywords }),
-      });
-      const analyzeData = await analyzeRes.json();
-      if (!analyzeData.success) throw new Error(analyzeData.error);
-      const { clips } = analyzeData;
-
-      const state: ClipIQState = { clips, videoPath, videoId, title };
-      sessionStorage.setItem('clipiq_state', JSON.stringify(state));
-
-      setStage('complete');
-      router.push('/review');
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Analysis failed';
-      console.error('Pipeline error:', error);
-      setStage('idle');
-      setError(errorMsg);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = () => {
+    window.location.href = '/api/auth/youtube';
   };
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '40px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', color: 'var(--text)' }}>
-          Analyze Your Videos
-        </h2>
-        <p style={{ fontSize: '15px', color: 'var(--text-light)', lineHeight: '1.6' }}>
-          Intelligently clip from your long form videos for TikTok, Instagram Reels, and YouTube Shorts.
+    <main
+      style={{
+        maxWidth: '600px',
+        margin: '0 auto',
+        padding: '40px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <div
+        style={{
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '24px',
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            fontSize: '32px',
+            fontWeight: 700,
+            color: 'var(--text)',
+          }}
+        >
+          ClipIQ
+        </h1>
+        <p
+          style={{
+            margin: 0,
+            fontSize: '16px',
+            color: 'var(--text-secondary)',
+            maxWidth: '400px',
+          }}
+        >
+          Find and create short-form clips from your YouTube videos for TikTok, Instagram Reels, and YouTube Shorts.
         </p>
+
+        <button
+          onClick={handleLogin}
+          style={{
+            padding: '12px 32px',
+            fontSize: '16px',
+            fontWeight: 600,
+            backgroundColor: 'var(--primary)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            marginTop: '20px',
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLButtonElement).style.backgroundColor = 'var(--primary-dark)';
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
+          }}
+        >
+          Login with YouTube
+        </button>
       </div>
-
-      {error && (
-        <div style={{
-          backgroundColor: 'rgba(220, 38, 38, 0.1)',
-          border: '1px solid rgba(220, 38, 38, 0.5)',
-          borderRadius: '8px',
-          padding: '16px',
-          marginBottom: '24px',
-          color: '#dc2626',
-          fontSize: '14px',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>{error}</span>
-            <button
-              onClick={() => setError(null)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#dc2626',
-                cursor: 'pointer',
-                fontSize: '20px',
-                padding: '0',
-                width: '24px',
-                height: '24px',
-              }}
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>
-          YouTube URL
-        </label>
-        <VideoInput onAnalyze={handleAnalyze} isLoading={loading} />
-      </div>
-
-      <ProcessingProgress stage={stage} />
-
-      <div className="card" style={{ padding: '24px', marginTop: '24px' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>
-          Keywords
-        </label>
-        <KeywordDrawer
-          keywords={keywords}
-          excluded={excluded}
-          onToggleExcluded={handleToggleExcluded}
-          onAddKeyword={handleAddKeyword}
-          onDeleteKeyword={handleDeleteKeyword}
-          isLoading={loading}
-        />
-      </div>
-    </div>
+    </main>
   );
 }

@@ -217,6 +217,8 @@ export default function DownloadPage() {
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
       }
+
+      localStorage.setItem(`clipiq_status_${state.videoId}`, 'clipped');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       console.error('Download all error:', error);
