@@ -11,6 +11,7 @@ interface Props {
   confidence?: number;
   platforms?: string[];
   onChange: (startMs: number, endMs: number) => void;
+  onSeekTo?: (seconds: number) => void;
 }
 
 function formatTime(ms: number): string {
@@ -39,6 +40,7 @@ export function TimeSuggestionAdjuster({
   confidence,
   platforms,
   onChange,
+  onSeekTo,
 }: Props) {
   const [localStart, setLocalStart] = useState(formatTime(adjustedStartMs));
   const [localEnd, setLocalEnd] = useState(formatTime(adjustedEndMs));
@@ -215,6 +217,30 @@ export function TimeSuggestionAdjuster({
                   color: 'var(--text)',
                 }}
               />
+              {onSeekTo && (
+                <button
+                  onClick={() => onSeekTo(startParsed / 1000)}
+                  style={{
+                    padding: '5px 10px',
+                    fontSize: '12px',
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseOver={(e) => {
+                    (e.target as HTMLButtonElement).style.opacity = '0.9';
+                  }}
+                  onMouseOut={(e) => {
+                    (e.target as HTMLButtonElement).style.opacity = '1';
+                  }}
+                >
+                  ▶ Jump
+                </button>
+              )}
               <input
                 type="range"
                 min="0"
@@ -248,6 +274,30 @@ export function TimeSuggestionAdjuster({
                   color: 'var(--text)',
                 }}
               />
+              {onSeekTo && (
+                <button
+                  onClick={() => onSeekTo(endParsed / 1000)}
+                  style={{
+                    padding: '5px 10px',
+                    fontSize: '12px',
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseOver={(e) => {
+                    (e.target as HTMLButtonElement).style.opacity = '0.9';
+                  }}
+                  onMouseOut={(e) => {
+                    (e.target as HTMLButtonElement).style.opacity = '1';
+                  }}
+                >
+                  ▶ Jump
+                </button>
+              )}
               <input
                 type="range"
                 min="0"

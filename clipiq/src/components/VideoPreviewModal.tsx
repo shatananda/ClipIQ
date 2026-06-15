@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { ClipSuggestion } from '@/types';
 import { TimeSuggestionAdjuster } from './TimeSuggestionAdjuster';
 
@@ -24,6 +25,8 @@ export default function VideoPreviewModal({
   onTimeChange,
   onClose,
 }: VideoPreviewModalProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
   const currentStart = adjustedTimes?.start_ms ?? clip.start_ms;
   const currentEnd = adjustedTimes?.end_ms ?? clip.end_ms;
   const formatTime = (ms: number) => {
@@ -35,6 +38,15 @@ export default function VideoPreviewModal({
 
   const startSeconds = Math.floor(clip.start_ms / 1000);
   const endSeconds = Math.floor(clip.end_ms / 1000);
+
+  const seekTo = (seconds: number) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'seekTo', args: [Math.floor(seconds), true] }),
+        '*'
+      );
+    }
+  };
 
   return (
     <div
@@ -69,9 +81,10 @@ export default function VideoPreviewModal({
         {/* Video Player */}
         <div style={{ position: 'relative', backgroundColor: '#000', aspectRatio: '16 / 9' }}>
           <iframe
+            ref={iframeRef}
             width="100%"
             height="100%"
-            src={`https://www.youtube.com/embed/${videoId}?start=${startSeconds}&controls=1&modestbranding=1&cc_load_policy=1`}
+            src={`https://www.youtube.com/embed/${videoId}?start=${startSeconds}&controls=1&modestbranding=1&cc_load_policy=1&enablejsapi=1`}
             title={clip.headline}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -131,6 +144,7 @@ export default function VideoPreviewModal({
               confidence={clip.confidence}
               platforms={clip.suggested_platforms}
               onChange={onTimeChange}
+              onSeekTo={seekTo}
             />
           )}
 
