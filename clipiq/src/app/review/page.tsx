@@ -100,8 +100,11 @@ export default function ReviewPage() {
             {state.title}
           </h2>
           <p style={{ color: 'var(--text-light)', marginBottom: '16px' }}>
-            Preview clips and approve the ones you want to download
+            Review AI-suggested clips and fine-tune timing before extracting
           </p>
+          <div style={{ backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+            <strong style={{ color: 'var(--text)' }}>How to use:</strong> Click "Preview" to watch each clip. Use "Adjust times" to fine-tune start/end if needed. Check the checkbox to approve. When done, click "Go to Download" to extract your clips.
+          </div>
           <div style={{ display: 'flex', gap: '16px' }}>
             <button
               onClick={() => router.push('/')}

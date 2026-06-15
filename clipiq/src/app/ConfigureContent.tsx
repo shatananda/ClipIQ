@@ -128,6 +128,9 @@ export default function ConfigureContent() {
       <p style={{ margin: '0 0 32px 0', fontSize: '14px', color: 'var(--text-secondary)' }}>
         {title}
       </p>
+      <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+        Choose how you want your clips formatted. These settings apply to all clips from this video.
+      </p>
 
       <div
         style={{
@@ -186,9 +189,12 @@ export default function ConfigureContent() {
         >
           {/* Crop orientation - First */}
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
               Crop orientation
             </label>
+            <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Where to position your subject in the 9:16 vertical frame (TikTok/Reels style)
+            </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               {(['left', 'center', 'right'] as const).map((pos) => (
                 <button
@@ -214,28 +220,37 @@ export default function ConfigureContent() {
           </div>
 
           {/* Caption controls - Side by side */}
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-            {/* Burn captions checkbox */}
-            <div>
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={burnCaptions}
-                  onChange={(e) => setBurnCaptions(e.target.checked)}
-                  style={{ cursor: 'pointer' }}
-                />
-                Burn captions
-              </label>
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: 500, color: 'var(--text)' }}>
+                Captions
+              </p>
+              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Add transcript text as captions to your clips (recommended for platform algorithms)
+              </p>
             </div>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+              {/* Burn captions checkbox */}
+              <div>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={burnCaptions}
+                    onChange={(e) => setBurnCaptions(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  Add captions
+                </label>
+              </div>
 
             {/* Caption font size - Only shown when captions enabled */}
             {burnCaptions && (

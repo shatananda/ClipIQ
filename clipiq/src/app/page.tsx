@@ -68,6 +68,29 @@ export default function Home() {
         >
           Find and create short-form clips from your YouTube videos for TikTok, Instagram Reels, and YouTube Shorts.
         </p>
+        <div
+          style={{
+            backgroundColor: 'var(--bg-light)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            padding: '16px',
+            maxWidth: '400px',
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            lineHeight: '1.6',
+          }}
+        >
+          <p style={{ margin: '0 0 8px 0', fontWeight: 500, color: 'var(--text)' }}>
+            How it works:
+          </p>
+          <ol style={{ margin: '0', paddingLeft: '20px' }}>
+            <li>Login with your YouTube account</li>
+            <li>Select a video to analyze</li>
+            <li>Configure clip settings (captions, crop, font size)</li>
+            <li>Our AI finds the best clip moments</li>
+            <li>Adjust timing and download ready-to-post clips</li>
+          </ol>
+        </div>
 
         <button
           onClick={handleLogin}
