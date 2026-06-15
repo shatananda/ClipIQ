@@ -51,35 +51,53 @@ export function Pagination({
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-        alignItems: 'center',
         marginTop: '24px',
         paddingTop: '16px',
         borderTop: '1px solid var(--border)',
       }}
     >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Items per page:</span>
-        {pageSizes.map((size) => (
-          <button
-            key={size}
-            onClick={() => onPageSizeChange(size)}
+      {/* Top row: Items per page on right */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px',
+        }}
+      >
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+          Showing page {currentPage} of {totalPages}
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <label style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            Items per page:
+          </label>
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
             style={{
-              padding: '6px 12px',
+              padding: '6px 10px',
               fontSize: '13px',
-              backgroundColor: pageSize === size ? 'var(--primary)' : 'var(--bg-light)',
-              color: pageSize === size ? '#fff' : 'var(--text)',
-              border: `1px solid ${pageSize === size ? 'var(--primary)' : 'var(--border)'}`,
+              backgroundColor: 'var(--bg-light)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
               borderRadius: '4px',
               cursor: 'pointer',
-              fontWeight: pageSize === size ? 500 : 400,
+              fontWeight: 500,
             }}
           >
-            {size}
-          </button>
-        ))}
+            {pageSizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexWrap: 'wrap' }}>
+      {/* Bottom row: Page navigation centered */}
+      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
         <button
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
@@ -135,10 +153,6 @@ export function Pagination({
         >
           ▶
         </button>
-      </div>
-
-      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-        Showing page {currentPage} of {totalPages}
       </div>
     </div>
   );
