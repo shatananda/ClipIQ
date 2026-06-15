@@ -127,9 +127,9 @@ export function TimeSuggestionAdjuster({
 
           {/* Right side: Confidence & Platforms */}
           {(confidence !== undefined || platforms) && (
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexShrink: 0 }}>
               {confidence !== undefined && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
                     Confidence
                   </span>
@@ -158,7 +158,7 @@ export function TimeSuggestionAdjuster({
                 </div>
               )}
               {platforms && platforms.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
                     Best For
                   </span>
