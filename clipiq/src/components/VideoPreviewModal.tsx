@@ -71,7 +71,7 @@ export default function VideoPreviewModal({
           <iframe
             width="100%"
             height="100%"
-            src={`https://www.youtube.com/embed/${videoId}?start=${startSeconds}&controls=1&modestbranding=1`}
+            src={`https://www.youtube.com/embed/${videoId}?start=${startSeconds}&controls=1&modestbranding=1&cc_load_policy=1`}
             title={clip.headline}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
