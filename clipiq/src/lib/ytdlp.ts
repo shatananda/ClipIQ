@@ -10,6 +10,11 @@ export interface VideoInfo {
   durationSeconds: number;
 }
 
+const requestHeaders = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept-Language': 'en-US,en;q=0.9',
+};
+
 export async function downloadVideo(url: string): Promise<VideoInfo> {
   try {
     // Validate YouTube URL
@@ -37,7 +42,7 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
     // Check if already downloaded
     if (fs.existsSync(absoluteVideoPath)) {
       console.log('Video already downloaded:', absoluteVideoPath);
-      const info = await ytdl.getInfo(url);
+      const info = await ytdl.getInfo(url, { requestOptions: { headers: requestHeaders } });
       return {
         videoId,
         videoPath: absoluteVideoPath,
@@ -49,14 +54,14 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
     console.log('Downloading video with ytdl-core:', { url, videoId, videoPath: absoluteVideoPath });
 
     // Get video info
-    const info = await ytdl.getInfo(url);
+    const info = await ytdl.getInfo(url, { requestOptions: { headers: requestHeaders } });
     const title = info.videoDetails.title || videoId;
     const durationSeconds = Math.floor(parseInt(info.videoDetails.lengthSeconds) || 0);
 
     console.log('Video info retrieved:', { title, durationSeconds });
 
     // Download video stream - ytdl-core automatically selects best available format
-    const videoStream = ytdl(url, { quality: 'highest' });
+    const videoStream = ytdl(url, { quality: 'highest', requestOptions: { headers: requestHeaders } });
 
     // Write to file
     const writeStream = fs.createWriteStream(absoluteVideoPath);
