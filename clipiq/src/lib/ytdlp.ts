@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { video_info, stream } from 'play-dl';
+import ytdl from 'ytdl-core';
 import { PATHS } from './storage';
 
 export interface VideoInfo {
@@ -37,32 +37,32 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
     // Check if already downloaded
     if (fs.existsSync(absoluteVideoPath)) {
       console.log('Video already downloaded:', absoluteVideoPath);
-      const info = await video_info(url);
+      const info = await ytdl.getInfo(url);
       return {
         videoId,
         videoPath: absoluteVideoPath,
-        title: info.video_details.title || videoId,
-        durationSeconds: info.video_details.durationInSec || 0,
+        title: info.videoDetails.title || videoId,
+        durationSeconds: Math.floor(parseInt(info.videoDetails.lengthSeconds) || 0),
       };
     }
 
-    console.log('Downloading video with play-dl:', { url, videoId, videoPath: absoluteVideoPath });
+    console.log('Downloading video with ytdl-core:', { url, videoId, videoPath: absoluteVideoPath });
 
     // Get video info
-    const video = await video_info(url);
-    const title = video.video_details.title || videoId;
-    const durationSeconds = video.video_details.durationInSec || 0;
+    const info = await ytdl.getInfo(url);
+    const title = info.videoDetails.title || videoId;
+    const durationSeconds = Math.floor(parseInt(info.videoDetails.lengthSeconds) || 0);
 
     console.log('Video info retrieved:', { title, durationSeconds });
 
-    // Get download stream - play-dl returns the highest quality available
-    const videoStream = await stream(url);
+    // Download video stream - ytdl-core automatically selects best available format
+    const videoStream = ytdl(url, { quality: 'highest' });
 
     // Write to file
     const writeStream = fs.createWriteStream(absoluteVideoPath);
 
     return new Promise((resolve, reject) => {
-      videoStream.stream.pipe(writeStream);
+      videoStream.pipe(writeStream);
 
       writeStream.on('finish', () => {
         console.log('Video downloaded successfully:', absoluteVideoPath);
@@ -76,18 +76,18 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
 
       writeStream.on('error', (err) => {
         console.error('Write error:', err);
-        videoStream.stream.destroy();
+        videoStream.destroy();
         reject(err);
       });
 
-      videoStream.stream.on('error', (err) => {
+      videoStream.on('error', (err) => {
         console.error('Stream error:', err);
         reject(new Error(`Failed to download video stream: ${err.message}`));
       });
 
       // Timeout after 10 minutes
       const timeout = setTimeout(() => {
-        videoStream.stream.destroy();
+        videoStream.destroy();
         writeStream.destroy();
         reject(new Error('Download timeout after 10 minutes'));
       }, 10 * 60 * 1000);

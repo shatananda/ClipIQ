@@ -6,6 +6,7 @@ export async function POST(req: Request) {
     ensureDirs();
 
     const { url } = await req.json();
+    console.log('Download route received URL:', url, 'Type:', typeof url);
 
     if (!url) {
       return Response.json({ error: 'URL required' }, { status: 400 });
