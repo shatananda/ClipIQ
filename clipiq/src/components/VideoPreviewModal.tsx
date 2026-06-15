@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipSuggestion, CropPosition } from '@/types';
-import { PauseIcon } from './Icons';
+import { ClipSuggestion } from '@/types';
+import { TimeAdjuster } from './TimeAdjuster';
 
 interface VideoPreviewModalProps {
   clip: ClipSuggestion;
   videoId: string;
   isApproved: boolean;
-  cropPosition: CropPosition;
-  burnCaptions?: boolean;
-  captionFontSize?: number;
-  onApprove: (approved: boolean, cropPosition: CropPosition, burnCaptions?: boolean, captionFontSize?: number) => void;
+  videoDurationSeconds?: number;
+  adjustedTimes?: { start_ms: number; end_ms: number };
+  onApprove: (approved: boolean) => void;
+  onTimeChange?: (startMs: number, endMs: number) => void;
   onClose: () => void;
 }
 
@@ -19,15 +19,15 @@ export default function VideoPreviewModal({
   clip,
   videoId,
   isApproved,
-  cropPosition,
-  burnCaptions = true,
-  captionFontSize = 18,
+  videoDurationSeconds = 0,
+  adjustedTimes,
   onApprove,
+  onTimeChange,
   onClose,
 }: VideoPreviewModalProps) {
-  const [selectedCrop, setSelectedCrop] = useState<CropPosition>(cropPosition);
-  const [shouldBurnCaptions, setShouldBurnCaptions] = useState(burnCaptions);
-  const [selectedFontSize, setSelectedFontSize] = useState(captionFontSize);
+  const [showTimeAdjuster, setShowTimeAdjuster] = useState(false);
+  const currentStart = adjustedTimes?.start_ms ?? clip.start_ms;
+  const currentEnd = adjustedTimes?.end_ms ?? clip.end_ms;
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -217,109 +217,44 @@ export default function VideoPreviewModal({
             </div>
           </div>
 
-          {/* Crop Selection & Caption Options */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Portrait Crop */}
+          {/* Time Adjuster */}
+          {videoDurationSeconds > 0 && onTimeChange && (
             <div>
-              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Portrait Crop
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {(['left', 'center', 'right'] as const).map((position) => (
-                  <button
-                    key={position}
-                    onClick={() => setSelectedCrop(position)}
-                    style={{
-                      flex: 1,
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: selectedCrop === position ? '2px solid var(--primary)' : '1px solid var(--border)',
-                      backgroundColor: selectedCrop === position ? 'rgba(91, 108, 246, 0.1)' : 'var(--bg-gray)',
-                      color: 'var(--text)',
-                      fontWeight: '500',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      textTransform: 'capitalize',
-                      transition: 'all 0.15s ease',
-                    }}
-                    onMouseOver={(e) => {
-                      if (selectedCrop !== position) {
-                        (e.target as HTMLButtonElement).style.backgroundColor = 'var(--border)';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (selectedCrop !== position) {
-                        (e.target as HTMLButtonElement).style.backgroundColor = 'var(--bg-gray)';
-                      }
-                    }}
-                  >
-                    {position === 'left' ? '◀ Left' : position === 'right' ? 'Right ▶' : '◆ Center'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Caption Options */}
-            <div>
-              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Captions
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <label
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={shouldBurnCaptions}
-                    onChange={(e) => setShouldBurnCaptions(e.target.checked)}
-                    style={{
-                      width: '18px',
-                      height: '18px',
-                      cursor: 'pointer',
-                    }}
+              <button
+                onClick={() => setShowTimeAdjuster(!showTimeAdjuster)}
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: 'var(--primary)',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  marginBottom: '8px',
+                }}
+              >
+                {showTimeAdjuster ? 'Hide time adjuster' : 'Adjust times'}
+              </button>
+              {!showTimeAdjuster && (
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0' }}>
+                  Fine-tune clip boundaries if the AI timing is slightly off
+                </p>
+              )}
+              {showTimeAdjuster && (
+                <>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 12px 0' }}>
+                    Use the sliders or text inputs to adjust start/end times
+                  </p>
+                  <TimeAdjuster
+                    startMs={currentStart}
+                    endMs={currentEnd}
+                    durationMs={videoDurationSeconds * 1000}
+                    onChange={onTimeChange}
                   />
-                  <span style={{ color: 'var(--text)', fontWeight: '500', fontSize: '14px' }}>
-                    Burn captions
-                  </span>
-                </label>
-
-                {shouldBurnCaptions && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text)', fontWeight: '500' }}>
-                      Size:
-                      <input
-                        type="range"
-                        min="12"
-                        max="28"
-                        value={selectedFontSize}
-                        onChange={(e) => setSelectedFontSize(parseInt(e.target.value))}
-                        style={{
-                          width: '100px',
-                          height: '5px',
-                          borderRadius: '3px',
-                          backgroundColor: 'var(--bg-gray)',
-                          cursor: 'pointer',
-                          outline: 'none',
-                        }}
-                      />
-                      <span style={{ color: 'var(--primary)', fontWeight: '600', minWidth: '28px' }}>
-                        {selectedFontSize}px
-                      </span>
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              <p style={{ color: 'var(--text-light)', fontSize: '12px', marginTop: '8px' }}>
-                {shouldBurnCaptions ? 'Adjust font size for readability (small=12px, large=28px)' : 'Uncheck if you want to add captions manually'}
-              </p>
+                </>
+              )}
             </div>
-          </div>
+          )}
 
         </div>
 
@@ -337,7 +272,7 @@ export default function VideoPreviewModal({
               <input
                 type="checkbox"
                 checked={isApproved}
-                onChange={(e) => onApprove(e.target.checked, selectedCrop, shouldBurnCaptions, selectedFontSize)}
+                onChange={(e) => onApprove(e.target.checked)}
                 style={{
                   width: '20px',
                   height: '20px',

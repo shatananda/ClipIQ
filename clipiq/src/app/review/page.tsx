@@ -47,21 +47,11 @@ export default function ReviewPage() {
     setPreviewingClip(clip);
   };
 
-  const handleApprove = (isApproved: boolean, cropPosition: CropPosition, burnCaptions: boolean = true, captionFontSize: number = 18) => {
+  const handleApprove = (isApproved: boolean) => {
     if (!previewingClip) return;
-    console.log('handleApprove called:', { clipId: previewingClip.id, isApproved, cropPosition, burnCaptions, captionFontSize });
     const newApproved = new Set(approved);
     if (isApproved) {
       newApproved.add(previewingClip.id);
-      const newCropPositions = { ...cropPositions, [previewingClip.id]: cropPosition };
-      const newCaptionSettings = { ...captionSettings, [previewingClip.id]: burnCaptions };
-      const newFontSizes = { ...fontSizes, [previewingClip.id]: captionFontSize };
-      console.log('Setting cropPositions:', newCropPositions);
-      console.log('Setting captionSettings:', newCaptionSettings);
-      console.log('Setting fontSizes:', newFontSizes);
-      setCropPositions(newCropPositions);
-      setCaptionSettings(newCaptionSettings);
-      setFontSizes(newFontSizes);
     } else {
       newApproved.delete(previewingClip.id);
     }
@@ -177,10 +167,15 @@ export default function ReviewPage() {
           clip={previewingClip}
           videoId={state.videoId}
           isApproved={approved.has(previewingClip.id)}
-          cropPosition={cropPositions[previewingClip.id] || 'center'}
-          burnCaptions={captionSettings[previewingClip.id] !== false}
-          captionFontSize={fontSizes[previewingClip.id] || 18}
+          videoDurationSeconds={videoDurationSeconds}
+          adjustedTimes={adjustedTimes[previewingClip.id]}
           onApprove={handleApprove}
+          onTimeChange={(startMs, endMs) => {
+            setAdjustedTimes({
+              ...adjustedTimes,
+              [previewingClip.id]: { start_ms: startMs, end_ms: endMs },
+            });
+          }}
           onClose={() => setPreviewingClip(null)}
         />
       )}

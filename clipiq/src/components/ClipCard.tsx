@@ -189,43 +189,6 @@ export default function ClipCard({ clip, onPreview, isApproved, adjustedTimes, v
           </div>
         </div>
 
-        {/* Time Adjuster (optional) */}
-        {videoDurationSeconds > 0 && onTimeChange && (
-          <div style={{ marginBottom: '16px' }}>
-            <button
-              onClick={() => setShowTimeAdjuster(!showTimeAdjuster)}
-              style={{
-                fontSize: '13px',
-                fontWeight: '500',
-                color: 'var(--primary)',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
-            >
-              {showTimeAdjuster ? 'Hide time adjuster' : 'Adjust times'}
-            </button>
-            {!showTimeAdjuster && (
-              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
-                Fine-tune clip boundaries if the AI timing is slightly off
-              </p>
-            )}
-            {showTimeAdjuster && (
-              <>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 12px 0' }}>
-                  Use the sliders or text inputs to adjust start/end times. Preview the adjusted clip below.
-                </p>
-                <TimeAdjuster
-                  startMs={currentStart}
-                  endMs={currentEnd}
-                  durationMs={videoDurationSeconds * 1000}
-                  onChange={onTimeChange}
-                />
-              </>
-            )}
-          </div>
-        )}
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
