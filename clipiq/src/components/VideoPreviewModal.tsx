@@ -117,58 +117,6 @@ export default function VideoPreviewModal({
             <p style={{ color: 'var(--text-light)', fontSize: '14px', marginBottom: '16px', lineHeight: '1.6' }}>
               {clip.why_clip_worthy}
             </p>
-
-            {/* Confidence & Platforms */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '12px' }}>
-              {/* Confidence */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>Confidence:</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div
-                    style={{
-                      width: '60px',
-                      backgroundColor: 'var(--bg-gray)',
-                      borderRadius: '2px',
-                      height: '4px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div
-                      style={{
-                        height: '100%',
-                        backgroundColor: 'var(--primary)',
-                        width: `${clip.confidence}%`,
-                      }}
-                    />
-                  </div>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)', minWidth: '30px' }}>
-                    {clip.confidence}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Platforms */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>Best for:</span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {clip.suggested_platforms.map((platform) => (
-                    <span
-                      key={platform}
-                      style={{
-                        fontSize: '11px',
-                        backgroundColor: 'rgba(91, 108, 246, 0.1)',
-                        color: 'var(--primary)',
-                        fontWeight: '600',
-                        padding: '2px 8px',
-                        borderRadius: '3px',
-                      }}
-                    >
-                      {platform}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
 
 
@@ -180,6 +128,8 @@ export default function VideoPreviewModal({
               adjustedStartMs={currentStart}
               adjustedEndMs={currentEnd}
               durationMs={videoDurationSeconds * 1000}
+              confidence={clip.confidence}
+              platforms={clip.suggested_platforms}
               onChange={onTimeChange}
             />
           )}

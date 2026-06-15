@@ -8,6 +8,8 @@ interface Props {
   adjustedStartMs: number;
   adjustedEndMs: number;
   durationMs: number;
+  confidence?: number;
+  platforms?: string[];
   onChange: (startMs: number, endMs: number) => void;
 }
 
@@ -34,6 +36,8 @@ export function TimeSuggestionAdjuster({
   adjustedStartMs,
   adjustedEndMs,
   durationMs,
+  confidence,
+  platforms,
   onChange,
 }: Props) {
   const [localStart, setLocalStart] = useState(formatTime(adjustedStartMs));
@@ -97,27 +101,78 @@ export function TimeSuggestionAdjuster({
       {/* AI Suggestion (Read-only) */}
       <div style={{ paddingBottom: '12px', borderBottom: '1px solid var(--border)' }}>
         <p style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-          AI Suggestion
+          AI Suggestions
         </p>
-        <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
-          <div>
-            <span style={{ color: 'var(--text-secondary)' }}>Start: </span>
-            <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
-              {formatTime(suggestedStartMs)}
-            </span>
+        <div style={{ display: 'flex', gap: '16px', fontSize: '13px', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <div>
+              <span style={{ color: 'var(--text-secondary)' }}>Start: </span>
+              <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
+                {formatTime(suggestedStartMs)}
+              </span>
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-secondary)' }}>End: </span>
+              <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
+                {formatTime(suggestedEndMs)}
+              </span>
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-secondary)' }}>Duration: </span>
+              <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
+                {formatTime(suggestedDuration)}
+              </span>
+            </div>
           </div>
-          <div>
-            <span style={{ color: 'var(--text-secondary)' }}>End: </span>
-            <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
-              {formatTime(suggestedEndMs)}
-            </span>
-          </div>
-          <div>
-            <span style={{ color: 'var(--text-secondary)' }}>Duration: </span>
-            <span style={{ color: 'var(--text)', fontWeight: '600', fontFamily: 'monospace' }}>
-              {formatTime(suggestedDuration)}
-            </span>
-          </div>
+
+          {/* Right side: Confidence & Platforms */}
+          {(confidence !== undefined || platforms) && (
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexShrink: 0 }}>
+              {confidence !== undefined && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div
+                    style={{
+                      width: '50px',
+                      backgroundColor: 'var(--bg-gray)',
+                      borderRadius: '2px',
+                      height: '4px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        backgroundColor: 'var(--primary)',
+                        width: `${confidence}%`,
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text)', minWidth: '32px' }}>
+                    {confidence}%
+                  </span>
+                </div>
+              )}
+              {platforms && platforms.length > 0 && (
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {platforms.map((platform) => (
+                    <span
+                      key={platform}
+                      style={{
+                        fontSize: '11px',
+                        backgroundColor: 'rgba(91, 108, 246, 0.1)',
+                        color: 'var(--primary)',
+                        fontWeight: '600',
+                        padding: '2px 6px',
+                        borderRadius: '3px',
+                      }}
+                    >
+                      {platform}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
