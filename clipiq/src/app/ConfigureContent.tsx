@@ -184,43 +184,7 @@ export default function ConfigureContent() {
             gap: '20px',
           }}
         >
-          <div>
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 500,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={burnCaptions}
-                onChange={(e) => setBurnCaptions(e.target.checked)}
-                style={{ cursor: 'pointer' }}
-              />
-              Burn captions into clips
-            </label>
-          </div>
-
-          {burnCaptions && (
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
-                Caption font size: {captionFontSize}px
-              </label>
-              <input
-                type="range"
-                min="12"
-                max="28"
-                value={captionFontSize}
-                onChange={(e) => setCaptionFontSize(parseInt(e.target.value, 10))}
-                style={{ width: '100%' }}
-              />
-            </div>
-          )}
-
+          {/* Crop orientation - First */}
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
               Crop orientation
@@ -247,6 +211,48 @@ export default function ConfigureContent() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Caption controls - Side by side */}
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+            {/* Burn captions checkbox */}
+            <div>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={burnCaptions}
+                  onChange={(e) => setBurnCaptions(e.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                Burn captions
+              </label>
+            </div>
+
+            {/* Caption font size - Only shown when captions enabled */}
+            {burnCaptions && (
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                  Font size: {captionFontSize}px
+                </label>
+                <input
+                  type="range"
+                  min="12"
+                  max="28"
+                  value={captionFontSize}
+                  onChange={(e) => setCaptionFontSize(parseInt(e.target.value, 10))}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            )}
           </div>
 
           <button
