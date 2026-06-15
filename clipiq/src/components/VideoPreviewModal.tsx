@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { ClipSuggestion } from '@/types';
-import { TimeAdjuster } from './TimeAdjuster';
+import { TimeSuggestionAdjuster } from './TimeSuggestionAdjuster';
 
 interface VideoPreviewModalProps {
   clip: ClipSuggestion;
@@ -25,7 +24,6 @@ export default function VideoPreviewModal({
   onTimeChange,
   onClose,
 }: VideoPreviewModalProps) {
-  const [showTimeAdjuster, setShowTimeAdjuster] = useState(false);
   const currentStart = adjustedTimes?.start_ms ?? clip.start_ms;
   const currentEnd = adjustedTimes?.end_ms ?? clip.end_ms;
   const formatTime = (ms: number) => {
@@ -217,43 +215,16 @@ export default function VideoPreviewModal({
             </div>
           </div>
 
-          {/* Time Adjuster */}
+          {/* Time Adjustment */}
           {videoDurationSeconds > 0 && onTimeChange && (
-            <div>
-              <button
-                onClick={() => setShowTimeAdjuster(!showTimeAdjuster)}
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  color: 'var(--primary)',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  marginBottom: '8px',
-                }}
-              >
-                {showTimeAdjuster ? 'Hide time adjuster' : 'Adjust times'}
-              </button>
-              {!showTimeAdjuster && (
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0' }}>
-                  Fine-tune clip boundaries if the AI timing is slightly off
-                </p>
-              )}
-              {showTimeAdjuster && (
-                <>
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 12px 0' }}>
-                    Use the sliders or text inputs to adjust start/end times
-                  </p>
-                  <TimeAdjuster
-                    startMs={currentStart}
-                    endMs={currentEnd}
-                    durationMs={videoDurationSeconds * 1000}
-                    onChange={onTimeChange}
-                  />
-                </>
-              )}
-            </div>
+            <TimeSuggestionAdjuster
+              suggestedStartMs={clip.start_ms}
+              suggestedEndMs={clip.end_ms}
+              adjustedStartMs={currentStart}
+              adjustedEndMs={currentEnd}
+              durationMs={videoDurationSeconds * 1000}
+              onChange={onTimeChange}
+            />
           )}
 
         </div>
