@@ -14,11 +14,11 @@ ClipIQ uses a pipeline of cutting-edge tools to:
 
 ### Prerequisites
 - Node.js 18+
-- yt-dlp (`brew install yt-dlp`)
-- ffmpeg (`brew install ffmpeg`)
+- FFmpeg (`brew install ffmpeg-full` on Mac - must support libass for captions)
 - API Keys:
   - Anthropic (Claude API)
   - AssemblyAI
+  - Google OAuth (YouTube login) - *NEW for production*
 
 ### Setup
 
@@ -30,6 +30,9 @@ npm install
 echo "ANTHROPIC_API_KEY=your_key_here" > .env.local
 echo "ASSEMBLYAI_API_KEY=your_key_here" >> .env.local
 
+# For local development (video downloads work on home IP):
+# No additional setup needed - play-dl uses your IP
+
 # Start dev server
 npm run dev
 ```
@@ -38,12 +41,8 @@ Visit http://localhost:3000
 
 ### Using ClipIQ
 
-1. Paste a YouTube URL
-2. Click "Analyze"
-3. Wait for pipeline to complete (~40 seconds)
-4. Review generated clips
-5. Accept clips you want to extract
-6. Download as MP4 files
+1. **Local:** Paste YouTube URL → Analyze → Download clips (works without login)
+2. **Vercel:** Login with YouTube → Paste URL → Analyze → Download clips (coming soon - OAuth implementation pending)
 
 ## Features
 
@@ -98,7 +97,9 @@ storage/                   # Generated during runtime
 - **Styling**: CSS variables, inline styles
 - **AI**: Claude Sonnet 4.6 (clip analysis)
 - **Audio**: AssemblyAI (transcription)
-- **Video**: yt-dlp (download), FFmpeg (processing)
+- **Video**: play-dl (download), FFmpeg (processing with libass caption support)
+- **Storage**: Vercel Blob (production), Local filesystem (development)
+- **Auth**: Google OAuth (YouTube authentication - in development)
 - **Testing**: Playwright (E2E)
 - **Hosting**: Vercel (recommended)
 
@@ -120,22 +121,22 @@ See [API.md](API.md) for detailed documentation.
 - `POST /api/extract` - Extract specific clip as MP4
 - `GET/POST /api/keywords` - Manage keyword filters
 
-## Deployment
+## Deployment Status
 
-### Vercel (Recommended)
+### ✅ Local Development
+Fully functional. Run `npm run dev` to start. Works on your home IP without authentication.
 
-```bash
-# Push to GitHub
-git push origin main
+### ⏳ Vercel Production
+Currently deployed at https://clipiq-phi.vercel.app
+- Frontend: ✅ Working
+- API endpoints: ✅ Working  
+- Video downloads: ⏳ Pending YouTube OAuth implementation (in progress)
+- Transcription & analysis: ✅ Working
+- Clip extraction: ✅ Working (once video is available)
 
-# Connect repo to Vercel
-# Set environment variables in Vercel dashboard
-# Deploy automatically on push
-```
+See [HANDOFF.md](HANDOFF.md) for OAuth implementation details.
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-### Local Production
+### Manual Deployment
 
 ```bash
 npm run build

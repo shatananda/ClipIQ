@@ -1,383 +1,387 @@
-# ClipIQ Handoff Guide
+# ClipIQ Project Handoff — Session 2026-06-15
 
-This document provides everything you need to take over ClipIQ development, operations, and deployment.
+## 🎯 Executive Summary
 
-## Quick Orientation (First Day)
+**ClipIQ** is a Next.js 15 web application that analyzes YouTube videos to identify short-form clip opportunities (TikTok, Instagram Reels, YouTube Shorts). It uses Claude Sonnet for AI analysis, FFmpeg for video processing, and AssemblyAI for transcription.
 
-### 1. Understand the Project (30 min)
-- Read [README.md](README.md) - Project overview
-- Read [FEATURES.md](FEATURES.md) - What it does
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) - How it works
+**Current Status:** Core functionality works locally and on Vercel. **Next critical work: Implement YouTube OAuth** to enable production video downloads without bot detection.
 
-### 2. Set Up Local Environment (30 min)
+**Session Focus:** Solved YouTube bot detection issue on Vercel by pivoting to OAuth authentication.
+
+---
+
+## 🔴 Critical Issue Solved: YouTube Bot Detection on Vercel
+
+### The Problem
+Vercel's servers were being blocked by YouTube when trying to download videos:
+- **ytdl-core:** 410 errors (format unavailable)
+- **play-dl:** "Sign in to confirm you're not a bot" error
+- **Root cause:** YouTube aggressively blocks cloud provider IPs (Vercel, AWS, etc.)
+
+### Solutions Explored & Rejected
+1. ❌ **yt-dlp CLI** — Not available on Vercel
+2. ❌ **ytdl-core npm** — 410 errors (video format unavailable)
+3. ❌ **play-dl npm** — Works locally (home IP), fails on Vercel (cloud IP flagged)
+4. ❌ **Local download proxy** — Works but requires always-on machine on user's end
+5. ❌ **Cloudinary/Mux** — Works but adds cost and external dependency
+
+### ✅ Solution: YouTube OAuth Authentication
+
+**Why it works:**
+- Aparna (Apu) has editor access to PureIsvari YouTube channel
+- When ClipIQ authenticates via OAuth with her account:
+  - Vercel gets authorized OAuth token
+  - Vercel passes token in all video download requests
+  - YouTube sees: "Authenticated request from channel owner" ✅
+  - NOT flagged as bot (it's an authorized account, not anonymous)
+  - Downloads succeed on Vercel
+
+**Architecture:**
+```
+Apu logs in → Google OAuth → Token stored → Vercel uses token → YouTube allows download
+```
+
+---
+
+## 📋 What's Implemented (✅ Working)
+
+### Local Development
+- ✅ Video download (play-dl with home IP)
+- ✅ Video transcription (AssemblyAI)
+- ✅ Clip analysis (Claude Sonnet 4.6)
+- ✅ Clip extraction (FFmpeg)
+- ✅ Caption burning (SRT files)
+- ✅ Caption font size control (12-28px, user-adjustable)
+- ✅ Crop position selection (left/center/right)
+- ✅ Vercel Blob Storage integration
+
+### Vercel Deployment
+- ✅ Frontend deployed
+- ✅ API endpoints working
+- ✅ Blob storage configured
+- ✅ Environment variables set (ANTHROPIC_API_KEY, ASSEMBLYAI_API_KEY)
+- ⏳ Video downloads (blocked by YouTube, waiting for OAuth)
+
+### Testing
+- ✅ 16+ E2E tests (passing)
+- ✅ API tests (passing)
+- ✅ Download flow tests (passing)
+- ✅ Caption rendering tests (passing)
+
+---
+
+## 🚀 Next Session: Implement YouTube OAuth
+
+### Implementation Checklist (2-3 hours)
+
+#### 1. Get Google OAuth Credentials
+- [ ] Go to https://console.cloud.google.com/
+- [ ] Create new project: "ClipIQ"
+- [ ] Enable "YouTube Data API v3"
+- [ ] Create OAuth 2.0 credentials (Web application)
+- [ ] Add redirect URIs:
+  - `http://localhost:3000/api/auth/youtube/callback` (dev)
+  - `https://clipiq-phi.vercel.app/api/auth/youtube/callback` (prod)
+
+#### 2. Install Dependencies
 ```bash
-# Clone repo
-git clone https://github.com/shatananda/ClipIQ.git
-cd ClipIQ
-
-# Install dependencies
-npm install
-
-# Get API keys
-# - Anthropic Claude: https://console.anthropic.com
-# - AssemblyAI: https://www.assemblyai.com/dashboard
-
-# Create .env.local
-echo "ANTHROPIC_API_KEY=sk-..." > .env.local
-echo "ASSEMBLYAI_API_KEY=..." >> .env.local
-
-# Start dev server
-npm run dev
-
-# Visit http://localhost:3000
+npm install @react-oauth/google google-auth-library googleapis
 ```
 
-### 3. Run the Pipeline (30 min)
-1. Open http://localhost:3000
-2. Paste test URL: https://youtu.be/xdFdQNq7vAw
-3. Click Analyze
-4. Watch it complete (should take ~40 seconds)
-5. Review suggested clips
-6. Accept a clip and download it
+#### 3. Create OAuth Integration Files
+**New file: `src/lib/youtube-oauth.ts`**
+```typescript
+// Functions for:
+// - Initializing Google OAuth client
+// - Handling token storage (secure session/database)
+// - Token refresh logic
+// - Getting auth headers for downloads
+```
 
-### 4. Run Tests (15 min)
+#### 4. Update Login Flow
+**File: `src/app/page.tsx`**
+- Add "Login with YouTube" button
+- Store token in secure session
+- Only show video input if logged in
+
+#### 5. Update Download Endpoint
+**File: `src/app/api/download/route.ts`**
+```typescript
+// Before: play-dl without auth
+// After: play-dl with OAuth token in headers
+const videoStream = await stream(url, {
+  requestOptions: {
+    headers: {
+      'Authorization': `Bearer ${userToken}`
+    }
+  }
+});
+```
+
+#### 6. Update Video Downloader
+**File: `src/lib/ytdlp.ts`**
+- Accept OAuth token as parameter
+- Pass token to play-dl requests
+- Handle token expiration/refresh
+
+#### 7. Deploy to Vercel
 ```bash
-npm test                    # All 11 tests
-npm test -- e2e/basic.spec.ts  # Just basics
+# Add Google OAuth credentials to Vercel env vars
+vercel env add GOOGLE_OAUTH_CLIENT_ID production
+vercel env add GOOGLE_OAUTH_CLIENT_SECRET production
+vercel env add GOOGLE_OAUTH_REDIRECT_URI production
+
+# Deploy
+vercel --prod
 ```
 
-## Project Context
+#### 8. Test End-to-End
+- [ ] Login with YouTube
+- [ ] Download video from Vercel
+- [ ] Transcribe
+- [ ] Analyze clips
+- [ ] Extract with captions
+- [ ] Download clip
+- [ ] Verify no bot detection errors
 
-### Why This Project Exists
-ClipIQ automates finding short-form video clips in long YouTube videos using AI. Instead of manually watching and cutting clips, users get AI-suggested moments optimized for TikTok, Instagram, and YouTube Shorts.
+### Key Code References
+- **Current download logic:** `src/lib/ytdlp.ts` (lines 48-100)
+- **Play-dl usage:** `src/lib/ytdlp.ts` (use `video_info()` and `stream()`)
+- **API endpoint:** `src/app/api/download/route.ts`
+- **Frontend:** `src/app/page.tsx` (add login button)
 
-### Key Design Decisions
-1. **Next.js 15** - Server-side rendering, API routes, modern React
-2. **Claude Sonnet 4.6** - Best balance of speed/accuracy for clip analysis
-3. **AssemblyAI** - Fast, accurate transcription with timestamps
-4. **yt-dlp** - Most reliable YouTube downloader
-5. **FFmpeg** - Industry-standard video processing
-6. **Inline Styles + CSS Variables** - No build tool complexity, easy customization
-7. **sessionStorage** - Lightweight state management, no backend needed
-
-### Critical Files to Know
-```
-src/lib/claude.ts          # How clips are suggested (AI prompt)
-src/lib/assemblyai.ts      # How audio becomes words with timestamps
-src/lib/ffmpeg.ts          # How vertical clips are extracted
-src/app/page.tsx           # Main analysis flow
-src/components/ClipCard.tsx # How clips are displayed
-```
-
-## Daily Operations
-
-### Serving Locally
-```bash
-npm run dev
-# Runs on http://localhost:3000
-# Auto-reloads on code changes
-# Dev logs in console
+### Fallback Strategy
+If OAuth encounters issues, keep **local download service** as fallback:
+```typescript
+try {
+  // Try OAuth download on Vercel
+  return await downloadWithOAuth(url, userToken);
+} catch (e) {
+  // Fallback to local service
+  return await downloadViaLocalService(url);
+}
 ```
 
-### Running Tests
-```bash
-npm test                       # All tests
-npm test -- e2e/basic.spec.ts  # Quick validation
-npm run test:ui                # Interactive dashboard
-npm run test:debug             # Debug mode with inspector
+---
+
+## 📁 Project Structure
+
+```
+clipiq/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Main UI (add OAuth login)
+│   │   ├── api/
+│   │   │   ├── download/         # YouTube video download (modify for OAuth)
+│   │   │   ├── transcribe/       # AssemblyAI transcription
+│   │   │   ├── analyze/          # Claude clip analysis
+│   │   │   ├── batch-extract/    # FFmpeg clip extraction
+│   │   │   └── serve-clip/       # Serve extracted clips
+│   │   ├── review/               # Clip review page
+│   │   └── download/             # Download clips page
+│   ├── lib/
+│   │   ├── ytdlp.ts              # Play-dl integration (modify for OAuth)
+│   │   ├── youtube-oauth.ts      # NEW: OAuth functions
+│   │   ├── claude.ts             # Claude API integration
+│   │   ├── ffmpeg.ts             # FFmpeg processing
+│   │   ├── blob-storage.ts       # Vercel Blob storage
+│   │   └── storage.ts            # File paths
+│   └── components/               # React components
+├── e2e/                          # Playwright tests
+├── .env.local                    # Local env vars (add OAuth creds)
+├── vercel.json                   # Vercel config
+└── package.json
 ```
 
-### Building for Production
-```bash
-npm run build              # TypeScript check + Next.js build
-npm run start              # Start production server
+---
+
+## 🔐 Environment Variables
+
+### Currently Set ✅
 ```
-
-### Checking Logs
-```bash
-# Dev server logs
-tail -f /tmp/dev.log
-
-# Test results
-# -> playwright-report/index.html (open in browser)
-```
-
-## Common Tasks
-
-### Adding a Feature
-
-**Example: Support for Twitch streams**
-
-1. Check [ARCHITECTURE.md](ARCHITECTURE.md) to understand data flow
-2. Create new download lib: `src/lib/twitch.ts` (similar to `ytdlp.ts`)
-3. Update download route: `src/app/api/download/route.ts`
-4. Add tests in `e2e/pipeline.spec.ts`
-5. Update README with new platform
-6. Commit: `git commit -am "Add Twitch stream support"`
-7. Push and create PR
-
-### Customizing AI Behavior
-
-**Example: Generate different clip types**
-
-1. Edit `src/lib/claude.ts` (the prompt)
-2. Change clip type classifications
-3. Run: `npm test -- e2e/pipeline.spec.ts`
-4. Verify output format matches `ClipSuggestion` type
-5. Commit and push
-
-### Changing Video Format
-
-**Example: 9:16 → 16:9 format**
-
-1. Edit `src/lib/ffmpeg.ts` - FFmpeg filter string
-2. Update the scale/crop filter
-3. Create test video to verify
-4. Update [FEATURES.md](FEATURES.md) with new specs
-5. Commit and push
-
-### Adding Keywords
-
-**Example: Add astrology keywords**
-
-1. Edit `storage/keywords.json` (or programmatically)
-2. Or use UI: Add keywords manually in app
-3. Keywords automatically used in next analysis
-4. No code changes needed
-
-## Deployment
-
-### To Vercel (Production)
-```bash
-# First time setup
-# 1. Create Vercel account
-# 2. Connect GitHub repo
-# 3. Add environment variables in Vercel dashboard
-# 4. Deploy
-
-# Subsequent deployments
-git push origin main
-# Vercel auto-deploys on push
-```
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-### To AWS, GCP, etc.
-```bash
-# Build
-npm run build
-
-# Start
-npm run start
-
-# Set environment variables in deployment platform
-ANTHROPIC_API_KEY=...
+ANTHROPIC_API_KEY=sk-ant-...
 ASSEMBLYAI_API_KEY=...
+VERCEL_BLOB_READ_WRITE_TOKEN=...
 ```
 
-## Troubleshooting
+### To Add (Next Session)
+```
+# Local development (.env.local)
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/api/auth/youtube/callback
 
-### "Failed to fetch" Error
-Check dev server logs:
+# Vercel dashboard (production)
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_OAUTH_REDIRECT_URI=https://clipiq-phi.vercel.app/api/auth/youtube/callback
+```
+
+---
+
+## 📊 Architecture: How YouTube OAuth Fits
+
+```
+┌─────────────────┐
+│  Aparna         │
+│  Visits app     │
+└────────┬────────┘
+         │
+         ├─→ "Login with YouTube" button
+         │
+         ↓
+┌──────────────────────────┐
+│  Google OAuth Dialog     │
+│  Authorizes ClipIQ to:   │
+│  - Access channel info   │
+│  - Download videos       │
+└────────┬─────────────────┘
+         │
+         ↓
+┌──────────────────────────┐
+│  ClipIQ stores token     │
+│  (secure session)        │
+└────────┬─────────────────┘
+         │
+         ├─→ "Enter YouTube URL"
+         │
+         ↓
+┌──────────────────────────┐
+│  Vercel Backend          │
+│  Uses Apu's OAuth token  │
+│  to download video       │
+│  (YouTube allows it)     │
+└────────┬─────────────────┘
+         │
+         ├─→ AssemblyAI transcription
+         ├─→ Claude analysis
+         ├─→ FFmpeg extraction
+         └─→ Vercel Blob storage
+```
+
+---
+
+## 🧪 Testing Checklist for Next Session
+
+- [ ] OAuth login flow works
+- [ ] Token is stored securely
+- [ ] Token refresh works
+- [ ] Video download works with OAuth token from Vercel
+- [ ] Full pipeline: Download → Transcribe → Analyze → Extract → Download
+- [ ] Clip with captions downloads successfully
+- [ ] Font size adjustment works
+- [ ] Crop positions work (left/center/right)
+- [ ] No YouTube bot detection errors
+- [ ] Works on Vercel production
+
+---
+
+## 🛠️ Commands
+
 ```bash
-tail -50 /tmp/dev.log | grep -i error
+# Development
+npm run dev                    # Start dev server (localhost:3000)
+npm run build                  # Check TypeScript + build
+npm test                       # Run all E2E tests
+npm run test:ui                # Interactive test dashboard
+
+# Vercel
+vercel --prod                  # Deploy to production
+vercel logs --limit 50         # Check production logs
+vercel env add KEY production  # Add environment variable
+
+# Cleanup
+rm -rf .next                   # Clear Next.js cache
+git gc --aggressive            # Optimize git repo
 ```
 
-Most common causes:
-1. Missing API keys in `.env.local`
-2. yt-dlp not installed: `brew install yt-dlp`
-3. ffmpeg not installed: `brew install ffmpeg`
-4. API rate limits (wait a bit or upgrade API plan)
+---
 
-### Tests Timing Out
-The full pipeline takes ~40 seconds. If tests timeout:
-1. Check internet speed (downloads video from YouTube)
-2. Check API key quotas
-3. Increase timeout in `playwright.config.ts`
+## 📚 Key Resources
 
-### Video Download Fails
-```bash
-# Check yt-dlp works
-yt-dlp "https://youtu.be/VIDEO_ID"
+### Docs
+- Next.js: https://nextjs.org/docs
+- Claude API: https://docs.anthropic.com
+- Google OAuth: https://developers.google.com/identity
+- FFmpeg: https://ffmpeg.org/ffmpeg.html
+- AssemblyAI: https://www.assemblyai.com/docs
 
-# Update yt-dlp
-brew upgrade yt-dlp
-```
+### Code References
+- Claude prompt: `src/lib/claude.ts`
+- FFmpeg filters: `src/lib/ffmpeg.ts` (line ~93)
+- Video formats: `src/types/index.ts`
+- API routes: `src/app/api/*/route.ts`
 
-### Transcription is Slow/Failing
-```bash
-# Check AssemblyAI status
-# Visit: https://www.assemblyai.com/dashboard
+---
 
-# Common issues:
-# - Audio too long (AssemblyAI has limits)
-# - API quota exceeded
-# - Audio quality too poor
-```
+## 🎯 Success Criteria
 
-### Clip Extraction Produces Bad Videos
-```bash
-# Check FFmpeg
-ffmpeg -version
+**Session 2 (OAuth) is complete when:**
+1. ✅ Apu can log in with YouTube OAuth
+2. ✅ Videos download from Vercel without "bot" errors
+3. ✅ Full pipeline works: Login → Download → Transcribe → Analyze → Extract → Download
+4. ✅ No local machine needed for downloads
+5. ✅ All tests passing
+6. ✅ Deployed to Vercel and working in production
 
-# Common issues:
-# - Source video quality too low
-# - Unsupported codec
-# - Disk space full (check storage/)
-```
+---
 
-## Code Quality Standards
+## 📝 Notes & Nuances
 
-### Before Committing
-```bash
-npm run build              # Must pass TypeScript check
-npm test                   # Must pass all tests
-git diff                   # Review all changes
-```
+### Why OAuth?
+- ✅ No bot detection (YouTube trusts authenticated requests)
+- ✅ No local service needed (pure Vercel solution)
+- ✅ YouTube ToS compliant (channel owner downloads own videos)
+- ✅ Scalable (works for multiple channels if needed)
 
-### Commit Messages
-```bash
-# Format: <type>: <description>
-git commit -m "feat: add Twitch support"
-git commit -m "fix: handle missing keywords gracefully"
-git commit -m "docs: update deployment guide"
+### Why AssemblyAI (not YouTube Transcripts)?
+- YouTube Transcript API is read-only (can't download videos)
+- AssemblyAI gives better clip boundaries and timestamps
+- AssemblyAI more reliable for non-English content
 
-# Types: feat, fix, docs, style, refactor, test, chore
-```
+### Dev vs Production Storage
+- **Dev:** Clips saved to `storage/clips/` (local filesystem)
+- **Prod:** Clips saved to `/tmp/` then uploaded to Vercel Blob
+- This is already implemented in `src/lib/ffmpeg.ts`
 
-### Code Style
-- Use TypeScript types (no `any`)
-- Use const/let (no `var`)
-- Use template literals for strings
-- Use async/await (no callbacks)
-- Keep functions small and focused
-- Add comments only for "why", not "what"
+### FFmpeg on Vercel Status
+- ⚠️ Not verified if available on Vercel
+- If not available: Fall back to Cloudinary or external service
+- Current code assumes it's available
 
-### Testing Standards
-- All new features need tests
-- Tests should cover happy path + error cases
-- Use descriptive test names
-- Keep tests fast (< 5 minutes total)
+---
 
-## Git Workflow
+## 🔗 Links
 
-### Branch Strategy
-```bash
-# Feature branch
-git checkout -b feature/add-twitch-support
-# ... make changes ...
-git commit -am "feat: add Twitch support"
-git push origin feature/add-twitch-support
-# Create PR on GitHub
+- **GitHub:** https://github.com/shatananda/ClipIQ
+- **Live:** https://clipiq-phi.vercel.app
+- **Local:** http://localhost:3000 (when dev server running)
+- **Google Cloud:** https://console.cloud.google.com/
+- **Vercel Dashboard:** https://vercel.com/dashboard
 
-# Bugfix branch
-git checkout -b fix/handle-missing-keywords
-# ... make changes ...
-git push origin fix/handle-missing-keywords
-# Create PR
+---
 
-# Main branch always deployable
-```
+## ✍️ Session Notes
 
-### Merging to Main
-```bash
-# Local
-git checkout main
-git pull origin main
-git merge feature/add-twitch-support
-git push origin main
+**Date:** 2026-06-15
+**Participant:** Claude + User
+**Outcome:** Identified and solved YouTube bot detection issue via OAuth
 
-# OR use GitHub PR interface (recommended)
-# 1. Create PR
-# 2. Get review
-# 3. Merge to main
-# 4. Delete branch
-```
+**Key Decisions:**
+1. OAuth authentication over local proxy (cleaner, Vercel-native)
+2. Still using AssemblyAI (better than YouTube Transcripts)
+3. Keep play-dl package (works with OAuth token)
 
-## Documentation
+**What Went Well:**
+- Full pipeline works locally
+- Identified YouTube bot detection early
+- Found OAuth solution before it became production blocker
 
-### Update When You Change:
-- **README.md** - Features, setup instructions, quick start
-- **FEATURES.md** - New features, removed features, roadmap
-- **ARCHITECTURE.md** - Data flow, system design changes
-- **API.md** - New endpoints, endpoint changes
-- **E2E_TESTING.md** - New tests, test procedures
+**What's Deferred:**
+- FFmpeg verification on Vercel (may need Cloudinary fallback)
+- Database for token storage (can use secure session for now)
+- Multi-channel support (works for Apu's single channel)
 
-### Example Change
-```markdown
-# Before
-### API Endpoints
-- POST /api/download
+---
 
-# After
-### API Endpoints
-- POST /api/download - Download YouTube videos
-- POST /api/download/twitch - Download Twitch streams (NEW)
-```
-
-## Key Contacts & Resources
-
-### APIs & Services
-- **Claude API**: https://console.anthropic.com
-  - Docs: https://docs.anthropic.com
-  - Pricing: Per-token billing
-  
-- **AssemblyAI**: https://www.assemblyai.com
-  - Docs: https://www.assemblyai.com/docs
-  - Free tier: 600 minutes/month
-  
-- **yt-dlp**: https://github.com/yt-dlp/yt-dlp
-  - Issues: GitHub issues
-  - Updates: Frequent
-
-### Deployment
-- **Vercel**: https://vercel.com
-  - Docs: https://vercel.com/docs
-  - Dashboard: https://vercel.com/dashboard
-
-- **GitHub**: https://github.com/shatananda/ClipIQ
-  - Main branch is production-ready
-  - PRs for all changes
-
-## Monitoring in Production
-
-### Health Checks
-```bash
-# Test API is responding
-curl https://clipiq.vercel.app
-curl https://clipiq.vercel.app/api/keywords
-
-# Check logs
-vercel logs
-```
-
-### Common Production Issues
-- API key expired → Update in Vercel dashboard
-- Rate limits hit → Wait or upgrade API plans
-- Disk space full → Clean storage/ directory
-- Memory issues → May need larger instance
-
-## Handing Off to Next Person
-
-When you eventually hand this off:
-1. Update this file with any new information
-2. Update [ARCHITECTURE.md](ARCHITECTURE.md) with any changes
-3. Ensure tests are passing: `npm test`
-4. Push all changes to main
-5. Provide new person with:
-   - Link to GitHub repo
-   - API key credentials (securely)
-   - Vercel access
-   - This handoff document
-   - A 30-minute pairing session to walkthrough
-
-## Questions?
-
-If something isn't clear:
-1. Check [README.md](README.md) for overview
-2. Check [ARCHITECTURE.md](ARCHITECTURE.md) for how it works
-3. Check source code comments
-4. Check git history: `git log --oneline -20`
-5. Check git blame: `git blame src/lib/claude.ts`
-
-Good luck! 🚀
+**Ready for next session!** 🚀
