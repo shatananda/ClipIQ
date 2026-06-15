@@ -1,6 +1,6 @@
+import { execSync, spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-import ytdl from 'ytdl-core';
 import { PATHS } from './storage';
 
 export interface VideoInfo {
@@ -9,11 +9,6 @@ export interface VideoInfo {
   title: string;
   durationSeconds: number;
 }
-
-const requestHeaders = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept-Language': 'en-US,en;q=0.9',
-};
 
 export async function downloadVideo(url: string): Promise<VideoInfo> {
   try {
@@ -42,64 +37,53 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
     // Check if already downloaded
     if (fs.existsSync(absoluteVideoPath)) {
       console.log('Video already downloaded:', absoluteVideoPath);
-      const info = await ytdl.getInfo(url, { requestOptions: { headers: requestHeaders } });
+      // Get info using yt-dlp
+      const infoJson = execSync(`yt-dlp -j "${url}"`, { encoding: 'utf-8' });
+      const info = JSON.parse(infoJson);
       return {
         videoId,
         videoPath: absoluteVideoPath,
-        title: info.videoDetails.title || videoId,
-        durationSeconds: Math.floor(parseInt(info.videoDetails.lengthSeconds) || 0),
+        title: info.title || videoId,
+        durationSeconds: info.duration || 0,
       };
     }
 
-    console.log('Downloading video with ytdl-core:', { url, videoId, videoPath: absoluteVideoPath });
+    console.log('Downloading video with yt-dlp:', { url, videoId, videoPath: absoluteVideoPath });
 
-    // Get video info
-    const info = await ytdl.getInfo(url, { requestOptions: { headers: requestHeaders } });
-    const title = info.videoDetails.title || videoId;
-    const durationSeconds = Math.floor(parseInt(info.videoDetails.lengthSeconds) || 0);
+    // Get video info using yt-dlp -j (JSON output)
+    const infoJson = execSync(`yt-dlp -j "${url}"`, { encoding: 'utf-8' });
+    const info = JSON.parse(infoJson);
+    const title = info.title || videoId;
+    const durationSeconds = info.duration || 0;
 
     console.log('Video info retrieved:', { title, durationSeconds });
 
-    // Download video stream - ytdl-core automatically selects best available format
-    const videoStream = ytdl(url, { quality: 'highest', requestOptions: { headers: requestHeaders } });
+    // Download video using yt-dlp (handles all YouTube quirks automatically)
+    const downloadCmd = `yt-dlp -f "best[height<=1080]" -o "${absoluteVideoPath}" "${url}"`;
+    console.log('Running download command:', downloadCmd);
 
-    // Write to file
-    const writeStream = fs.createWriteStream(absoluteVideoPath);
-
-    return new Promise((resolve, reject) => {
-      videoStream.pipe(writeStream);
-
-      writeStream.on('finish', () => {
-        console.log('Video downloaded successfully:', absoluteVideoPath);
-        resolve({
-          videoId,
-          videoPath: absoluteVideoPath,
-          title,
-          durationSeconds,
-        });
-      });
-
-      writeStream.on('error', (err) => {
-        console.error('Write error:', err);
-        videoStream.destroy();
-        reject(err);
-      });
-
-      videoStream.on('error', (err) => {
-        console.error('Stream error:', err);
-        reject(new Error(`Failed to download video stream: ${err.message}`));
-      });
-
-      // Timeout after 10 minutes
-      const timeout = setTimeout(() => {
-        videoStream.destroy();
-        writeStream.destroy();
-        reject(new Error('Download timeout after 10 minutes'));
-      }, 10 * 60 * 1000);
-
-      writeStream.on('finish', () => clearTimeout(timeout));
-      writeStream.on('error', () => clearTimeout(timeout));
+    const result = spawnSync('sh', ['-c', downloadCmd], {
+      stdio: 'pipe',
+      encoding: 'utf-8',
+      maxBuffer: 10 * 1024 * 1024,
     });
+
+    if (result.status !== 0) {
+      throw new Error(`yt-dlp failed: ${result.stderr || result.stdout}`);
+    }
+
+    if (!fs.existsSync(absoluteVideoPath)) {
+      throw new Error(`Video file was not created at ${absoluteVideoPath}`);
+    }
+
+    console.log('Video downloaded successfully:', absoluteVideoPath);
+
+    return {
+      videoId,
+      videoPath: absoluteVideoPath,
+      title,
+      durationSeconds,
+    };
   } catch (error) {
     console.error('Download error:', error);
     throw error;
