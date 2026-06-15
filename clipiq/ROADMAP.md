@@ -32,6 +32,52 @@
 
 ---
 
+## Phase 1.5: Private Video Download Support
+**Effort:** Low | **Estimated Time:** 1-2 hours | **Priority:** High (workflow enabler)
+
+### Problem
+Apu needs to test ClipIQ on private videos before publishing. This enables a safer workflow: create video → leave private → analyze with ClipIQ → gather intelligence on optimization → then publish.
+
+### Features
+- Pass OAuth `accessToken` to `play-dl` library for authenticated downloads
+- Enable private video stream access (user must own/have permission to view)
+- Maintain full Phase 1 functionality for private videos (time adjustment, status tracking, etc.)
+
+### Implementation Steps
+1. Modify `src/lib/ytdlp.ts`:
+   - Accept optional `accessToken` parameter in `downloadVideo(url, accessToken?)`
+   - Pass token to `play-dl` options if provided
+   
+2. Modify `src/app/api/download/route.ts`:
+   - Extract `accessToken` from session
+   - Pass to `downloadVideo()` call
+
+3. Test:
+   - Create private test video
+   - Authenticate as owner
+   - Download private video successfully
+   - Verify clips extract correctly from private content
+
+### Workflow
+1. Apu creates video, leaves it **private**
+2. Logs into ClipIQ with her YouTube account
+3. Selects private video from her channel
+4. Configures settings and analyzes
+5. Reviews AI-suggested clips and adjusts timing
+6. **During review phase**, gathers intelligence from Phase 2-5 features (metadata suggestions, engagement predictions, thumbnail guidance, playlist strategy)
+7. Uses insights to optimize video
+8. Publishes video publicly
+9. Returns to ClipIQ to download final clips
+
+### Acceptance Criteria
+- [ ] Private videos appear in video browser (owned by authenticated user)
+- [ ] Private video downloads work with OAuth token
+- [ ] Clips extract correctly from private content
+- [ ] No change to public video download behavior
+- [ ] Session token properly passed through API layer
+
+---
+
 ## Phase 2: Metadata Intelligence
 **Effort:** Low | **Estimated Time:** 4-6 hours | **Priority:** High (quick ROI)
 
