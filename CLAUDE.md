@@ -235,6 +235,21 @@ NODE_ENV=production
    - API calls fail silently
    - Fix: Call `session.save()` after updating token
 
+7. **❌ Using `request.url` for redirects on Railway**
+   - Railway's reverse proxy doesn't set X-Forwarded-* headers correctly
+   - `request.url` resolves to `localhost:8080` instead of the public domain
+   - Results in OAuth redirects to `https://localhost:8080/...` instead of Railway URL
+   - Fix: Use `process.env.RAILWAY_PUBLIC_DOMAIN` for redirect URLs:
+     ```typescript
+     let redirectUrl;
+     if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+       redirectUrl = new URL('/videos', `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+     } else {
+       redirectUrl = new URL('/videos', request.url);
+     }
+     return NextResponse.redirect(redirectUrl);
+     ```
+
 ---
 
 ## Resources & References
