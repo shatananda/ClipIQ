@@ -22,4 +22,8 @@ RUN mkdir -p storage/{videos,audio,clips}
 
 EXPOSE 3000
 ENV NODE_ENV=production
+
+# Ensure no .env files exist at runtime (use Railway env vars only)
+RUN rm -f .env .env.local .env.*.local .env.production.local
+
 CMD ["npm", "start"]
