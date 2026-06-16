@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { Paragraph, ClipSuggestion } from '../types';
 import { logger } from './logger';
+import JSON5 from 'json5';
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -100,19 +101,28 @@ ${transcriptText}`;
           } catch (e4) {
             logger.debug('String fix failed, extracting JSON object...');
 
-            // Strategy 4: Extract JSON object if wrapped in text
-            const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              try {
-                const parsed = JSON.parse(jsonMatch[0]);
-                logger.info('✓ Parsed (extracted)', parsed.clips?.length || 0, 'clips');
-                return parsed.clips || [];
-              } catch (e5) {
-                logger.error('Failed to parse extracted JSON after all recovery attempts');
-                throw parseError;
+            // Strategy 4: Try JSON5 parser (lenient)
+            try {
+              const parsed = JSON5.parse(cleanedText);
+              logger.info('✓ Parsed (JSON5)', parsed.clips?.length || 0, 'clips');
+              return parsed.clips || [];
+            } catch (e5) {
+              logger.debug('JSON5 parse failed, extracting JSON object...');
+
+              // Strategy 5: Extract JSON object if wrapped in text
+              const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                try {
+                  const parsed = JSON5.parse(jsonMatch[0]);
+                  logger.info('✓ Parsed (extracted + JSON5)', parsed.clips?.length || 0, 'clips');
+                  return parsed.clips || [];
+                } catch (e6) {
+                  logger.error('Failed to parse extracted JSON after all recovery attempts');
+                  throw parseError;
+                }
               }
+              throw parseError;
             }
-            throw parseError;
           }
         }
       }
