@@ -73,28 +73,48 @@ ${transcriptText}`;
     } catch (parseError) {
       logger.debug('Initial JSON parse failed, attempting to fix formatting...');
 
-      // Try to fix single quotes to double quotes
+      // Strategy 1: Fix single quotes to double quotes
       let fixedText = cleanedText.replace(/'/g, '"');
       try {
         const parsed = JSON.parse(fixedText);
         logger.info('✓ Parsed (after quote fix)', parsed.clips?.length || 0, 'clips');
         return parsed.clips || [];
       } catch (e2) {
-        logger.debug('Quote fix failed, extracting JSON object...');
+        logger.debug('Quote fix failed, trying trailing comma removal...');
 
-        // Extract JSON object if wrapped in text
-        const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
+        // Strategy 2: Remove trailing commas
+        fixedText = cleanedText.replace(/,(\s*[}\]])/g, '$1');
+        try {
+          const parsed = JSON.parse(fixedText);
+          logger.info('✓ Parsed (after comma fix)', parsed.clips?.length || 0, 'clips');
+          return parsed.clips || [];
+        } catch (e3) {
+          logger.debug('Comma fix failed, trying to fix unterminated strings...');
+
+          // Strategy 3: Fix unterminated strings by closing them before comma/bracket
+          fixedText = cleanedText.replace(/: "([^"]*?)(?=[,\}\]])/g, ': "$1"');
           try {
-            const parsed = JSON.parse(jsonMatch[0]);
-            logger.info('✓ Parsed (extracted)', parsed.clips?.length || 0, 'clips');
+            const parsed = JSON.parse(fixedText);
+            logger.info('✓ Parsed (after string termination fix)', parsed.clips?.length || 0, 'clips');
             return parsed.clips || [];
-          } catch (e3) {
-            logger.error('Failed to parse extracted JSON');
+          } catch (e4) {
+            logger.debug('String fix failed, extracting JSON object...');
+
+            // Strategy 4: Extract JSON object if wrapped in text
+            const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              try {
+                const parsed = JSON.parse(jsonMatch[0]);
+                logger.info('✓ Parsed (extracted)', parsed.clips?.length || 0, 'clips');
+                return parsed.clips || [];
+              } catch (e5) {
+                logger.error('Failed to parse extracted JSON after all recovery attempts');
+                throw parseError;
+              }
+            }
             throw parseError;
           }
         }
-        throw parseError;
       }
     }
   } catch (error) {
