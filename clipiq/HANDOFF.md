@@ -1,387 +1,275 @@
-# ClipIQ Project Handoff — Session 2026-06-15
+# ClipIQ Project Handoff — Session 2026-06-16
 
 ## 🎯 Executive Summary
 
 **ClipIQ** is a Next.js 15 web application that analyzes YouTube videos to identify short-form clip opportunities (TikTok, Instagram Reels, YouTube Shorts). It uses Claude Sonnet for AI analysis, FFmpeg for video processing, and AssemblyAI for transcription.
 
-**Current Status:** Core functionality works locally and on Vercel. **Next critical work: Implement YouTube OAuth** to enable production video downloads without bot detection.
+**Current Status:** ✅ **Fully functional locally and on Railway/Vercel**. OAuth authentication working, video analysis pipeline complete, clip capture UI functional.
 
-**Session Focus:** Solved YouTube bot detection issue on Vercel by pivoting to OAuth authentication.
+**Session Focus:** Fixed critical OAuth/session issues, restored lost UI features (Mark Start/End buttons), implemented custom session management for Railway deployment.
 
 ---
 
-## 🔴 Critical Issue Solved: YouTube Bot Detection on Vercel
+## ✅ What's Working
 
-### The Problem
-Vercel's servers were being blocked by YouTube when trying to download videos:
-- **ytdl-core:** 410 errors (format unavailable)
-- **play-dl:** "Sign in to confirm you're not a bot" error
-- **Root cause:** YouTube aggressively blocks cloud provider IPs (Vercel, AWS, etc.)
+### Authentication & Session Management
+- ✅ **Google OAuth 2.0** - Complete implementation with token refresh
+- ✅ **Custom encrypted session management** - AES-256 encrypted cookies for Next.js 15 compatibility
+- ✅ **Token persistence** - Refresh tokens stored securely, automatic refresh on expiry
+- ✅ **Session recovery** - Graceful error handling and re-authentication flow
+- ✅ **Client-side auth checks** - Proper credential passing in all fetch calls
 
-### Solutions Explored & Rejected
-1. ❌ **yt-dlp CLI** — Not available on Vercel
-2. ❌ **ytdl-core npm** — 410 errors (video format unavailable)
-3. ❌ **play-dl npm** — Works locally (home IP), fails on Vercel (cloud IP flagged)
-4. ❌ **Local download proxy** — Works but requires always-on machine on user's end
-5. ❌ **Cloudinary/Mux** — Works but adds cost and external dependency
+### Core Video Processing Pipeline
+- ✅ **Video download** - yt-dlp CLI (Railway) + FFmpeg integration
+- ✅ **Video transcription** - AssemblyAI integration with confidence scoring
+- ✅ **AI clip analysis** - Claude Sonnet 4.6 with structured JSON output
+- ✅ **Clip extraction** - FFmpeg video cutting with frame-accurate timing
+- ✅ **Caption management** - Re-transcription for adjusted clips, SRT generation, caption burning with configurable font size
 
-### ✅ Solution: YouTube OAuth Authentication
+### UI/UX Features
+- ✅ **Mark Start/End buttons** - Capture clip timing directly from video playback
+- ✅ **Current time display** - Real-time playback position tracking
+- ✅ **Fine-tune timing** - Adjustable sliders for start/end with millisecond precision
+- ✅ **Jump buttons** - Quick seek to suggested clip times
+- ✅ **Confidence ratings** - AI confidence scores for each clip suggestion
+- ✅ **Platform recommendations** - Best platforms for each clip type
+- ✅ **Crop positioning** - Left/center/right positioning for vertical video
+- ✅ **Caption font size** - Default 14px, adjustable 12-28px range
 
-**Why it works:**
-- Aparna (Apu) has editor access to PureIsvari YouTube channel
-- When ClipIQ authenticates via OAuth with her account:
-  - Vercel gets authorized OAuth token
-  - Vercel passes token in all video download requests
-  - YouTube sees: "Authenticated request from channel owner" ✅
-  - NOT flagged as bot (it's an authorized account, not anonymous)
-  - Downloads succeed on Vercel
+### Deployment & Infrastructure
+- ✅ **Railway deployment** - Full Docker containerization with system dependencies
+- ✅ **Local filesystem storage** - Video/clip persistence with proper cleanup
+- ✅ **Environment configuration** - .env.local with all required API keys
+- ✅ **API error logging** - Detailed logging for debugging and monitoring
 
-**Architecture:**
+---
+
+## 🔧 Recent Fixes (This Session)
+
+### 1. OAuth Token Persistence
+**Issue:** Users logged in but session wasn't persisting between pages
+**Root Cause:** Google wasn't returning refresh token in OAuth response
+**Fix:** Added `prompt: 'consent'` to OAuth URL to force consent screen and include refresh token
+
+### 2. Custom Session Management
+**Issue:** iron-session wasn't compatible with Next.js 15 app router
+**Root Cause:** Library had timing issues with environment variable loading
+**Fix:** Implemented custom AES-256 encrypted cookie-based session management
+- Encrypts session data before storing in cookie
+- Decrypts on retrieval with error handling
+- No external session storage needed
+
+### 3. Session Cookie Transmission
+**Issue:** Client-side fetch calls weren't sending cookies to server
+**Root Cause:** Missing `credentials: 'include'` option in fetch calls
+**Fix:** Added to all auth session checks:
+- Home page auth check
+- Videos page auth check
+- LogoutButton auth check
+- All client-side API calls
+
+### 4. Restored UI Features
+**Issue:** Mark Start/End buttons for clip capture were missing
+**Fix:** Re-implemented with YouTube IFrame API integration
+- Captures current video playback position
+- Real-time time display while watching
+- Updates clip timing instantly
+
+### 5. Configuration & Defaults
+**Changes:**
+- Default caption font size: 18px → 14px
+- Claude max_tokens: 2048 → 4096 (better analysis)
+- Added comprehensive logging to debug endpoints
+
+---
+
+## 🏗️ Architecture
+
+### Authentication Flow
 ```
-Apu logs in → Google OAuth → Token stored → Vercel uses token → YouTube allows download
+User Login
+    ↓
+Google OAuth (with prompt='consent')
+    ↓
+Exchange code for tokens
+    ↓
+Store in encrypted session cookie
+    ↓
+Redirect to /videos
+    ↓
+Client fetch with credentials: 'include'
+    ↓
+Session retrieved from cookie
+    ↓
+YouTube API calls with access token
 ```
 
+### Video Processing Pipeline
+```
+User selects video
+    ↓
+Configure settings (font size, crop, captions)
+    ↓
+Download video (yt-dlp with OAuth token)
+    ↓
+Transcribe audio (AssemblyAI)
+    ↓
+Analyze with Claude (AI suggestions)
+    ↓
+User reviews clips, adjusts timing
+    ↓
+Extract clips with FFmpeg
+    ↓
+Burn captions if enabled (optional re-transcribe)
+    ↓
+Download clips
+```
+
+### Technology Stack
+- **Framework:** Next.js 15 (app router)
+- **Language:** TypeScript
+- **Auth:** Google OAuth 2.0 + Custom session
+- **AI:** Claude Sonnet 4.6 (clip analysis)
+- **Transcription:** AssemblyAI
+- **Video Processing:** FFmpeg, yt-dlp
+- **Storage:** Local filesystem (Railway) / Vercel Blob (Vercel)
+- **Styling:** CSS-in-JS (inline styles)
+- **Deployment:** Railway (primary), Vercel (secondary)
+
 ---
 
-## 📋 What's Implemented (✅ Working)
+## 📦 Environment Variables Required
 
-### Local Development
-- ✅ Video download (play-dl with home IP)
-- ✅ Video transcription (AssemblyAI)
-- ✅ Clip analysis (Claude Sonnet 4.6)
-- ✅ Clip extraction (FFmpeg)
-- ✅ Caption burning (SRT files)
-- ✅ Caption font size control (12-28px, user-adjustable)
-- ✅ Crop position selection (left/center/right)
-- ✅ Vercel Blob Storage integration
-
-### Vercel Deployment
-- ✅ Frontend deployed
-- ✅ API endpoints working
-- ✅ Blob storage configured
-- ✅ Environment variables set (ANTHROPIC_API_KEY, ASSEMBLYAI_API_KEY)
-- ⏳ Video downloads (blocked by YouTube, waiting for OAuth)
-
-### Testing
-- ✅ 16+ E2E tests (passing)
-- ✅ API tests (passing)
-- ✅ Download flow tests (passing)
-- ✅ Caption rendering tests (passing)
-
----
-
-## 🚀 Next Session: Implement YouTube OAuth
-
-### Implementation Checklist (2-3 hours)
-
-#### 1. Get Google OAuth Credentials
-- [ ] Go to https://console.cloud.google.com/
-- [ ] Create new project: "ClipIQ"
-- [ ] Enable "YouTube Data API v3"
-- [ ] Create OAuth 2.0 credentials (Web application)
-- [ ] Add redirect URIs:
-  - `http://localhost:3000/api/auth/youtube/callback` (dev)
-  - `https://clipiq-phi.vercel.app/api/auth/youtube/callback` (prod)
-
-#### 2. Install Dependencies
 ```bash
-npm install @react-oauth/google google-auth-library googleapis
-```
-
-#### 3. Create OAuth Integration Files
-**New file: `src/lib/youtube-oauth.ts`**
-```typescript
-// Functions for:
-// - Initializing Google OAuth client
-// - Handling token storage (secure session/database)
-// - Token refresh logic
-// - Getting auth headers for downloads
-```
-
-#### 4. Update Login Flow
-**File: `src/app/page.tsx`**
-- Add "Login with YouTube" button
-- Store token in secure session
-- Only show video input if logged in
-
-#### 5. Update Download Endpoint
-**File: `src/app/api/download/route.ts`**
-```typescript
-// Before: play-dl without auth
-// After: play-dl with OAuth token in headers
-const videoStream = await stream(url, {
-  requestOptions: {
-    headers: {
-      'Authorization': `Bearer ${userToken}`
-    }
-  }
-});
-```
-
-#### 6. Update Video Downloader
-**File: `src/lib/ytdlp.ts`**
-- Accept OAuth token as parameter
-- Pass token to play-dl requests
-- Handle token expiration/refresh
-
-#### 7. Deploy to Vercel
-```bash
-# Add Google OAuth credentials to Vercel env vars
-vercel env add GOOGLE_OAUTH_CLIENT_ID production
-vercel env add GOOGLE_OAUTH_CLIENT_SECRET production
-vercel env add GOOGLE_OAUTH_REDIRECT_URI production
-
-# Deploy
-vercel --prod
-```
-
-#### 8. Test End-to-End
-- [ ] Login with YouTube
-- [ ] Download video from Vercel
-- [ ] Transcribe
-- [ ] Analyze clips
-- [ ] Extract with captions
-- [ ] Download clip
-- [ ] Verify no bot detection errors
-
-### Key Code References
-- **Current download logic:** `src/lib/ytdlp.ts` (lines 48-100)
-- **Play-dl usage:** `src/lib/ytdlp.ts` (use `video_info()` and `stream()`)
-- **API endpoint:** `src/app/api/download/route.ts`
-- **Frontend:** `src/app/page.tsx` (add login button)
-
-### Fallback Strategy
-If OAuth encounters issues, keep **local download service** as fallback:
-```typescript
-try {
-  // Try OAuth download on Vercel
-  return await downloadWithOAuth(url, userToken);
-} catch (e) {
-  // Fallback to local service
-  return await downloadViaLocalService(url);
-}
-```
-
----
-
-## 📁 Project Structure
-
-```
-clipiq/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Main UI (add OAuth login)
-│   │   ├── api/
-│   │   │   ├── download/         # YouTube video download (modify for OAuth)
-│   │   │   ├── transcribe/       # AssemblyAI transcription
-│   │   │   ├── analyze/          # Claude clip analysis
-│   │   │   ├── batch-extract/    # FFmpeg clip extraction
-│   │   │   └── serve-clip/       # Serve extracted clips
-│   │   ├── review/               # Clip review page
-│   │   └── download/             # Download clips page
-│   ├── lib/
-│   │   ├── ytdlp.ts              # Play-dl integration (modify for OAuth)
-│   │   ├── youtube-oauth.ts      # NEW: OAuth functions
-│   │   ├── claude.ts             # Claude API integration
-│   │   ├── ffmpeg.ts             # FFmpeg processing
-│   │   ├── blob-storage.ts       # Vercel Blob storage
-│   │   └── storage.ts            # File paths
-│   └── components/               # React components
-├── e2e/                          # Playwright tests
-├── .env.local                    # Local env vars (add OAuth creds)
-├── vercel.json                   # Vercel config
-└── package.json
-```
-
----
-
-## 🔐 Environment Variables
-
-### Currently Set ✅
-```
-ANTHROPIC_API_KEY=sk-ant-...
-ASSEMBLYAI_API_KEY=...
-VERCEL_BLOB_READ_WRITE_TOKEN=...
-```
-
-### To Add (Next Session)
-```
-# Local development (.env.local)
-GOOGLE_OAUTH_CLIENT_ID=...
-GOOGLE_OAUTH_CLIENT_SECRET=...
+# OAuth
+GOOGLE_OAUTH_CLIENT_ID=<from Google Cloud Console>
+GOOGLE_OAUTH_CLIENT_SECRET=<from Google Cloud Console>
 GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/api/auth/youtube/callback
 
-# Vercel dashboard (production)
-GOOGLE_OAUTH_CLIENT_ID=...
-GOOGLE_OAUTH_CLIENT_SECRET=...
-GOOGLE_OAUTH_REDIRECT_URI=https://clipiq-phi.vercel.app/api/auth/youtube/callback
+# Session
+SESSION_SECRET=<32+ character random string>
+
+# AI & APIs
+ANTHROPIC_API_KEY=<from Anthropic dashboard>
+ASSEMBLYAI_API_KEY=<from AssemblyAI dashboard>
+
+# Node
+NODE_ENV=development
 ```
 
 ---
 
-## 📊 Architecture: How YouTube OAuth Fits
+## 🚀 Deployment Status
 
+### Railway (Primary)
+- ✅ Docker container with yt-dlp and FFmpeg
+- ✅ Environment variables configured
+- ✅ Session management working
+- ✅ OAuth callback endpoint accessible
+- **Next:** Configure custom domain
+
+### Vercel (Secondary - Legacy)
+- ⚠️ Works but uses Vercel Blob storage (extra cost)
+- ⚠️ OAuth still working but Railway is preferred
+- **Note:** Vercel has strict 10-minute function timeout; Railway has no function limits
+
+---
+
+## 🧪 Testing Checklist
+
+Before deploying new changes:
 ```
-┌─────────────────┐
-│  Aparna         │
-│  Visits app     │
-└────────┬────────┘
-         │
-         ├─→ "Login with YouTube" button
-         │
-         ↓
-┌──────────────────────────┐
-│  Google OAuth Dialog     │
-│  Authorizes ClipIQ to:   │
-│  - Access channel info   │
-│  - Download videos       │
-└────────┬─────────────────┘
-         │
-         ↓
-┌──────────────────────────┐
-│  ClipIQ stores token     │
-│  (secure session)        │
-└────────┬─────────────────┘
-         │
-         ├─→ "Enter YouTube URL"
-         │
-         ↓
-┌──────────────────────────┐
-│  Vercel Backend          │
-│  Uses Apu's OAuth token  │
-│  to download video       │
-│  (YouTube allows it)     │
-└────────┬─────────────────┘
-         │
-         ├─→ AssemblyAI transcription
-         ├─→ Claude analysis
-         ├─→ FFmpeg extraction
-         └─→ Vercel Blob storage
+[ ] OAuth login flow works
+[ ] Session persists across pages
+[ ] Video download succeeds
+[ ] Transcription completes without errors
+[ ] AI analysis returns valid JSON
+[ ] Mark Start/End buttons capture current time
+[ ] Clip extraction produces correct file
+[ ] Captions burn correctly
+[ ] All API endpoints return proper error messages
+[ ] Logout clears session
 ```
 
 ---
 
-## 🧪 Testing Checklist for Next Session
+## 📝 Key Files & Their Purpose
 
-- [ ] OAuth login flow works
-- [ ] Token is stored securely
-- [ ] Token refresh works
-- [ ] Video download works with OAuth token from Vercel
-- [ ] Full pipeline: Download → Transcribe → Analyze → Extract → Download
-- [ ] Clip with captions downloads successfully
-- [ ] Font size adjustment works
-- [ ] Crop positions work (left/center/right)
-- [ ] No YouTube bot detection errors
-- [ ] Works on Vercel production
-
----
-
-## 🛠️ Commands
-
-```bash
-# Development
-npm run dev                    # Start dev server (localhost:3000)
-npm run build                  # Check TypeScript + build
-npm test                       # Run all E2E tests
-npm run test:ui                # Interactive test dashboard
-
-# Vercel
-vercel --prod                  # Deploy to production
-vercel logs --limit 50         # Check production logs
-vercel env add KEY production  # Add environment variable
-
-# Cleanup
-rm -rf .next                   # Clear Next.js cache
-git gc --aggressive            # Optimize git repo
-```
+| File | Purpose |
+|------|---------|
+| `src/lib/youtube-oauth.ts` | OAuth client, token exchange, refresh logic |
+| `src/lib/session.ts` | Encrypted session management with cookies |
+| `src/app/api/auth/youtube/callback/route.ts` | OAuth callback handler |
+| `src/app/api/auth/session/route.ts` | Session validation endpoint |
+| `src/app/api/analyze/route.ts` | Claude analysis endpoint |
+| `src/lib/claude.ts` | Claude Sonnet integration with structured prompts |
+| `src/components/VideoPreviewModal.tsx` | Video player with Mark Start/End buttons |
+| `src/lib/ffmpeg.ts` | FFmpeg CLI wrapper for video processing |
+| `src/lib/ytdlp.ts` | yt-dlp CLI wrapper for YouTube downloads |
 
 ---
 
-## 📚 Key Resources
+## 🔍 Debugging Guide
 
-### Docs
-- Next.js: https://nextjs.org/docs
-- Claude API: https://docs.anthropic.com
-- Google OAuth: https://developers.google.com/identity
-- FFmpeg: https://ffmpeg.org/ffmpeg.html
-- AssemblyAI: https://www.assemblyai.com/docs
+### "Failed to analyze video"
+1. Check `ANTHROPIC_API_KEY` in .env.local
+2. Check server logs for `❌ AI analysis error:`
+3. Verify Claude model name is `claude-sonnet-4-6`
+4. Check token limits (max_tokens: 4096)
 
-### Code References
-- Claude prompt: `src/lib/claude.ts`
-- FFmpeg filters: `src/lib/ffmpeg.ts` (line ~93)
-- Video formats: `src/types/index.ts`
-- API routes: `src/app/api/*/route.ts`
+### OAuth login loops back to home
+1. Check `GOOGLE_OAUTH_CLIENT_ID` and `CLIENT_SECRET` are correct
+2. Verify `GOOGLE_OAUTH_REDIRECT_URI` matches Google Console settings
+3. Check `SESSION_SECRET` is at least 32 characters
+4. Look for "Code exchanged for tokens" in server logs
 
----
+### "Failed to download video"
+1. Verify yt-dlp is installed (`which yt-dlp` on Railway)
+2. Check YouTube video isn't private/age-restricted
+3. Verify OAuth token is valid (check in session)
+4. Check server logs for yt-dlp error messages
 
-## 🎯 Success Criteria
-
-**Session 2 (OAuth) is complete when:**
-1. ✅ Apu can log in with YouTube OAuth
-2. ✅ Videos download from Vercel without "bot" errors
-3. ✅ Full pipeline works: Login → Download → Transcribe → Analyze → Extract → Download
-4. ✅ No local machine needed for downloads
-5. ✅ All tests passing
-6. ✅ Deployed to Vercel and working in production
-
----
-
-## 📝 Notes & Nuances
-
-### Why OAuth?
-- ✅ No bot detection (YouTube trusts authenticated requests)
-- ✅ No local service needed (pure Vercel solution)
-- ✅ YouTube ToS compliant (channel owner downloads own videos)
-- ✅ Scalable (works for multiple channels if needed)
-
-### Why AssemblyAI (not YouTube Transcripts)?
-- YouTube Transcript API is read-only (can't download videos)
-- AssemblyAI gives better clip boundaries and timestamps
-- AssemblyAI more reliable for non-English content
-
-### Dev vs Production Storage
-- **Dev:** Clips saved to `storage/clips/` (local filesystem)
-- **Prod:** Clips saved to `/tmp/` then uploaded to Vercel Blob
-- This is already implemented in `src/lib/ffmpeg.ts`
-
-### FFmpeg on Vercel Status
-- ⚠️ Not verified if available on Vercel
-- If not available: Fall back to Cloudinary or external service
-- Current code assumes it's available
+### Video transcription fails
+1. Verify `ASSEMBLYAI_API_KEY` is valid
+2. Check video codec is supported (H.264 best)
+3. Check API rate limits haven't been exceeded
+4. Verify audio is extractable from video
 
 ---
 
-## 🔗 Links
+## 🎓 Next Developer Notes
 
-- **GitHub:** https://github.com/shatananda/ClipIQ
-- **Live:** https://clipiq-phi.vercel.app
-- **Local:** http://localhost:3000 (when dev server running)
-- **Google Cloud:** https://console.cloud.google.com/
-- **Vercel Dashboard:** https://vercel.com/dashboard
+### Continuing Development
+1. **Always test OAuth flow** - Most bugs come from token issues
+2. **Session debugging** - Use `/api/test/session` POST endpoint to test encryption
+3. **Use detailed logging** - Add `console.log()` statements before deploying
+4. **Test locally first** - Deploy to Railway only after local testing
 
----
+### Scaling Considerations
+- **Video storage:** Current local filesystem only; migrate to S3 for production
+- **Database:** Consider adding database for clip history/user preferences
+- **Rate limiting:** Add rate limits before public launch
+- **Caching:** Cache transcriptions to avoid re-processing same videos
 
-## ✍️ Session Notes
-
-**Date:** 2026-06-15
-**Participant:** Claude + User
-**Outcome:** Identified and solved YouTube bot detection issue via OAuth
-
-**Key Decisions:**
-1. OAuth authentication over local proxy (cleaner, Vercel-native)
-2. Still using AssemblyAI (better than YouTube Transcripts)
-3. Keep play-dl package (works with OAuth token)
-
-**What Went Well:**
-- Full pipeline works locally
-- Identified YouTube bot detection early
-- Found OAuth solution before it became production blocker
-
-**What's Deferred:**
-- FFmpeg verification on Vercel (may need Cloudinary fallback)
-- Database for token storage (can use secure session for now)
-- Multi-channel support (works for Apu's single channel)
+### Known Limitations
+- YouTube private/age-restricted videos not supported
+- Max video duration: 24 hours (AssemblyAI limit)
+- No batch processing yet (single video at a time)
+- No user accounts/persistence (session-based only)
 
 ---
 
-**Ready for next session!** 🚀
+## 📞 Support & Questions
+
+For issues:
+1. Check `.env.local` has all required keys
+2. Run `/api/test/session` to verify encryption works
+3. Check server logs with `tail -f /tmp/debug.log`
+4. Verify OAuth credentials on Google Cloud Console
+5. Test video URL directly on YouTube to confirm it's accessible
+
+---
+
+**Last Updated:** 2026-06-16  
+**Commit:** 13ee91a - "Fix OAuth/session persistence and restore video clip capture UI"  
+**Status:** ✅ Ready for production or further development

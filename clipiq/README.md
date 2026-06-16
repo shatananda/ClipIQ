@@ -15,10 +15,11 @@ ClipIQ uses a pipeline of cutting-edge tools to:
 ### Prerequisites
 - Node.js 18+
 - FFmpeg (`brew install ffmpeg-full` on Mac - must support libass for captions)
+- yt-dlp (`brew install yt-dlp` on Mac, or `apt-get install yt-dlp` on Linux)
 - API Keys:
-  - Anthropic (Claude API)
-  - AssemblyAI
-  - Google OAuth (YouTube login) - *NEW for production*
+  - **Anthropic** (Claude API) - https://console.anthropic.com/
+  - **AssemblyAI** - https://www.assemblyai.com/
+  - **Google OAuth** (YouTube login) - https://console.cloud.google.com/
 
 ### Setup
 
@@ -27,11 +28,15 @@ ClipIQ uses a pipeline of cutting-edge tools to:
 npm install
 
 # Create .env.local with your API keys
-echo "ANTHROPIC_API_KEY=your_key_here" > .env.local
-echo "ASSEMBLYAI_API_KEY=your_key_here" >> .env.local
-
-# For local development (video downloads work on home IP):
-# No additional setup needed - play-dl uses your IP
+cat > .env.local << EOF
+GOOGLE_OAUTH_CLIENT_ID=your_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=your_oauth_client_secret
+GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/api/auth/youtube/callback
+SESSION_SECRET=your-32-character-random-secret-key-here
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ASSEMBLYAI_API_KEY=your_assemblyai_api_key
+NODE_ENV=development
+EOF
 
 # Start dev server
 npm run dev
@@ -41,8 +46,12 @@ Visit http://localhost:3000
 
 ### Using ClipIQ
 
-1. **Local:** Paste YouTube URL → Analyze → Download clips (works without login)
-2. **Vercel:** Login with YouTube → Paste URL → Analyze → Download clips (coming soon - OAuth implementation pending)
+1. **Click "Login with YouTube"** → Authenticate with Google
+2. **Select a video** from your YouTube channel
+3. **Configure settings** (font size, crop, captions)
+4. **Click "Start Analysis"** → Watch progress
+5. **Review AI suggestions** → Adjust clip timing with Mark Start/End buttons
+6. **Approve clips** and download ready-to-post MP4s
 
 ## Features
 
@@ -124,24 +133,59 @@ See [API.md](API.md) for detailed documentation.
 ## Deployment Status
 
 ### ✅ Local Development
-Fully functional. Run `npm run dev` to start. Works on your home IP without authentication.
+Fully functional. Run `npm run dev` to start. Works on your home IP with full OAuth integration.
 
-### ⏳ Vercel Production
-Currently deployed at https://clipiq-phi.vercel.app
+### ✅ Railway Production
+Deployed and fully operational at https://clipiq-railway.onrender.com (or your Railway URL)
 - Frontend: ✅ Working
 - API endpoints: ✅ Working  
-- Video downloads: ⏳ Pending YouTube OAuth implementation (in progress)
+- Video downloads: ✅ Working with OAuth authentication
 - Transcription & analysis: ✅ Working
-- Clip extraction: ✅ Working (once video is available)
+- Clip extraction: ✅ Working
+- Session management: ✅ Encrypted cookies with automatic token refresh
 
-See [HANDOFF.md](HANDOFF.md) for OAuth implementation details.
+### ⚠️ Vercel (Legacy)
+Previously deployed at https://clipiq-phi.vercel.app
+- Still functional but Railway is preferred (no function timeout limits)
+- OAuth working but uses Vercel Blob storage (extra cost)
 
-### Manual Deployment
+### Deployment Requirements
 
+#### Google OAuth Setup
+1. Go to https://console.cloud.google.com/
+2. Create/select project "ClipIQ"
+3. Enable "YouTube Data API v3"
+4. Create OAuth 2.0 credentials (Web application)
+5. Add redirect URIs:
+   - `http://localhost:3000/api/auth/youtube/callback` (local)
+   - `https://your-railway-url/api/auth/youtube/callback` (production)
+6. Copy Client ID and Secret to .env.local
+
+#### Environment Variables for Deployment
 ```bash
-npm run build
-npm run start
+GOOGLE_OAUTH_CLIENT_ID=<from Google Cloud Console>
+GOOGLE_OAUTH_CLIENT_SECRET=<from Google Cloud Console>
+GOOGLE_OAUTH_REDIRECT_URI=https://your-railway-url/api/auth/youtube/callback
+SESSION_SECRET=<32+ character random string>
+ANTHROPIC_API_KEY=<from Anthropic>
+ASSEMBLYAI_API_KEY=<from AssemblyAI>
+NODE_ENV=production
 ```
+
+#### Railway Deployment
+```bash
+# Install Railway CLI
+npm i -g @railway/cli
+
+# Login to Railway
+railway login
+
+# Initialize and deploy
+railway init
+railway up
+```
+
+See [HANDOFF.md](HANDOFF.md) for complete deployment guide.
 
 ## Testing
 
