@@ -6,12 +6,12 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up app
+# Set up app from clipiq subdirectory
 WORKDIR /app
-COPY package*.json ./
+COPY clipiq/package*.json ./
 RUN npm ci --only=production
 
-COPY . .
+COPY clipiq .
 RUN npm run build
 
 # Create storage directories for videos, audio, and clips
