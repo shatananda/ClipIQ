@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { logger } from './logger';
 
 export interface SessionData {
   accessToken?: string;
@@ -54,7 +55,7 @@ function decryptSession(encrypted: string): SessionData {
     decrypted += decipher.final('utf-8');
     return JSON.parse(decrypted);
   } catch (error) {
-    console.error('Session decryption failed:', error);
+    logger.error('Session decryption failed:', error);
     return {};
   }
 }

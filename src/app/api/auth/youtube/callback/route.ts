@@ -1,11 +1,12 @@
 import { exchangeCode, getOAuthClient } from '@/lib/youtube-oauth';
 import { getSession } from '@/lib/session';
+import { logger } from '@/lib/logger';
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
-  console.log('🔐 Callback request.url:', request.url);
+  logger.debug('🔐 Callback request.url:', request.url);
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
@@ -15,13 +16,13 @@ export async function GET(request: Request) {
 
   try {
     const { accessToken, refreshToken, expiryDate } = await exchangeCode(code);
-    console.log('✓ Code exchanged for tokens');
+    logger.info('✓ Code exchanged for tokens');
 
     const session = await getSession();
     session.accessToken = accessToken;
     session.refreshToken = refreshToken;
     session.expiryDate = expiryDate;
-    console.log('✓ Session tokens set:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
+    logger.debug('✓ Session tokens set:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
 
     // Set up OAuth client with the new credentials
     const oauth2Client = getOAuthClient();
@@ -42,29 +43,29 @@ export async function GET(request: Request) {
     if (channelId) {
       session.channelId = channelId;
     }
-    console.log('✓ Channel ID retrieved:', channelId);
+    logger.info('✓ Channel ID retrieved:', channelId);
 
     await session.save();
-    console.log('✓ Session saved', { accessToken: session.accessToken?.substring(0, 10), refreshToken: !!session.refreshToken });
+    logger.info('✓ Session saved', { accessToken: session.accessToken?.substring(0, 10), refreshToken: !!session.refreshToken });
 
     // Verify session was persisted
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('clipiq_session');
-    console.log('✓ Session cookie set:', !!sessionCookie?.value, 'length:', sessionCookie?.value?.length);
+    logger.debug('✓ Session cookie set:', !!sessionCookie?.value, 'length:', sessionCookie?.value?.length);
 
     // Use Railway's public domain if available, otherwise fall back to request.url
     let redirectUrl;
     if (process.env.RAILWAY_PUBLIC_DOMAIN) {
       redirectUrl = new URL('/videos', `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
-      console.log('🔐 Using Railway domain:', process.env.RAILWAY_PUBLIC_DOMAIN);
+      logger.debug('🔐 Using Railway domain:', process.env.RAILWAY_PUBLIC_DOMAIN);
     } else {
       redirectUrl = new URL('/videos', request.url);
     }
-    console.log('🔐 Redirecting to:', redirectUrl.toString());
+    logger.debug('🔐 Redirecting to:', redirectUrl.toString());
     const redirectResponse = NextResponse.redirect(redirectUrl);
     return redirectResponse;
   } catch (error) {
-    console.error('OAuth callback error:', error);
+    logger.error('OAuth callback error:', error);
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
   }
 }

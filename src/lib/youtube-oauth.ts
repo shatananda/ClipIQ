@@ -1,7 +1,8 @@
 import { google } from 'googleapis';
+import { logger } from './logger';
 
 export function getOAuthClient() {
-  console.log('🔐 getOAuthClient() called with REDIRECT_URI:', process.env.GOOGLE_OAUTH_REDIRECT_URI);
+  logger.debug('🔐 getOAuthClient() called with REDIRECT_URI:', process.env.GOOGLE_OAUTH_REDIRECT_URI);
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_OAUTH_CLIENT_ID,
     process.env.GOOGLE_OAUTH_CLIENT_SECRET,
@@ -17,8 +18,8 @@ export function getAuthUrl(): string {
     scope: ['https://www.googleapis.com/auth/youtube.readonly'],
     prompt: 'consent',
   });
-  console.log('🔐 Generated OAuth URL:', url);
-  console.log('🔐 Redirect URI in URL:', url.includes('redirect_uri=') ? url.substring(url.indexOf('redirect_uri='), url.indexOf('redirect_uri=') + 100) : 'NOT FOUND');
+  logger.debug('🔐 Generated OAuth URL:', url);
+  logger.debug('🔐 Redirect URI in URL:', url.includes('redirect_uri=') ? url.substring(url.indexOf('redirect_uri='), url.indexOf('redirect_uri=') + 100) : 'NOT FOUND');
   return url;
 }
 
