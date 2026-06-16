@@ -11,11 +11,15 @@ export function getOAuthClient() {
 }
 
 export function getAuthUrl(): string {
-  return getOAuthClient().generateAuthUrl({
+  const client = getOAuthClient();
+  const url = client.generateAuthUrl({
     access_type: 'offline',
     scope: ['https://www.googleapis.com/auth/youtube.readonly'],
     prompt: 'consent',
   });
+  console.log('🔐 Generated OAuth URL:', url);
+  console.log('🔐 Redirect URI in URL:', url.includes('redirect_uri=') ? url.substring(url.indexOf('redirect_uri='), url.indexOf('redirect_uri=') + 100) : 'NOT FOUND');
+  return url;
 }
 
 export async function exchangeCode(code: string) {
