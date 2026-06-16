@@ -23,7 +23,9 @@ Analyze this transcript and identify every good clip opportunity (no limit). For
 
 Key themes to emphasize: ${keywords.join(', ')}
 
-Return ONLY valid JSON, no markdown, no code fences:
+CRITICAL: Return ONLY a valid JSON object (no markdown, no backticks, no extra text before or after).
+All property names and string values must use DOUBLE QUOTES. No single quotes. No trailing commas.
+Valid JSON structure only:
 {
   "clips": [
     {
@@ -62,9 +64,39 @@ ${transcriptText}`;
     // Strip markdown code fences if present
     let cleanedText = rawText.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
 
-    const parsed = JSON.parse(cleanedText);
-    logger.info('✓ Parsed', parsed.clips?.length || 0, 'clips');
-    return parsed.clips || [];
+    // Fix common JSON issues
+    try {
+      // Try to parse as-is first
+      const parsed = JSON.parse(cleanedText);
+      logger.info('✓ Parsed', parsed.clips?.length || 0, 'clips');
+      return parsed.clips || [];
+    } catch (parseError) {
+      logger.debug('Initial JSON parse failed, attempting to fix formatting...');
+
+      // Try to fix single quotes to double quotes
+      let fixedText = cleanedText.replace(/'/g, '"');
+      try {
+        const parsed = JSON.parse(fixedText);
+        logger.info('✓ Parsed (after quote fix)', parsed.clips?.length || 0, 'clips');
+        return parsed.clips || [];
+      } catch (e2) {
+        logger.debug('Quote fix failed, extracting JSON object...');
+
+        // Extract JSON object if wrapped in text
+        const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[0]);
+            logger.info('✓ Parsed (extracted)', parsed.clips?.length || 0, 'clips');
+            return parsed.clips || [];
+          } catch (e3) {
+            logger.error('Failed to parse extracted JSON');
+            throw parseError;
+          }
+        }
+        throw parseError;
+      }
+    }
   } catch (error) {
     logger.error('❌ AI analysis error:', error);
     throw error;
