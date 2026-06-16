@@ -1,18 +1,12 @@
 import { google } from 'googleapis';
 
-let oauth2Client: any = null;
-
 export function getOAuthClient() {
-  if (!oauth2Client) {
-    console.log('🔐 getOAuthClient() initializing with:');
-    console.log('  CLIENT_ID:', process.env.GOOGLE_OAUTH_CLIENT_ID?.substring(0, 20) + '...');
-    console.log('  REDIRECT_URI:', process.env.GOOGLE_OAUTH_REDIRECT_URI);
-    oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_OAUTH_CLIENT_ID,
-      process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-      process.env.GOOGLE_OAUTH_REDIRECT_URI
-    );
-  }
+  console.log('🔐 getOAuthClient() called with REDIRECT_URI:', process.env.GOOGLE_OAUTH_REDIRECT_URI);
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_OAUTH_CLIENT_ID,
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+    process.env.GOOGLE_OAUTH_REDIRECT_URI
+  );
   return oauth2Client;
 }
 
