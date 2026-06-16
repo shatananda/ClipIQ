@@ -1,6 +1,5 @@
 [build]
 builder = "dockerfile"
-dockerfile = "Dockerfile"
 
-[env]
-serviceDir = "clipiq"
+[env]  
+serviceDir = "."
