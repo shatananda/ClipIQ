@@ -32,8 +32,9 @@ export default function VideoPreviewModal({
   // Load YouTube API and create player
   useEffect(() => {
     const loadYTAPI = () => {
-      if (window.YT && window.YT.Player) {
-        playerRef.current = new window.YT.Player(iframeRef.current as any, {
+      const yt = (window as any).YT;
+      if (yt && yt.Player) {
+        playerRef.current = new yt.Player(iframeRef.current as any, {
           events: {
             onReady: () => {
               const updateTime = () => {
@@ -49,10 +50,10 @@ export default function VideoPreviewModal({
       }
     };
 
-    if (!window.YT) {
+    if (!(window as any).YT) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      window.onYouTubeIframeAPIReady = loadYTAPI;
+      (window as any).onYouTubeIframeAPIReady = loadYTAPI;
       document.body.appendChild(tag);
     } else {
       loadYTAPI();
