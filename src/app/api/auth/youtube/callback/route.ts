@@ -52,7 +52,14 @@ export async function GET(request: Request) {
     const sessionCookie = cookieStore.get('clipiq_session');
     console.log('✓ Session cookie set:', !!sessionCookie?.value, 'length:', sessionCookie?.value?.length);
 
-    const redirectUrl = new URL('/videos', request.url);
+    // Use Railway's public domain if available, otherwise fall back to request.url
+    let redirectUrl;
+    if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+      redirectUrl = new URL('/videos', `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+      console.log('🔐 Using Railway domain:', process.env.RAILWAY_PUBLIC_DOMAIN);
+    } else {
+      redirectUrl = new URL('/videos', request.url);
+    }
     console.log('🔐 Redirecting to:', redirectUrl.toString());
     const redirectResponse = NextResponse.redirect(redirectUrl);
     return redirectResponse;
