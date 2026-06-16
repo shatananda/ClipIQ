@@ -16,7 +16,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN rm -f .env .env.* && npm run build
 
 RUN mkdir -p storage/{videos,audio,clips}
 
