@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
+  console.log('🔐 Callback request.url:', request.url);
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
@@ -51,7 +52,9 @@ export async function GET(request: Request) {
     const sessionCookie = cookieStore.get('clipiq_session');
     console.log('✓ Session cookie set:', !!sessionCookie?.value, 'length:', sessionCookie?.value?.length);
 
-    const redirectResponse = NextResponse.redirect(new URL('/videos', request.url));
+    const redirectUrl = new URL('/videos', request.url);
+    console.log('🔐 Redirecting to:', redirectUrl.toString());
+    const redirectResponse = NextResponse.redirect(redirectUrl);
     return redirectResponse;
   } catch (error) {
     console.error('OAuth callback error:', error);
