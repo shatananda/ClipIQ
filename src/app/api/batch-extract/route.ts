@@ -3,6 +3,7 @@ import { extractClipWithReTranscription } from '@/lib/ffmpeg-with-transcribe';
 import { ClipSuggestion, Paragraph } from '@/types';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -28,10 +29,10 @@ export async function POST(req: Request) {
         if (fs.existsSync(transcriptPath)) {
           const transcriptData = fs.readFileSync(transcriptPath, 'utf-8');
           transcript = JSON.parse(transcriptData);
-          console.log('Loaded transcript from file:', transcriptPath);
+          logger.debug('Loaded transcript from file:', transcriptPath);
         }
       } catch (e) {
-        console.warn('Could not load transcript:', e);
+        logger.debug('Could not load transcript:', e);
       }
     }
 
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
         const burnCaptions = clipData.burnCaptions !== false;
         const captionFontSize = clipData.captionFontSize || 18;
 
-        console.log('Batch extracting clip:', {
+        logger.debug('Batch extracting clip:', {
           id: clipData.id,
           headline: clipData.headline,
           cropPosition,
@@ -101,7 +102,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Batch extraction failed';
-    console.error('Batch extract error:', error);
+    logger.error('Batch extract error:', error);
     return Response.json(
       {
         error: `Batch extraction failed: ${errorMsg}`,

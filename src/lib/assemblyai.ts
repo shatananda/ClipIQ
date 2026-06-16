@@ -1,6 +1,7 @@
 import { AssemblyAI } from 'assemblyai';
 import fs from 'fs';
 import { Paragraph } from '../types';
+import { logger } from './logger';
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY || '',
@@ -75,7 +76,7 @@ export async function transcribeAudio(audioPath: string): Promise<Paragraph[]> {
       confidence: 0.9,
     }];
   } catch (error) {
-    console.error('AssemblyAI transcription error:', error);
+    logger.error('AssemblyAI transcription error:', error);
     throw error;
   }
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ClipCard from '@/components/ClipCard';
 import { ClipIQState, ClipSuggestion } from '@/types';
 import { DownloadIcon } from '@/components/Icons';
+import { clientLogger } from '@/lib/logger-client';
 
 interface ClipDownloadPrefs {
   mp4: boolean;
@@ -137,7 +138,7 @@ export default function DownloadPage() {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to download clip';
-      console.error('Download error:', error);
+      clientLogger.error('Download error:', error);
       setError(`Error downloading "${clip.headline}": ${errorMsg}`);
     } finally {
       newDownloading.delete(clip.id);
@@ -221,7 +222,7 @@ export default function DownloadPage() {
       localStorage.setItem(`clipiq_status_${state.videoId}`, 'clipped');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Download all error:', error);
+      clientLogger.error('Download all error:', error);
       setError(`Error: ${errorMsg}`);
     } finally {
       setAllDownloading(false);

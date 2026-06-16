@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { PATHS } from '@/lib/storage';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: Request, { params }: { params: Promise<{ filename: string }> }) {
   try {
@@ -34,7 +35,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ filename
       },
     });
   } catch (error) {
-    console.error('Serve clip error:', error);
+    logger.error('Serve clip error:', error);
     return new Response('Server error', { status: 500 });
   }
 }

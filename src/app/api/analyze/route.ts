@@ -1,5 +1,6 @@
 import { analyzeTranscript } from '@/lib/claude';
 import { Paragraph } from '@/types';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
     const clips = await analyzeTranscript(paragraphs as Paragraph[], keywords as string[]);
     return Response.json({ success: true, clips });
   } catch (error) {
-    console.error('Analyze error:', error);
+    logger.error('Analyze error:', error);
     return Response.json(
       { error: error instanceof Error ? error.message : 'Analysis failed' },
       { status: 500 }

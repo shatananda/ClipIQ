@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { PATHS } from './storage';
+import { logger } from './logger';
 
 export interface KeywordsData {
   keywords: string[];
@@ -13,7 +14,7 @@ export function readKeywords(): string[] {
       return data.keywords || [];
     }
   } catch (e) {
-    console.error('Error reading keywords cache:', e);
+    logger.error('Error reading keywords cache:', e);
   }
   return [];
 }
@@ -24,7 +25,7 @@ export function readExcluded(): string[] {
       return JSON.parse(fs.readFileSync(PATHS.keywordsExcluded, 'utf-8')) as string[];
     }
   } catch (e) {
-    console.error('Error reading excluded keywords:', e);
+    logger.error('Error reading excluded keywords:', e);
   }
   return [];
 }
@@ -35,7 +36,7 @@ export function readDeleted(): string[] {
       return JSON.parse(fs.readFileSync(PATHS.keywordsDeleted, 'utf-8')) as string[];
     }
   } catch (e) {
-    console.error('Error reading deleted keywords:', e);
+    logger.error('Error reading deleted keywords:', e);
   }
   return [];
 }
@@ -108,7 +109,7 @@ export async function scrapeKeywords(): Promise<string[]> {
     writeKeywords(filteredKeywords);
     return filteredKeywords;
   } catch (e) {
-    console.error('Error scraping keywords:', e);
+    logger.error('Error scraping keywords:', e);
     return readKeywords();
   }
 }

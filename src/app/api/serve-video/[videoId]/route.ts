@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { PATHS } from '@/lib/storage';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: Request, { params }: { params: Promise<{ videoId: string }> }) {
   try {
@@ -21,7 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ videoId:
       },
     });
   } catch (error) {
-    console.error('Serve video error:', error);
+    logger.error('Serve video error:', error);
     return new Response('Server error', { status: 500 });
   }
 }

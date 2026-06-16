@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { clientLogger } from '@/lib/logger-client';
 
 export default function Home() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function Home() {
           router.push('/videos');
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        clientLogger.error('Auth check failed:', error);
       }
     };
 

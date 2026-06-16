@@ -1,13 +1,14 @@
 import { getSession, isLoggedIn } from '@/lib/session';
 import { refreshAccessToken, isTokenExpiringSoon } from '@/lib/youtube-oauth';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
     const session = await getSession();
-    console.log('Session check:', { accessToken: !!session.accessToken, refreshToken: !!session.refreshToken, isLoggedIn: isLoggedIn(session) });
+    logger.debug('Session check:', { accessToken: !!session.accessToken, refreshToken: !!session.refreshToken, isLoggedIn: isLoggedIn(session) });
 
     if (!isLoggedIn(session)) {
-      console.log('Not logged in, returning false');
+      logger.debug('Not logged in, returning false');
       return Response.json({ isLoggedIn: false });
     }
 
@@ -18,7 +19,7 @@ export async function GET() {
         session.expiryDate = expiryDate;
         await session.save();
       } catch (error) {
-        console.error('Token refresh failed:', error);
+        logger.error('Token refresh failed:', error);
         session.destroy();
         return Response.json({ isLoggedIn: false });
       }
@@ -26,7 +27,7 @@ export async function GET() {
 
     return Response.json({ isLoggedIn: true });
   } catch (error) {
-    console.error('Session check error:', error);
+    logger.error('Session check error:', error);
     return Response.json({ isLoggedIn: false }, { status: 200 });
   }
 }

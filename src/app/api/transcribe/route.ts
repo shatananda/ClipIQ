@@ -2,6 +2,7 @@ import { extractAudio } from '@/lib/ffmpeg';
 import { transcribeAudio } from '@/lib/assemblyai';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -22,11 +23,11 @@ export async function POST(req: Request) {
 
     const transcriptPath = path.join(transcriptDir, `${videoId}.json`);
     fs.writeFileSync(transcriptPath, JSON.stringify(paragraphs));
-    console.log('Transcript saved:', transcriptPath);
+    logger.info('Transcript saved:', transcriptPath);
 
     return Response.json({ success: true, paragraphs, transcriptId: videoId });
   } catch (error) {
-    console.error('Transcribe error:', error);
+    logger.error('Transcribe error:', error);
     return Response.json(
       { error: error instanceof Error ? error.message : 'Transcription failed' },
       { status: 500 }

@@ -5,16 +5,17 @@ import os from 'os';
 import { PATHS } from './storage';
 import { Paragraph } from '@/types';
 import { uploadFile, getBlobKey } from './blob-storage';
+import { logger } from './logger';
 
 export function extractAudio(videoPath: string, videoId: string): string {
   try {
     const audioPath = path.join(PATHS.audio, `${videoId}.m4a`);
     const command = `ffmpeg -i "${videoPath}" -q:a 9 -n "${audioPath}"`;
     execSync(command, { stdio: 'ignore' });
-    console.log('Audio extracted:', audioPath);
+    logger.info('Audio extracted:', audioPath);
     return audioPath;
   } catch (error) {
-    console.error('Audio extraction error:', error);
+    logger.error('Audio extraction error:', error);
     throw error;
   }
 }
@@ -92,13 +93,13 @@ export async function extractClip(
       try {
         generateSrtSubtitles(transcript, startMs, endMs, srtPath);
         hasCaptions = fs.existsSync(srtPath) && fs.statSync(srtPath).size > 0;
-        console.log('SRT file created and captions will be burned:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
+        logger.debug('SRT file created and captions will be burned:', { srtPath, size: fs.statSync(srtPath).size, hasCaptions });
       } catch (srtError) {
-        console.warn('Failed to create SRT file:', srtError);
+        logger.debug('Failed to create SRT file:', srtError);
         hasCaptions = false;
       }
     } else if (transcript && transcript.length > 0 && !burnCaptions) {
-      console.log('Transcript available but caption burning disabled by user');
+      logger.debug('Transcript available but caption burning disabled by user');
     }
 
     // Calculate crop position: left=0, center=(iw-ow)/2, right=iw-ow
@@ -114,7 +115,7 @@ export async function extractClip(
     if (hasCaptions) {
       // FFmpeg subtitles filter with libass support - burn captions into video
       videoFilter += `,subtitles=${srtPath}:force_style='FontSize=${captionFontSize},PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
-      console.log('Adding subtitles to filter:', { srtPath, captionFontSize });
+      logger.debug('Adding subtitles to filter:', { srtPath, captionFontSize });
     }
 
     // Extract and scale to 1080x1920 (9:16 vertical)
@@ -133,8 +134,8 @@ export async function extractClip(
       '-n', clipPath
     ];
 
-    console.log('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, burnCaptions, hasCaptions, videoFilterLength: videoFilter.length });
-    console.log('FFmpeg args:', args);
+    logger.debug('Extracting clip:', { clipId, headline, cropPosition, hasTranscript: !!transcript, burnCaptions, hasCaptions, videoFilterLength: videoFilter.length });
+    logger.debug('FFmpeg args:', args);
 
     try {
       const result = spawnSync('ffmpeg', args, {
@@ -148,21 +149,21 @@ export async function extractClip(
       }
 
       if (result.status !== 0) {
-        console.error('FFmpeg error:', result.stderr);
+        logger.error('FFmpeg error:', result.stderr);
         throw new Error(`FFmpeg failed: ${result.stderr}`);
       }
 
-      console.log('Clip extracted:', clipPath);
+      logger.info('Clip extracted:', clipPath);
     } catch (execError: any) {
-      console.error('FFmpeg error:', execError.message);
-      console.error('FFmpeg stderr:', execError.stderr?.toString?.() || execError.message);
+      logger.error('FFmpeg error:', execError.message);
+      logger.error('FFmpeg stderr:', execError.stderr?.toString?.() || execError.message);
       throw execError;
     }
 
     // Clean up SRT file after encoding
     if (fs.existsSync(srtPath)) {
       fs.unlinkSync(srtPath);
-      console.log('SRT file cleaned up');
+      logger.debug('SRT file cleaned up');
     }
 
     // In production: upload to Blob storage
@@ -170,14 +171,14 @@ export async function extractClip(
       try {
         const blobKey = getBlobKey('clip', `${clipId}_${sanitizedHeadline}`);
         const blobUrl = await uploadFile(clipPath, blobKey);
-        console.log('Clip uploaded to Blob:', { blobKey, blobUrl });
+        logger.info('Clip uploaded to Blob:', { blobKey, blobUrl });
         // Clean up temporary file after upload
         if (fs.existsSync(clipPath)) {
           fs.unlinkSync(clipPath);
         }
         return blobUrl;
       } catch (uploadError) {
-        console.error('Failed to upload clip to Blob:', uploadError);
+        logger.error('Failed to upload clip to Blob:', uploadError);
         // Fall back to local filename if upload fails
         return filename;
       }
@@ -186,7 +187,7 @@ export async function extractClip(
     // In development: return filename for local serving
     return filename;
   } catch (error) {
-    console.error('Clip extraction error:', error);
+    logger.error('Clip extraction error:', error);
     throw error;
   }
 }

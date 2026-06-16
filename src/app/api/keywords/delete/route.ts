@@ -1,4 +1,5 @@
 import { readKeywords, writeKeywords, readDeleted, writeDeleted } from '@/lib/keywords';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
 
     return Response.json({ success: true });
   } catch (error) {
-    console.error('Delete keyword error:', error);
+    logger.error('Delete keyword error:', error);
     return Response.json({ error: 'Failed to delete keyword' }, { status: 500 });
   }
 }

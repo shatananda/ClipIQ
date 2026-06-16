@@ -1,4 +1,5 @@
 import { getSession } from '@/lib/session';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -11,17 +12,17 @@ export async function POST(request: Request) {
     session.expiryDate = body.expiryDate || Date.now() + 3600000;
 
     await session.save();
-    console.log('✓ Test session saved');
+    logger.info('✓ Test session saved');
 
     return Response.json({ success: true, session });
   } catch (error) {
-    console.error('Test session error:', error);
+    logger.error('Test session error:', error);
     return Response.json({ error: String(error) }, { status: 500 });
   }
 }
 
 export async function GET() {
   const session = await getSession();
-  console.log('✓ Test session retrieved:', { accessToken: !!session.accessToken, refreshToken: !!session.refreshToken });
+  logger.info('✓ Test session retrieved:', { accessToken: !!session.accessToken, refreshToken: !!session.refreshToken });
   return Response.json({ session });
 }

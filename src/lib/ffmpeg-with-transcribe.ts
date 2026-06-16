@@ -7,6 +7,7 @@ import { extractAudio } from './ffmpeg';
 import { transcribeAudio } from './assemblyai';
 import { PATHS } from './storage';
 import { Paragraph } from '@/types';
+import { logger } from './logger';
 
 function generateSrtSubtitles(transcript: Paragraph[], srtPath: string): void {
   if (transcript.length === 0) {
@@ -68,7 +69,7 @@ export async function extractClipWithReTranscription(
     const audioPath = path.resolve(path.join(tmpDir, `clip_${clipId}_audio.m4a`));
 
     // Step 1: Extract clip WITHOUT captions first
-    console.log('Step 1: Extracting clip without captions...');
+    logger.debug('Step 1: Extracting clip without captions...');
     let cropX = '(iw-ow)/2';
     if (cropPosition === 'left') {
       cropX = '0';
@@ -105,17 +106,17 @@ export async function extractClipWithReTranscription(
       throw new Error(`Clip file was not created at ${clipPath}`);
     }
 
-    console.log('Clip extracted:', clipPath);
+    logger.info('Clip extracted:', clipPath);
 
     // If captions not needed, return early
     if (!burnCaptions) {
-      console.log('Caption burning disabled, returning clip without captions');
+      logger.debug('Caption burning disabled, returning clip without captions');
       if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
       return filename;
     }
 
     // Step 2: Extract audio from the clip
-    console.log('Step 2: Extracting audio from clip...');
+    logger.debug('Step 2: Extracting audio from clip...');
     const audioCmd = `ffmpeg -i "${clipPath}" -q:a 9 -n "${audioPath}"`;
     const audioResult = spawnSync('sh', ['-c', audioCmd], {
       stdio: 'pipe',
@@ -123,7 +124,7 @@ export async function extractClipWithReTranscription(
     });
 
     if (audioResult.status !== 0 || !fs.existsSync(audioPath)) {
-      console.warn('Failed to extract audio, skipping caption burning');
+      logger.debug('Failed to extract audio, skipping caption burning');
       if (isProduction && fs.existsSync(clipPath)) {
         const { uploadFile, getBlobKey } = await import('./blob-storage');
         const blobKey = getBlobKey('clip', `${clipId}_${sanitizedHeadline}`);
@@ -135,16 +136,16 @@ export async function extractClipWithReTranscription(
     }
 
     // Step 3: Transcribe the audio
-    console.log('Step 3: Transcribing audio...');
+    logger.debug('Step 3: Transcribing audio...');
     const paragraphs = await transcribeAudio(audioPath);
-    console.log(`Transcribed ${paragraphs.length} paragraphs`);
+    logger.info(`Transcribed ${paragraphs.length} paragraphs`);
 
     // Step 4: Generate SRT from transcription
-    console.log('Step 4: Generating SRT from transcription...');
+    logger.debug('Step 4: Generating SRT from transcription...');
     generateSrtSubtitles(paragraphs, srtPath);
 
     if (!fs.existsSync(srtPath) || fs.statSync(srtPath).size === 0) {
-      console.warn('No captions to burn, returning clip without captions');
+      logger.debug('No captions to burn, returning clip without captions');
       if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
       if (isProduction && fs.existsSync(clipPath)) {
         const { uploadFile, getBlobKey } = await import('./blob-storage');
@@ -157,7 +158,7 @@ export async function extractClipWithReTranscription(
     }
 
     // Step 5: Re-encode clip WITH captions
-    console.log('Step 5: Re-encoding clip with captions...');
+    logger.debug('Step 5: Re-encoding clip with captions...');
     const captionFilter = `subtitles=${srtPath}:force_style='FontSize=${captionFontSize},PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3'`;
     const captionedVideoFilter = `${videoFilter},${captionFilter}`;
 
@@ -180,7 +181,7 @@ export async function extractClipWithReTranscription(
     });
 
     if (captionResult.status !== 0) {
-      console.warn('Failed to burn captions, returning clip without captions');
+      logger.debug('Failed to burn captions, returning clip without captions');
       if (isProduction && fs.existsSync(clipPath)) {
         const { uploadFile, getBlobKey } = await import('./blob-storage');
         const blobKey = getBlobKey('clip', `${clipId}_${sanitizedHeadline}`);
@@ -195,7 +196,7 @@ export async function extractClipWithReTranscription(
 
     // Replace original with captioned version
     fs.renameSync(clipPath + '.captioned.mp4', clipPath);
-    console.log('Clip with captions created:', clipPath);
+    logger.info('Clip with captions created:', clipPath);
 
     // Cleanup
     if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
@@ -210,14 +211,14 @@ export async function extractClipWithReTranscription(
         if (fs.existsSync(clipPath)) fs.unlinkSync(clipPath);
         return blobUrl;
       } catch (uploadError) {
-        console.error('Failed to upload clip to Blob:', uploadError);
+        logger.error('Failed to upload clip to Blob:', uploadError);
         return filename;
       }
     }
 
     return filename;
   } catch (error) {
-    console.error('Clip extraction with re-transcription error:', error);
+    logger.error('Clip extraction with re-transcription error:', error);
     throw error;
   }
 }
