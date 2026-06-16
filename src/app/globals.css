@@ -10,8 +10,11 @@
   --primary-dark: #4a5ce5;
   --bg: #ffffff;
   --bg-gray: #f7f9fc;
+  --bg-light: #f3f4f6;
   --text: #1a1f36;
   --text-light: #6b7280;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --border: #e5e7eb;
   --success: #10b981;
   --danger: #ef4444;
