@@ -2,6 +2,7 @@ import { execSync, spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { PATHS } from './storage';
+import { logger } from './logger';
 
 export interface VideoInfo {
   videoId: string;
@@ -36,7 +37,7 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
 
     // Check if already downloaded
     if (fs.existsSync(absoluteVideoPath)) {
-      console.log('Video already downloaded:', absoluteVideoPath);
+      logger.info('✓ Video already downloaded:', absoluteVideoPath);
       // Get info using yt-dlp
       const infoJson = execSync(`yt-dlp -j "${url}"`, { encoding: 'utf-8' });
       const info = JSON.parse(infoJson);
@@ -48,7 +49,7 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
       };
     }
 
-    console.log('Downloading video with yt-dlp:', { url, videoId, videoPath: absoluteVideoPath });
+    logger.info('📥 Downloading video with yt-dlp:', { url, videoId });
 
     // Get video info using yt-dlp -j (JSON output)
     const infoJson = execSync(`yt-dlp -j "${url}"`, { encoding: 'utf-8' });
@@ -56,11 +57,11 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
     const title = info.title || videoId;
     const durationSeconds = info.duration || 0;
 
-    console.log('Video info retrieved:', { title, durationSeconds });
+    logger.debug('Video info retrieved:', { title, durationSeconds });
 
     // Download video using yt-dlp (handles all YouTube quirks automatically)
     const downloadCmd = `yt-dlp -f "best[height<=1080]" -o "${absoluteVideoPath}" "${url}"`;
-    console.log('Running download command:', downloadCmd);
+    logger.debug('Running download command:', downloadCmd);
 
     const result = spawnSync('sh', ['-c', downloadCmd], {
       stdio: 'pipe',
@@ -76,7 +77,7 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
       throw new Error(`Video file was not created at ${absoluteVideoPath}`);
     }
 
-    console.log('Video downloaded successfully:', absoluteVideoPath);
+    logger.info('✓ Video downloaded successfully:', absoluteVideoPath);
 
     return {
       videoId,
@@ -85,7 +86,7 @@ export async function downloadVideo(url: string): Promise<VideoInfo> {
       durationSeconds,
     };
   } catch (error) {
-    console.error('Download error:', error);
+    logger.error('Download error:', error);
     throw error;
   }
 }
