@@ -15,7 +15,7 @@ export default function ConfigureContent() {
   const title = searchParams.get('title') ? decodeURIComponent(searchParams.get('title')!) : '';
 
   const [burnCaptions, setBurnCaptions] = useState(true);
-  const [captionFontSize, setCaptionFontSize] = useState(18);
+  const [captionFontSize, setCaptionFontSize] = useState(14);
   const [cropPosition, setCropPosition] = useState<'left' | 'center' | 'right'>('center');
   const [stage, setStage] = useState<ProcessingStage>('idle');
   const [error, setError] = useState<string | null>(null);

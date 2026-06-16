@@ -43,9 +43,10 @@ Return ONLY valid JSON, no markdown, no code fences:
 Transcript:
 ${transcriptText}`;
 
+    console.log('📊 Calling Claude API with', paragraphs.length, 'paragraphs');
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2048,
+      max_tokens: 4096,
       messages: [
         {
           role: 'user',
@@ -55,14 +56,16 @@ ${transcriptText}`;
     });
 
     const rawText = response.content[0].type === 'text' ? response.content[0].text : '';
+    console.log('✓ Claude response received, length:', rawText.length);
 
     // Strip markdown code fences if present
     let cleanedText = rawText.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
 
     const parsed = JSON.parse(cleanedText);
+    console.log('✓ Parsed', parsed.clips?.length || 0, 'clips');
     return parsed.clips || [];
   } catch (error) {
-    console.error('AI analysis error:', error);
+    console.error('❌ AI analysis error:', error);
     throw error;
   }
 }

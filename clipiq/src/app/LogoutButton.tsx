@@ -1,6 +1,28 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 export default function LogoutButton() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/session', { credentials: 'include' });
+        const data = await res.json();
+        setIsLoggedIn(data.isLoggedIn);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     window.location.href = '/';

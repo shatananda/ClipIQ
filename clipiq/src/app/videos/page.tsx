@@ -23,7 +23,7 @@ export default function VideosPage() {
 
   const checkAuthAndFetchVideos = async () => {
     try {
-      const sessionRes = await fetch('/api/auth/session');
+      const sessionRes = await fetch('/api/auth/session', { credentials: 'include' });
       const sessionData = await sessionRes.json();
 
       if (!sessionData.isLoggedIn) {

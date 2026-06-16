@@ -9,7 +9,7 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/auth/session');
+        const res = await fetch('/api/auth/session', { credentials: 'include' });
         const data = await res.json();
         if (data.isLoggedIn) {
           router.push('/videos');
@@ -78,6 +78,7 @@ export default function Home() {
             fontSize: '13px',
             color: 'var(--text-secondary)',
             lineHeight: '1.6',
+            textAlign: 'left',
           }}
         >
           <p style={{ margin: '0 0 8px 0', fontWeight: 500, color: 'var(--text)' }}>

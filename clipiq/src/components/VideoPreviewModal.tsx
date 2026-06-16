@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { ClipSuggestion } from '@/types';
 import { TimeSuggestionAdjuster } from './TimeSuggestionAdjuster';
 
@@ -26,6 +26,52 @@ export default function VideoPreviewModal({
   onClose,
 }: VideoPreviewModalProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<any>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Load YouTube API and create player
+  useEffect(() => {
+    const loadYTAPI = () => {
+      if (window.YT && window.YT.Player) {
+        playerRef.current = new window.YT.Player(iframeRef.current as any, {
+          events: {
+            onReady: () => {
+              const updateTime = () => {
+                if (playerRef.current?.getCurrentTime) {
+                  setCurrentTime(playerRef.current.getCurrentTime());
+                }
+              };
+              const interval = setInterval(updateTime, 100);
+              return () => clearInterval(interval);
+            },
+          },
+        });
+      }
+    };
+
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      window.onYouTubeIframeAPIReady = loadYTAPI;
+      document.body.appendChild(tag);
+    } else {
+      loadYTAPI();
+    }
+  }, []);
+
+  const captureStartTime = () => {
+    const ms = Math.floor((playerRef.current?.getCurrentTime() || 0) * 1000);
+    if (onTimeChange) {
+      onTimeChange(ms, currentEnd);
+    }
+  };
+
+  const captureEndTime = () => {
+    const ms = Math.floor((playerRef.current?.getCurrentTime() || 0) * 1000);
+    if (onTimeChange) {
+      onTimeChange(currentStart, ms);
+    }
+  };
 
   const currentStart = adjustedTimes?.start_ms ?? clip.start_ms;
   const currentEnd = adjustedTimes?.end_ms ?? clip.end_ms;
@@ -90,22 +136,82 @@ export default function VideoPreviewModal({
             allowFullScreen
             style={{ border: 'none' }}
           />
-          {/* Bottom Right: Clip End Time */}
+          {/* Bottom Left: Capture Buttons */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '16px',
+              display: 'flex',
+              gap: '8px',
+              zIndex: 10,
+            }}
+          >
+            <button
+              onClick={captureStartTime}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(91, 108, 246, 0.9)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(91, 108, 246, 1)';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(91, 108, 246, 0.9)';
+              }}
+            >
+              ◀ Mark Start
+            </button>
+            <button
+              onClick={captureEndTime}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(91, 108, 246, 0.9)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(91, 108, 246, 1)';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(91, 108, 246, 0.9)';
+              }}
+            >
+              Mark End ▶
+            </button>
+          </div>
+
+          {/* Bottom Right: Current Time + Clip End Time */}
           <div
             style={{
               position: 'absolute',
               bottom: '16px',
               right: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: '4px',
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               padding: '8px 12px',
               borderRadius: '6px',
-              fontSize: '13px',
+              fontSize: '12px',
               fontWeight: '600',
               zIndex: 10,
             }}
           >
-            Ends at {formatTime(clip.end_ms)}
+            <div>Now: {formatTime(Math.floor(currentTime * 1000))}</div>
+            <div>Ends at {formatTime(clip.end_ms)}</div>
           </div>
         </div>
 
