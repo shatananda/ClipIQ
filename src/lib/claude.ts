@@ -9,7 +9,15 @@ const client = new Anthropic({
 
 export async function analyzeTranscript(paragraphs: Paragraph[], keywords: string[]): Promise<ClipSuggestion[]> {
   try {
-    const transcriptText = paragraphs.map((p) => `[${formatTime(p.start)}-${formatTime(p.end)}] ${p.text}`).join('\n\n');
+    // Filter low-confidence paragraphs to reduce token count for long videos
+    const MIN_CONFIDENCE = 0.7;
+    const filtered = paragraphs.filter(p => p.confidence >= MIN_CONFIDENCE);
+    const usedParagraphs = filtered.length >= 10 ? filtered : paragraphs; // fallback if too many filtered
+    if (usedParagraphs.length < paragraphs.length) {
+      logger.info(`Filtered transcript: ${paragraphs.length} → ${usedParagraphs.length} paragraphs (removed low-confidence)`);
+    }
+
+    const transcriptText = usedParagraphs.map((p) => `[${formatTime(p.start)}-${formatTime(p.end)}] ${p.text}`).join('\n\n');
 
     const prompt = `You are an expert at identifying short-form video clip opportunities from transcripts for platforms like TikTok, Instagram Reels, and YouTube Shorts.
 
@@ -47,10 +55,10 @@ Valid JSON structure only:
 Transcript:
 ${transcriptText}`;
 
-    logger.info('📊 Calling Claude API with', paragraphs.length, 'paragraphs');
+    logger.info('📊 Calling Claude API with', usedParagraphs.length, 'paragraphs');
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [
         {
           role: 'user',
