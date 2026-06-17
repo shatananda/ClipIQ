@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipIQ Logo Versions</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 60px 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    h1 {
+      font-size: 42px;
+      color: #333;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #666;
+    }
+
+    .versions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+
+    .version-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    .version-card h2 {
+      color: #5b6cf6;
+      font-size: 20px;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .logo-preview {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%);
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    .logo-preview svg {
+      width: 200px;
+      height: 200px;
+    }
+
+    .version-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .version-description strong {
+      color: #333;
+    }
+
+    .features {
+      text-align: left;
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .features p {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .features p:last-child {
+      margin-bottom: 0;
+    }
+
+    .comparison-section {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      margin-bottom: 60px;
+    }
+
+    .comparison-section h2 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .comparison-table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #333;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .comparison-table td {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .check {
+      color: #5b6cf6;
+      font-weight: bold;
+    }
+
+    .next-steps {
+      background: linear-gradient(135deg, #5b6cf6 0%, #3d4fb8 100%);
+      border-radius: 16px;
+      padding: 40px;
+      color: white;
+      text-align: center;
+    }
+
+    .next-steps h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .next-steps p {
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 2px solid white;
+      transition: all 0.3s ease;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #5b6cf6;
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: white;
+      color: #5b6cf6;
+    }
+
+    .url-box {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: white;
+      margin: 15px 0;
+      word-break: break-all;
+    }
+
+    @media (max-width: 768px) {
+      .versions-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ClipIQ Logo Versions</h1>
+      <p class="subtitle">v1 (Original) vs v2 (New Design)</p>
+    </div>
+
+    <div class="versions-grid">
+      <!-- Version 1 -->
+      <div class="version-card">
+        <h2>Version 1</h2>
+        <div class="logo-preview">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#5b6cf6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d4fb8;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="20" y="40" width="160" height="120" fill="none" stroke="url(#g1)" stroke-width="2" rx="8"/>
+            <circle cx="45" cy="100" r="20" fill="none" stroke="url(#g1)" stroke-width="2" opacity="0.7"/>
+            <circle cx="45" cy="100" r="14" fill="none" stroke="url(#g1)" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="45" cy="100" r="4" fill="url(#g1)"/>
+            <circle cx="155" cy="100" r="20" fill="none" stroke="url(#g1)" stroke-width="2" opacity="0.7"/>
+            <circle cx="155" cy="100" r="14" fill="none" stroke="url(#g1)" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="155" cy="100" r="4" fill="url(#g1)"/>
+            <path d="M65 80 Q100 70 135 80" stroke="url(#g1)" stroke-width="3" fill="none" opacity="0.8"/>
+            <path d="M65 120 Q100 130 135 120" stroke="url(#g1)" stroke-width="3" fill="none" opacity="0.8"/>
+            <circle cx="100" cy="100" r="28" fill="url(#g1)" opacity="0.9"/>
+            <polygon points="92,90 92,110 115,100" fill="#ffffff"/>
+            <g opacity="0.6">
+              <circle cx="50" cy="50" r="8" fill="none" stroke="url(#g1)" stroke-width="1.5"/>
+              <path d="M42 50 L58 50" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M50 42 L50 58" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+            </g>
+            <g opacity="0.6">
+              <circle cx="150" cy="150" r="8" fill="none" stroke="url(#g1)" stroke-width="1.5"/>
+              <path d="M142 150 L158 150" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M150 142 L150 158" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="version-description">
+          <strong>Film Reel Design</strong><br>
+          Bold, technical aesthetic. Features visible film reels on left and right with play button center. Scissor elements at corners.
+        </div>
+        <div class="features">
+          <p>✓ Film reels clearly visible</p>
+          <p>✓ Strong technical look</p>
+          <p>✓ Great for tech-focused branding</p>
+          <p>✓ Detailed, informative</p>
+        </div>
+      </div>
+
+      <!-- Version 2 -->
+      <div class="version-card">
+        <h2>Version 2</h2>
+        <div class="logo-preview">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#5b6cf6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3d4fb8;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="95" fill="none" stroke="url(#g2)" stroke-width="1" opacity="0.2"/>
+            <g>
+              <polygon points="80,60 80,140 140,100" fill="url(#g2)" opacity="0.15"/>
+              <polygon points="80,60 80,140 140,100" fill="none" stroke="url(#g2)" stroke-width="2.5" stroke-linejoin="round"/>
+            </g>
+            <g opacity="0.8">
+              <rect x="35" y="35" width="22" height="22" fill="none" stroke="url(#g2)" stroke-width="1.5" rx="2"/>
+              <circle cx="38" cy="38" r="1.5" fill="url(#g2)"/>
+              <circle cx="50" cy="38" r="1.5" fill="url(#g2)"/>
+              <circle cx="38" cy="50" r="1.5" fill="url(#g2)"/>
+              <circle cx="50" cy="50" r="1.5" fill="url(#g2)"/>
+            </g>
+            <g opacity="0.7">
+              <rect x="143" y="35" width="22" height="22" fill="none" stroke="url(#g2)" stroke-width="1.5" rx="2"/>
+              <circle cx="146" cy="38" r="1.5" fill="url(#g2)"/>
+              <circle cx="158" cy="38" r="1.5" fill="url(#g2)"/>
+              <circle cx="146" cy="50" r="1.5" fill="url(#g2)"/>
+              <circle cx="158" cy="50" r="1.5" fill="url(#g2)"/>
+            </g>
+            <g opacity="0.7">
+              <rect x="35" y="143" width="22" height="22" fill="none" stroke="url(#g2)" stroke-width="1.5" rx="2"/>
+              <circle cx="38" cy="146" r="1.5" fill="url(#g2)"/>
+              <circle cx="50" cy="146" r="1.5" fill="url(#g2)"/>
+              <circle cx="38" cy="158" r="1.5" fill="url(#g2)"/>
+              <circle cx="50" cy="158" r="1.5" fill="url(#g2)"/>
+            </g>
+            <g opacity="0.6">
+              <rect x="143" y="143" width="22" height="22" fill="none" stroke="url(#g2)" stroke-width="1.5" rx="2"/>
+              <circle cx="146" cy="146" r="1.5" fill="url(#g2)"/>
+              <circle cx="158" cy="146" r="1.5" fill="url(#g2)"/>
+              <circle cx="146" cy="158" r="1.5" fill="url(#g2)"/>
+              <circle cx="158" cy="158" r="1.5" fill="url(#g2)"/>
+            </g>
+            <line x1="57" y1="46" x2="143" y2="46" stroke="url(#g2)" stroke-width="1" opacity="0.4"/>
+            <line x1="57" y1="154" x2="143" y2="154" stroke="url(#g2)" stroke-width="1" opacity="0.4"/>
+            <line x1="46" y1="65" x2="46" y2="135" stroke="url(#g2)" stroke-width="1" opacity="0.4"/>
+            <line x1="154" y1="65" x2="154" y2="135" stroke="url(#g2)" stroke-width="1" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="version-description">
+          <strong>Play Button Design</strong><br>
+          Modern, minimalist aesthetic. Large play triangle dominates with film frames arranged at corners. Subtle connecting lines.
+        </div>
+        <div class="features">
+          <p>✓ Clean, minimal design</p>
+          <p>✓ Play button is focal point</p>
+          <p>✓ Great for modern brands</p>
+          <p>✓ Works well at small sizes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-section">
+      <h2>Feature Comparison</h2>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Version 1</th>
+            <th>Version 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Design Style</td>
+            <td>Technical / Industrial</td>
+            <td>Modern / Minimalist</td>
+          </tr>
+          <tr>
+            <td>Focal Element</td>
+            <td>Film Reels + Play Button</td>
+            <td>Play Button (Primary)</td>
+          </tr>
+          <tr>
+            <td>Film Strip Elements</td>
+            <td>Visible reels and feed</td>
+            <td>Frame corners, subtle</td>
+          </tr>
+          <tr>
+            <td>Complexity</td>
+            <td>More detailed</td>
+            <td>More simplified</td>
+          </tr>
+          <tr>
+            <td>Best Size</td>
+            <td>128px and above</td>
+            <td>64px and above</td>
+          </tr>
+          <tr>
+            <td>Brand Feel</td>
+            <td>Tech-savvy, professional</td>
+            <td>Modern, creative</td>
+          </tr>
+          <tr>
+            <td>Icon Only</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Monochrome</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="next-steps">
+      <h2>Ready to Use</h2>
+      <p>Both versions are saved as standalone SVG files and ready to use in the brand partnership page.</p>
+      <div class="url-box">
+        http://localhost:3000/brand-partnership.html
+      </div>
+      <p style="font-size: 13px; margin-top: 15px;">Just let me know which version you prefer and I'll integrate it!</p>
+    </div>
+  </div>
+</body>
+</html>

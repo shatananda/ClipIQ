@@ -1,0 +1,44 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="clipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5b6cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3d4fb8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Film strip frame -->
+  <rect x="20" y="40" width="160" height="120" fill="none" stroke="url(#clipGradient)" stroke-width="2" rx="8"/>
+
+  <!-- Left film reel -->
+  <circle cx="45" cy="100" r="20" fill="none" stroke="url(#clipGradient)" stroke-width="2" opacity="0.7"/>
+  <circle cx="45" cy="100" r="14" fill="none" stroke="url(#clipGradient)" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="45" cy="100" r="4" fill="url(#clipGradient)"/>
+
+  <!-- Right film reel -->
+  <circle cx="155" cy="100" r="20" fill="none" stroke="url(#clipGradient)" stroke-width="2" opacity="0.7"/>
+  <circle cx="155" cy="100" r="14" fill="none" stroke="url(#clipGradient)" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="155" cy="100" r="4" fill="url(#clipGradient)"/>
+
+  <!-- Film strip connecting reels -->
+  <path d="M65 80 Q100 70 135 80" stroke="url(#clipGradient)" stroke-width="3" fill="none" opacity="0.8"/>
+  <path d="M65 120 Q100 130 135 120" stroke="url(#clipGradient)" stroke-width="3" fill="none" opacity="0.8"/>
+
+  <!-- Center play button (large) -->
+  <circle cx="100" cy="100" r="28" fill="url(#clipGradient)" opacity="0.9"/>
+  <polygon points="92,90 92,110 115,100" fill="#ffffff"/>
+
+  <!-- Scissor blades (top left and bottom right) -->
+  <!-- Left scissor -->
+  <g opacity="0.6">
+    <circle cx="50" cy="50" r="8" fill="none" stroke="url(#clipGradient)" stroke-width="1.5"/>
+    <path d="M42 50 L58 50" stroke="url(#clipGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M50 42 L50 58" stroke="url(#clipGradient)" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Right scissor -->
+  <g opacity="0.6">
+    <circle cx="150" cy="150" r="8" fill="none" stroke="url(#clipGradient)" stroke-width="1.5"/>
+    <path d="M142 150 L158 150" stroke="url(#clipGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M150 142 L150 158" stroke="url(#clipGradient)" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>

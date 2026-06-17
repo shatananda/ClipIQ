@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipIQ Logo - Leaf + Film Concept</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 60px 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    h1 {
+      font-size: 48px;
+      color: #2d5a3d;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .tagline {
+      font-size: 14px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .showcase {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      margin-bottom: 40px;
+    }
+
+    .logo-display {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 60px;
+    }
+
+    .logo-section {
+      text-align: center;
+      padding: 30px;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+
+    .logo-section h3 {
+      color: #2d5a3d;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .logo-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+
+    .logo-container img {
+      width: 100%;
+      max-width: 180px;
+      height: auto;
+    }
+
+    .logo-info {
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .variations {
+      margin-top: 60px;
+      border-top: 1px solid #eee;
+      padding-top: 40px;
+    }
+
+    .variations h2 {
+      color: #2d5a3d;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+
+    .variation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+    }
+
+    .variation-card {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .variation-card h4 {
+      color: #2d5a3d;
+      margin-bottom: 15px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .variation-preview {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+    }
+
+    .variation-preview img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .color-info {
+      font-size: 12px;
+      color: #999;
+      margin-top: 10px;
+    }
+
+    .design-details {
+      margin-top: 60px;
+      border-top: 1px solid #eee;
+      padding-top: 40px;
+    }
+
+    .design-details h2 {
+      color: #2d5a3d;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .detail-card {
+      padding: 20px;
+      background: #f0f5f2;
+      border-radius: 8px;
+      border-left: 4px solid #4a9d6f;
+    }
+
+    .detail-card h4 {
+      color: #2d5a3d;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .detail-card p {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch {
+      flex: 1;
+      min-width: 80px;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .color-1 { background: linear-gradient(135deg, #4a9d6f, #2d5a3d); }
+    .color-2 { background: #ffffff; border: 2px solid #e0e0e0; color: #333; }
+    .color-3 { background: #2d5a3d; }
+
+    .next-steps {
+      margin-top: 60px;
+      padding: 30px;
+      background: linear-gradient(135deg, #4a9d6f 0%, #2d5a3d 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .next-steps h2 {
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    .next-steps ul {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .next-steps li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .next-steps li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .logo-display {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ClipIQ Logo</h1>
+      <p class="subtitle">Leaf + Film Concept</p>
+      <p class="tagline">Blending Ayurvedic wellness with video content creation</p>
+    </div>
+
+    <div class="showcase">
+      <div class="logo-display">
+        <div class="logo-section">
+          <h3>Primary Logo</h3>
+          <div class="logo-container">
+            <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 180px; height: 180px;">
+              <defs>
+                <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#4a9d6f;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#2d5a3d;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="url(#leafGradient)"/>
+              <path d="M150 50 Q150 145 147 230" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/>
+              <rect x="125" y="85" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.8" rx="2"/>
+              <circle cx="128" cy="88" r="2" fill="#ffffff" opacity="0.6"/><circle cx="138" cy="88" r="2" fill="#ffffff" opacity="0.6"/>
+              <circle cx="128" cy="98" r="2" fill="#ffffff" opacity="0.6"/><circle cx="138" cy="98" r="2" fill="#ffffff" opacity="0.6"/>
+              <rect x="125" y="120" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.75" rx="2"/>
+              <circle cx="128" cy="123" r="2" fill="#ffffff" opacity="0.5"/><circle cx="138" cy="123" r="2" fill="#ffffff" opacity="0.5"/>
+              <circle cx="128" cy="133" r="2" fill="#ffffff" opacity="0.5"/><circle cx="138" cy="133" r="2" fill="#ffffff" opacity="0.5"/>
+              <rect x="125" y="155" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7" rx="2"/>
+              <circle cx="128" cy="158" r="2" fill="#ffffff" opacity="0.4"/><circle cx="138" cy="158" r="2" fill="#ffffff" opacity="0.4"/>
+              <circle cx="128" cy="168" r="2" fill="#ffffff" opacity="0.4"/><circle cx="138" cy="168" r="2" fill="#ffffff" opacity="0.4"/>
+              <circle cx="150" cy="145" r="18" fill="#ffffff" opacity="0.15"/>
+              <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="logo-info">Square format, works at any size from favicon (16px) to billboard</div>
+        </div>
+
+        <div class="logo-section">
+          <h3>With Text</h3>
+          <div class="logo-container" style="flex-direction: column; gap: 15px;">
+            <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 120px; height: 120px;">
+              <defs>
+                <linearGradient id="leafGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#4a9d6f;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#2d5a3d;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="url(#leafGradient2)"/>
+              <path d="M150 50 Q150 145 147 230" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/>
+              <rect x="125" y="85" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.8" rx="2"/>
+              <circle cx="128" cy="88" r="2" fill="#ffffff" opacity="0.6"/><circle cx="138" cy="88" r="2" fill="#ffffff" opacity="0.6"/>
+              <circle cx="128" cy="98" r="2" fill="#ffffff" opacity="0.6"/><circle cx="138" cy="98" r="2" fill="#ffffff" opacity="0.6"/>
+              <rect x="125" y="120" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.75" rx="2"/>
+              <circle cx="128" cy="123" r="2" fill="#ffffff" opacity="0.5"/><circle cx="138" cy="123" r="2" fill="#ffffff" opacity="0.5"/>
+              <circle cx="128" cy="133" r="2" fill="#ffffff" opacity="0.5"/><circle cx="138" cy="133" r="2" fill="#ffffff" opacity="0.5"/>
+              <rect x="125" y="155" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7" rx="2"/>
+              <circle cx="128" cy="158" r="2" fill="#ffffff" opacity="0.4"/><circle cx="138" cy="158" r="2" fill="#ffffff" opacity="0.4"/>
+              <circle cx="128" cy="168" r="2" fill="#ffffff" opacity="0.4"/><circle cx="138" cy="168" r="2" fill="#ffffff" opacity="0.4"/>
+              <circle cx="150" cy="145" r="18" fill="#ffffff" opacity="0.15"/>
+              <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.7"/>
+            </svg>
+            <div style="font-family: Arial, sans-serif; font-weight: bold; font-size: 20px; color: #2d5a3d; letter-spacing: 2px;">CLIPIQ</div>
+          </div>
+          <div class="logo-info">Perfect for headers and branding materials</div>
+        </div>
+      </div>
+
+      <div class="variations">
+        <h2>Variations</h2>
+        <div class="variation-grid">
+          <div class="variation-card">
+            <h4>Icon Only</h4>
+            <div class="variation-preview">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <defs>
+                  <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4a9d6f;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#2d5a3d;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="url(#g1)"/>
+                <path d="M150 50 Q150 145 147 230" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/>
+                <rect x="125" y="85" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.8" rx="2"/>
+                <rect x="125" y="120" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.75" rx="2"/>
+                <rect x="125" y="155" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7" rx="2"/>
+                <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.7"/>
+              </svg>
+            </div>
+            <div class="color-info">For favicon, app icon, social media</div>
+          </div>
+
+          <div class="variation-card">
+            <h4>Monochrome (Dark)</h4>
+            <div class="variation-preview" style="background: #f5f5f5;">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="#2d5a3d"/>
+                <path d="M150 50 Q150 145 147 230" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.4" stroke-linecap="round"/>
+                <rect x="125" y="85" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6" rx="2"/>
+                <rect x="125" y="120" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.5" rx="2"/>
+                <rect x="125" y="155" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.4" rx="2"/>
+                <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.5"/>
+              </svg>
+            </div>
+            <div class="color-info">For dark backgrounds, printing</div>
+          </div>
+
+          <div class="variation-card">
+            <h4>Monochrome (Light)</h4>
+            <div class="variation-preview" style="background: #2d5a3d;">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="#ffffff" opacity="0.9"/>
+                <path d="M150 50 Q150 145 147 230" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.5" stroke-linecap="round"/>
+                <rect x="125" y="85" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7" rx="2"/>
+                <rect x="125" y="120" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6" rx="2"/>
+                <rect x="125" y="155" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.5" rx="2"/>
+                <polygon points="144,138 144,152 160,145" fill="#ffffff" opacity="0.8"/>
+              </svg>
+            </div>
+            <div class="color-info">For light backgrounds, headers</div>
+          </div>
+
+          <div class="variation-card">
+            <h4>Outline Only</h4>
+            <div class="variation-preview">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px;">
+                <path d="M150 50 Q200 120 180 230 Q150 245 120 230 Q100 120 150 50" fill="none" stroke="#4a9d6f" stroke-width="3"/>
+                <path d="M150 50 Q150 145 147 230" stroke="#4a9d6f" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+                <rect x="125" y="85" width="20" height="20" fill="none" stroke="#4a9d6f" stroke-width="1" opacity="0.7" rx="2"/>
+                <rect x="125" y="120" width="20" height="20" fill="none" stroke="#4a9d6f" stroke-width="1" opacity="0.6" rx="2"/>
+                <rect x="125" y="155" width="20" height="20" fill="none" stroke="#4a9d6f" stroke-width="1" opacity="0.5" rx="2"/>
+                <polygon points="144,138 144,152 160,145" fill="#4a9d6f" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="color-info">For line drawings, minimalist design</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-details">
+        <h2>Design Details</h2>
+        <div class="details-grid">
+          <div class="detail-card">
+            <h4>🍃 Symbolic Elements</h4>
+            <p><strong>Leaf:</strong> Represents Ayurveda, wellness, natural healing, and organic beauty</p>
+          </div>
+          <div class="detail-card">
+            <h4>🎬 Symbolic Elements</h4>
+            <p><strong>Film Frames:</strong> Represents video content, clipping, creation, and media</p>
+          </div>
+          <div class="detail-card">
+            <h4>▶️ Symbolic Elements</h4>
+            <p><strong>Play Button:</strong> Represents action, video playback, and forward motion</p>
+          </div>
+          <div class="detail-card">
+            <h4>🎨 Color Palette</h4>
+            <div class="color-palette">
+              <div class="color-swatch color-1" style="min-width: 100px;">Sage Green<br><span style="font-size: 10px;">#4a9d6f → #2d5a3d</span></div>
+            </div>
+            <p style="margin-top: 15px;">Evokes nature, wellness, trust, and growth. Works well in tech and wellness spaces.</p>
+          </div>
+          <div class="detail-card">
+            <h4>✨ Design Features</h4>
+            <ul style="padding-left: 15px;">
+              <li>Scalable to any size (16px to infinity)</li>
+              <li>Works in color, monochrome, and outline</li>
+              <li>Balanced, memorable composition</li>
+              <li>Clear connection to brand purpose</li>
+            </ul>
+          </div>
+          <div class="detail-card">
+            <h4>📐 Specifications</h4>
+            <ul style="padding-left: 15px;">
+              <li>Format: SVG (scalable)</li>
+              <li>Aspect Ratio: 1:1 (square)</li>
+              <li>Min Size: 64×64px</li>
+              <li>Padding: ~8-10% clear space</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h2>What's Next?</h2>
+        <ul>
+          <li>Add logo to app header</li>
+          <li>Create favicon (16×16, 32×32, 180×180)</li>
+          <li>Generate monochrome versions for print</li>
+          <li>Add to social media branding</li>
+          <li>Create brand guidelines document</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
